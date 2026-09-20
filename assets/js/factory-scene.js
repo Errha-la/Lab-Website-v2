@@ -928,6 +928,10 @@ export function buildScene(THREE, opts = {}) {
     c.fillStyle = '#66e0ff'; c.font = '700 24px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText('SPC  連續良品 CONSECUTIVE OK', 24, 34);
     c.fillStyle = st.n > 0 ? '#2fa85a' : '#4a5a68'; c.font = '700 120px system-ui, "Noto Sans TC", sans-serif'; c.fillText(st.n > 0 ? String(st.n) : '—', 24, 128);
     c.fillStyle = '#9fb2c2'; c.font = '500 22px system-ui, "Noto Sans TC", sans-serif'; c.fillText('瑕疵 DEFECTS  0', 250, 100);
+    /* 機台狀態燈（與現場燈塔同步：紅 → 黃 → 綠） */
+    c.font = '500 18px system-ui, "Noto Sans TC", sans-serif'; c.fillText('機台 MACHINES', 250, 136);
+    const lampCol = st.lamp === 'green' ? '#2fa85a' : st.lamp === 'amber' ? '#ffb020' : '#e5423b';
+    for (let i = 0; i < 3; i++) { c.fillStyle = lampCol; c.beginPath(); c.arc(266 + i * 40, 168, 13, 0, Math.PI * 2); c.fill(); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.55)'; c.stroke(); }
     /* 知識庫：案例卡片滑入資料庫圖示 */
     rrect(c, 24, 196, 464, 92, 14); c.fillStyle = '#16283a'; c.fill();
     c.fillStyle = '#9fb2c2'; c.font = '600 20px system-ui, "Noto Sans TC", sans-serif'; c.fillText('知識庫 KNOWLEDGE BASE', 40, 220);
@@ -1021,7 +1025,7 @@ export function buildScene(THREE, opts = {}) {
   anim.agv = agv('01'); anim.agv.g.position.set(AGV_PARK.x, 0, AGV_PARK.z);
   anim.agv2 = agv('02'); anim.agv2.g.position.set(AGV_PARK.x + 0.2, 0, BIN_POS.z - 1.5); anim.agv2.g.rotation.y = Math.PI / 2;   // 待命中的第二台，示意車隊
   group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, anim.rig, analysisPad(), routes(), anim.agv.g, anim.agv2.g);
-  group.add(controlRoom(), twinTable(), andonTower(CAM_X - 1.1, -1.3, 'gantry'), andonTower(PICK_X - 1.4, -2.9, 'arm'));
+  group.add(controlRoom(), twinTable(), andonTower(CAM_X + 1.3, -1.2, 'gantry'), andonTower(PICK_X - 1.4, -2.9, 'arm'));
   group.add(chars.worker.g, chars.ai.g, evidence, ...bubbles);
 
   /* 取景用邊界（相機距離與光源範圍由此推導，不寫死數字） */
@@ -1077,8 +1081,9 @@ export function buildScene(THREE, opts = {}) {
     const kp = stage + '|' + slide;
     if (screens.param.key !== kp) { screens.param.key = kp; drawParam({ stage, slide }); }
     const n = okCountAt(p), card = Math.round(ssp(0.83, 0.86, p) * 12) / 12, saved = p >= 0.86;
-    const ks = n + '|' + card + '|' + saved;
-    if (screens.stat.key !== ks) { screens.stat.key = ks; drawStat({ n, card, saved }); }
+    const lamp = p >= ANDON.green ? 'green' : p >= ANDON.amber ? 'amber' : 'red';
+    const ks = n + '|' + card + '|' + saved + '|' + lamp;
+    if (screens.stat.key !== ks) { screens.stat.key = ks; drawStat({ n, card, saved, lamp }); }
     const live = p >= FEED_ON, tq = Math.round(Math.max(0, p - P_RESUME) * RESUME_PER_P * 20) / 20;
     if (feedLive && !live) { feedLive = false; feedMat.map = screens.feed.t; feedMat.needsUpdate = true; }
     const kf = live + '|' + tq;
