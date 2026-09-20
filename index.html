@@ -694,12 +694,12 @@ button,a,select{touch-action:manipulation}
     <p class="l-en" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">Whether it is research collaboration, industry partnership, or joining the lab, feel free to reach out.</p>
 
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px">
-      <div class="blueprint" style="position:relative;padding:20px 22px;background:transparent">
+      <div class="blueprint soft-card" style="position:relative;padding:20px 22px;background:#fff">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:8px">EMAIL</div>
         <a href="mailto:zaira4edu@gmail.com" style="font-size:19px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em">zaira4edu@gmail.com</a>
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
       </div>
-      <div class="blueprint" style="position:relative;padding:20px 22px;background:transparent">
+      <div class="blueprint soft-card" style="position:relative;padding:20px 22px;background:#fff">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:8px">ADDRESS</div>
         <p class="l-zh" style="margin:0;font-size:14.5px;line-height:1.6;color:var(--color-neutral-800)">235307 新北市中和區工專路111號　臺灣科技大學 華夏校區教學大樓 2 樓 C219</p>
         <p class="l-en" style="margin:0;font-size:14px;line-height:1.6;color:var(--color-neutral-800)">General Education Building 2F C219, No. 111, Gongzhuan Rd., Zhonghe Dist., New Taipei City 235307, Taiwan</p>
@@ -710,7 +710,7 @@ button,a,select{touch-action:manipulation}
 
   <div style="max-width:1320px;margin:0 auto;padding:22px 28px 90px">
     <div id="g-contact" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch">
-      <figure class="blueprint" style="position:relative;margin:0;background:transparent;display:flex;flex-direction:column;min-height:580px">
+      <figure class="blueprint soft-card" style="position:relative;margin:0;background:#fff;overflow:hidden;display:flex;flex-direction:column;min-height:580px">
         <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--color-divider)">
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700)">MAP · 24.9816 N, 121.5077 E</span>
           <a href="https://www.google.com/maps/search/?api=1&amp;query=24.981617,121.507716" target="_blank" rel="noopener noreferrer" style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:12.5px"><span class="l-zh">在 Google 地圖開啟</span><span class="l-en">Open in Google Maps</span> →</a>
@@ -722,13 +722,13 @@ button,a,select{touch-action:manipulation}
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
       </figure>
 
-      <div class="blueprint" style="position:relative;background:transparent;display:flex;flex-direction:column;min-height:580px">
+      <div class="blueprint soft-card" style="position:relative;background:#fff;display:flex;flex-direction:column;min-height:580px;overflow:hidden">
         <div style="flex:none;padding:20px 22px 0">
           <h3 style="font-size:26px;margin:0 0 4px"><span class="l-zh">交通方式</span><span class="l-en">Getting Here</span></h3>
           <p style="margin:0 0 16px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.16em;color:var(--color-neutral-600)">SELECT A MODE · 點選標籤切換</p>
           <div style="display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--color-divider);padding-bottom:14px">
             <sc-for list="{{ transitTabs }}" as="t" hint-placeholder-count="5">
-              <button type="button" onClick="{{ t.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);padding:6px 13px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:13.5px;background: {{ t.bg }};color: {{ t.fg }}">{{ t.label }}</button>
+              <button type="button" onClick="{{ t.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);border-radius:999px;padding:6px 14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:13.5px;background: {{ t.bg }};color: {{ t.fg }}">{{ t.label }}</button>
             </sc-for>
           </div>
         </div>
