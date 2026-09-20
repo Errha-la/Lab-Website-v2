@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>先進製程與設備智能輔助實驗室</title>
 <meta name="description" content="國立臺灣科技大學先進製程與設備智能輔助實驗室官方網站。">
-<link rel="icon" href="assets/images/head-banner.png" type="image/png">
+<link rel="icon" href="assets/images/head-banner.webp" type="image/webp">
 <style>
 /* 首屏（尚未執行 JS 時就能看到）：隱藏原始樣板、顯示與 3D 開場一致的靜態畫面，App 掛載後再淡出 */
 x-dc{display:none!important}
@@ -37,12 +37,9 @@ html[data-lang="en"] #boot .l-en{display:block}
 }
 </style>
 <link rel="preload" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <script>
-/* 中文字型（Noto Sans TC 切成數十個 ~75KB 的區段，合計 1MB+）等首屏載完、瀏覽器閒置後才載入，避免與 LCP 圖片搶頻寬 */
-window.addEventListener('load',function(){setTimeout(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap';document.head.appendChild(l)},1200)});
+/* 網頁字型（Barlow 與切成數十段、合計 1MB+ 的 Noto Sans TC）等首屏載完後才載入，避免與 LCP 圖片搶頻寬；載入前先用系統字型 */
+window.addEventListener('load',function(){setTimeout(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap';document.head.appendChild(l)},800)});
 </script>
 <noscript><link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css"></noscript>
 <link rel="preload" as="image" href="assets/images/hero-desktop.webp" type="image/webp" media="(min-width:761px)" fetchpriority="high">
@@ -54,7 +51,7 @@ window.addEventListener('load',function(){setTimeout(function(){var l=document.c
 </head>
 <body>
 <div id="boot" aria-hidden="true">
-  <div class="bh"><img src="assets/images/head-banner.png" width="176" height="44" alt=""></div>
+  <div class="bh"><img src="assets/images/head-banner.webp" width="176" height="44" alt=""></div>
   <div class="bp"><picture>
     <source media="(max-width:760px)" srcset="assets/images/hero-mobile.webp" type="image/webp">
     <img src="assets/images/hero-desktop.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async">
@@ -254,7 +251,7 @@ button,a,select{touch-action:manipulation}
 <header style="position:sticky;top:0;z-index:60;background:rgba(242,242,243,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider)">
   <div class="site-header-inner" style="margin:0;padding:0 28px;height:66px;display:flex;align-items:center;gap:20px">
     <button type="button" class="site-brand" onClick="{{ goHome }}" aria-label="先進製程與設備智能輔助實驗室 Advanced Process Control and Intelligent Equipment Laboratory" style="display:flex;align-items:center;background:transparent;border:0;padding:0;cursor:pointer;color:var(--color-text)">
-      <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" width="176" height="44" style="height:44px;width:auto;display:block">
+      <img src="assets/images/head-banner.webp" alt="Advanced Process Control and Intelligent Equipment Laboratory" width="176" height="44" style="height:44px;width:auto;display:block">
     </button>
     <nav class="desktop-nav" aria-label="主導覽" style="display:flex;align-items:center;gap:2px;margin-left:auto">
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
@@ -575,7 +572,7 @@ button,a,select{touch-action:manipulation}
 <section class="cv-page">
   <div class="cv">
     <aside class="cv-side">
-      <img class="cv-photo" src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" width="176" height="176">
+      <img class="cv-photo" src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" width="176" height="176" loading="lazy" decoding="async">
       <h2 class="cv-name"><span class="l-zh">鄧志峰 博士</span><span class="l-en">Jr-Fong Dang, Ph.D.</span></h2>
       <p class="cv-name-alt"><span class="l-zh">Jr-Fong Dang, Ph.D.</span><span class="l-en">鄧志峰 博士</span></p>
       <p class="cv-role"><span class="l-zh">副教授・智慧製造科技研究所</span><span class="l-en">Associate Professor, Institute of Intelligent Manufacturing Technology</span></p>
