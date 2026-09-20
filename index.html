@@ -74,15 +74,19 @@ html[data-lang="en"] #boot .l-en{display:block}
 --color-accent-100:#e7f4f7;--color-accent-200:#c9e6ed;--color-accent-300:#9fd0db;--color-accent-400:#5db3c5;--color-accent-500:#2596ad;--color-accent-600:#0b7f97;--color-accent-700:#096a7e;--color-accent-800:#075263;--color-accent-900:#1f2d3d;
 --color-accent-2-100:#fdf6dc;--color-accent-2-200:#fbecb0;--color-accent-2-300:#f7dd7a;--color-accent-2-400:#f2c230;--color-accent-2-500:#d9a80f;--color-accent-2-600:#b58a0a;--color-accent-2-700:#8f6c08;--color-accent-2-800:#6b5106;--color-accent-2-900:#4a3804;
 --card-line:color-mix(in srgb,#1f2d3d 16%,#fff);--card-shadow:0 8px 24px rgba(29,45,61,.08)}
-/* 論文資訊膠囊：日期（灰）、類型（淡青）、SCI／影響因子（金） */
+/* 論文資訊膠囊：日期（灰）、類型（淡青） */
 .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12.5px;line-height:1.4;white-space:nowrap}
 .pill-date{background:#eceff1;color:#4a5866}
 .pill-type{background:var(--color-accent-100);color:var(--color-accent);border:1px solid var(--color-accent-200)}
-.pill-sci{background:#fdf1cf;color:#8f6c08;border:1px solid #f7dd7a}
+.view-toggle{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;padding:4px;background:#fff;border:1px solid var(--card-line);border-radius:999px;box-shadow:var(--card-shadow)}
+.view-toggle::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/2);border-radius:999px;background:var(--color-accent);box-shadow:0 2px 8px rgba(11,127,151,.35);transform:translateX(calc(var(--i,0)*100%));transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.view-toggle button{position:relative;z-index:1;min-width:110px;padding:9px 22px;border:0;border-radius:999px;background:transparent;font:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:color .25s}
+.view-toggle button:not([style*="#fff"]):hover{color:var(--color-accent) !important}
 .pub-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 /* 柔和圓角卡片（團隊、核心技術、研究成果）：取代藍圖角標方框 */
 .blueprint.soft-card{border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--card-shadow)}
 .blueprint.soft-card>.corner{display:none}
+.input,select.input{background:#fff}
 #g-pubs>article{display:flex;flex-direction:column}
 #g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -326,7 +330,7 @@ button,a,select{touch-action:manipulation}
     <div id="g-feat" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
       <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
         <article class="blueprint" data-reveal="" style="position:relative;padding:22px 24px;background:transparent">
-          <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
+          <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
           <h3 style="font-size:19px;line-height:1.28;margin:0 0 8px">{{ p.title }}</h3>
           <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
           <p style="margin:0;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
@@ -353,7 +357,7 @@ button,a,select{touch-action:manipulation}
     <p class="l-en" style="font-size:16px;line-height:1.8;color:var(--color-neutral-800);margin:0">Our laboratory focuses on developing AI agent applications that integrate large language models, optimization methods, and industrial information systems to enable autonomous decision-making and collaborative problem solving. Our research encompasses agent architectures, multi-agent coordination, task planning, tool integration, and human–AI collaboration, with applications in intelligent scheduling, defect detection, predictive maintenance, and knowledge-based management using real-time data from MES, ERP, PLM, and IoT platforms.</p>
     </div>
 
-    <figure class="blueprint about-photo" style="position:relative;margin:0;height:294px;background:transparent;display:flex;flex-direction:column">
+    <figure class="blueprint soft-card about-photo" style="position:relative;margin:0;height:294px;background:#fff;overflow:hidden;display:flex;flex-direction:column">
       <div style="position:relative;flex:1;min-height:0;border-bottom:1px solid var(--color-divider);overflow:hidden;background:var(--color-neutral-200)">
         <sc-for list="{{ labPhotos }}" as="ph" hint-placeholder-count="4">
           <img src="{{ ph.src }}" alt="{{ ph.alt }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:opacity .6s ease;opacity: {{ ph.op }}">
@@ -428,9 +432,9 @@ button,a,select{touch-action:manipulation}
     <p class="l-zh" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">實驗室歷年發表之期刊與研討會論文，可切換「清單模式」瀏覽完整內容，或透過「關聯圖」探索論文之間共享的研究方法、主題與技術。</p>
     <p class="l-en" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">Journal and conference publications from our lab. Switch to List Mode for the full view, or Graph View to explore how research fields co-occur across papers.</p>
 
-    <div class="seg" style="margin-top:26px">
-      <button type="button" class="seg-opt" onClick="{{ setList }}" style="cursor:pointer;background: {{ listBg }};color: {{ listFg }}"><span class="l-zh">清單模式</span><span class="l-en">List</span></button>
-      <button type="button" class="seg-opt" onClick="{{ setGraph }}" style="cursor:pointer;background: {{ graphBg }};color: {{ graphFg }}"><span class="l-zh">關聯圖</span><span class="l-en">Graph</span></button>
+    <div class="view-toggle" style="--i: {{ viewIdx }};margin-top:26px">
+      <button type="button" onClick="{{ setList }}" style="color: {{ listFg }}"><span class="l-zh">清單模式</span><span class="l-en">List</span></button>
+      <button type="button" onClick="{{ setGraph }}" style="color: {{ graphFg }}"><span class="l-zh">關聯圖</span><span class="l-en">Graph</span></button>
     </div>
 
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
@@ -461,7 +465,7 @@ button,a,select{touch-action:manipulation}
         <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:stretch">
           <sc-for list="{{ pagePapers }}" as="p" hint-placeholder-count="10">
             <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:20px 22px;background:#fff">
-              <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
+              <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
               <h3 style="font-size:17px;line-height:1.32;margin:0 0 8px">{{ p.title }}</h3>
               <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
               <p style="margin:0 0 12px;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
@@ -598,7 +602,7 @@ button,a,select{touch-action:manipulation}
       <div class="cv-pubs">
         <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
           <article class="cv-pub" data-reveal="">
-            <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
+            <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
             <h4>{{ p.title }}</h4>
             <p>{{ p.authorLine }}</p>
             <p class="cv-venue">{{ p.venue }}</p>
@@ -917,13 +921,11 @@ const MAP_SRC='https://www.google.com/maps?q=24.981617,121.507716&hl=zh-TW&z=17&
 const R_ORBIT=396;
 const pad=n=>String(n).padStart(2,'0');
 
-/* 期刊 SCI 影響因子（JCR 2023，僅列已知者；沒有列出的期刊不顯示徽章） */
-const JOURNAL_IF={'Genome Biology':10.1,'Developmental Cell':10.7,'Advanced Engineering Informatics':8.0,'International Journal of Production Research':7.0,'Computers & Industrial Engineering':6.7,'Journal of Intelligent Manufacturing':5.9,'International Journal of Computer Integrated Manufacturing':3.7,'International Journal of Advanced Manufacturing Technology':2.9};
 function fmt(p){
   const shown=p.a.length>5?p.a.slice(0,3):p.a;
   const extra=p.a.length-shown.length;
   const en=document.documentElement.dataset.lang==='en';
-  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),year:String(p.y),hasSci:p.ty==='journal'&&JOURNAL_IF[p.v]!=null,sciLabel:'(SCI, IF='+(JOURNAL_IF[p.v]||0).toFixed(1)+')',typeLabel:TYPE_LABEL[p.ty]||p.ty,
+  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),year:String(p.y),typeLabel:TYPE_LABEL[p.ty]||p.ty,
     authorLine:shown.join(en?', ':'、')+(extra>0?' et al. (+'+extra+')':''),
     doi:p.doi||'', hasDoi:!!p.doi, noDoi:!p.doi,
     tagList:p.g.map(s=>({label:(TAGS[s]||[s,s,'tech'])[en?1:0]}))};
@@ -1516,9 +1518,8 @@ class Component extends DCLogic {
       featured:PAPERS.filter(p=>p.f).map(fmt),
       techCards:TECH,
       isList:s.view==='list', isGraph:s.view==='graph',
-      listBg:s.view==='list'?'var(--color-accent)':'transparent',
+      viewIdx:s.view==='graph'?1:0,
       listFg:s.view==='list'?'#fff':'var(--color-neutral-700)',
-      graphBg:s.view==='graph'?'var(--color-accent)':'transparent',
       graphFg:s.view==='graph'?'#fff':'var(--color-neutral-700)',
       setList:this.setList, setGraph:this.setGraph,
       onType:this.onType, onPerPage:this.onPerPage,
