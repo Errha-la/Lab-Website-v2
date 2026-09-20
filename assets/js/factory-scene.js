@@ -9,7 +9,7 @@
  *
  * 目前包含：地板、直線輸送帶（帶面橫紋隨進度移動）、晶片（良品／裂痕／缺角）、檢測相機龍門架與環形補光、
  * 檢測後的 O／X 標示、紅框與信心分數（ticket 03）；機械手臂取出瑕疵品並裝箱（ticket 04，輸送帶在
- * p = P_FREEZE 停住）。後續各幕的設備在這個檔案往下加。
+ * 全程持續運轉）。後續各幕的設備在這個檔案往下加。
  *
  * 用法
  *   const THREE = await import('https://unpkg.com/three@0.184.0/build/three.module.js');
@@ -31,11 +31,10 @@ export const PICK_X = 4.5;             // 機械手臂取件位置（相機下�
 export const PITCH = 1.3;              // 晶片間距
 export const SLOTS = 14;               // 同時在帶上的晶片數
 export const CYCLE = PITCH * SLOTS;    // 循環長度（= 可見帶長 18.2 m，帶尾 x = 10.2）
-export const TRAVEL_PER_P = 50;        // 輸送帶每單位進度的位移（公尺）
-export const P_FREEZE = 0.37;          // 過場結束後輸送帶停住（之後由 AGV 幕接手，見 ticket 05）
-export const P_RESUME = 0.775;         // 工程師核准新參數後，輸送帶恢復運轉
-export const RESUME_PER_P = 100;       // 恢復後每單位進度的位移（比先前快，第 05 幕的連續良品計數才看得出累積）
-export const N_FIX = 3;                // 序號 ≥ N_FIX 的晶片一律良品（第 01 幕之後沒有新的瑕疵，也是「調參後全是良品」）
+export const TRAVEL_PER_P = 60;        // 輸送帶每單位進度的位移（公尺）；輸送帶全程持續運轉，不再停住
+export const P_RESUME = 0.775;         // 工程師核准新參數的時間；第 05 幕螢幕的連續良品計數從這裡起算
+export const N_FIX = 7;                // 序號 ≥ N_FIX 的晶片一律良品（過場之後沒有新的瑕疵，也是「調參後全是良品」）
+export const PACK_X = 7.2;             // 第二支手臂（合格品裝箱）的取件位置
 
 /* 手臂一次取放循環涵蓋的「帶面位移」（相對晶片抵達取件點的位置 Δ，公尺）；
    關鍵點之間用 smoothstep 插值。循環總長 3.7 m < 3 個晶片間距 3.9 m，所以兩顆瑕疵品不會同時占用手臂。 */
@@ -201,13 +200,10 @@ export function charPose(kind, p) {
   return pose;
 }
 
-/* 第 05 幕螢幕：核准後輸送帶恢復，通過相機的連續良品件數（只取決於 p） */
+/* 第 05 幕螢幕：核准（P_RESUME）之後通過相機的連續良品件數（只取決於 p） */
 export function okCountAt(p) {
-  const t2 = RESUME_PER_P * Math.max(0, p - P_RESUME);
-  let best = -Infinity;
-  for (let n = -30; n <= 40; n++) { const x = BELT_X0 + TRAVEL_PER_P * P_FREEZE - n * PITCH; if (x < CAM_X && x > best) best = x; }
-  const d0 = CAM_X - best;
-  return t2 >= d0 ? Math.floor((t2 - d0) / PITCH) + 1 : 0;
+  const f = q => Math.floor((TRAVEL_PER_P * q - (CAM_X - BELT_X0)) / PITCH);   // 到 q 為止已通過相機的晶片數
+  return Math.max(0, f(Math.max(p, 0)) - f(P_RESUME));
 }
 
 /* ---------- 確定性瑕疵序列（不用 Math.random） ---------- */
@@ -242,14 +238,11 @@ export function makeKinds(seed) {
   };
   return kind;
 }
-const KIND_SEED = 420;   // 種子搜尋條件：第 01 幕通過相機的晶片含裂痕與缺角；p≈0.224 與 0.302 各有一次完整取件；過場結束（凍結）時手臂不在半空
+const KIND_SEED = 5;   // 種子搜尋條件：第 01 幕通過相機的晶片含裂痕與缺角；取件在 p≈0.057、0.230、0.295；所有取放循環在 AGV 頂起箱子（p 0.39）前結束
 export const chipKind = makeKinds(KIND_SEED);
 
-/* 輸送帶位移（進度 p → 公尺）：過場結束後停住；核准（P_RESUME）後以較快的速度恢復運轉 */
-export function travelAt(p) {
-  p = Math.max(p, 0);
-  return TRAVEL_PER_P * Math.min(p, P_FREEZE) + RESUME_PER_P * Math.max(0, p - P_RESUME);
-}
+/* 輸送帶位移（進度 p → 公尺）：全程持續運轉 */
+export function travelAt(p) { return TRAVEL_PER_P * Math.max(p, 0); }
 /* 晶片 n 的 x 位置 */
 export const chipX = (n, p) => BELT_X0 + travelAt(p) - n * PITCH;
 /* 第 i 個槽位在進度 p 時的晶片流水號與 x 位置 */
@@ -259,10 +252,22 @@ export function slotAt(i, p) {
   return { x: BELT_X0 + t - n * PITCH, id: n };
 }
 
+/* 第二支手臂（合格品裝箱）的取放循環：總長 1.3 m = 一個晶片間距，連續合格品時首尾相接、不會重疊 */
+export const T2 = { start: -0.5, hover: -0.25, grasp: -0.02, closed: 0.08, lift: 0.2, above: 0.35, down: 0.5, open: 0.6, up: 0.7, home: 0.8 };
+export const N_PACK0 = Math.ceil((BELT_X0 - PACK_X - T2.start) / PITCH);   // p=0 時取放循環尚未開始的第一顆
+export const BOX_PER = 9;                                                    // 每箱 3×3 顆
+/* 會抵達 PACK_X 被裝箱的合格品清單（依抵達順序）：k = 裝箱順序 */
+export function goodList(kindFn) {
+  const out = [];
+  const nMax = Math.floor(TRAVEL_PER_P / PITCH) + 1;
+  for (let n = N_PACK0; n <= nMax; n++) if (kindFn(n) === 'ok') out.push({ n, k: out.length });
+  return out;
+}
+
 /* 全程的瑕疵品清單（依取件順序）：k = 進箱順序，供箱內位置與晶片外型使用 */
 export function defectList(kindFn) {
   const out = [];
-  const nMax = Math.floor(TRAVEL_PER_P * P_FREEZE / PITCH) + 1;
+  const nMax = Math.floor(TRAVEL_PER_P / PITCH) + 1;
   for (let n = N_MIN; n <= nMax; n++) {
     const kd = kindFn(n);
     if (kd !== 'ok') out.push({ n, k: out.length, kind: kd });
@@ -309,6 +314,8 @@ export function buildScene(THREE, opts = {}) {
     lampA:    mk('andon_amber',    0xffb020, 0.4, 0.1, { emissive: new THREE.Color(0xffa000), emissiveIntensity: 0.08 }),
     lampG:    mk('andon_green',    0x2fa85a, 0.4, 0.1, { emissive: new THREE.Color(0x2fa85a), emissiveIntensity: 0.08 }),
     button:   mk('approve_button', 0x2fa85a, 0.4, 0.1, { emissive: new THREE.Color(0x2fa85a), emissiveIntensity: 0.1 }),
+    box:      mk('box_cardboard',  0xc9a26b, 0.75, 0.03),
+    boxTag:   mk('box_tag_ok',     0x2fa85a, 0.5, 0.05),
     frameBad: mk('defect_frame',   0xe5423b, 0.50, 0.10, { emissive: new THREE.Color(0xe5423b), emissiveIntensity: 0.6 }),
     beam:     new THREE.MeshBasicMaterial({ name: 'scan_beam', color: 0x66e0ff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
   };
@@ -350,7 +357,7 @@ export function buildScene(THREE, opts = {}) {
 
   const group = new THREE.Group();
   group.name = 'ai_manufacturing_scene';
-  const anim = { marks: [], beam: null, ring: null, slots: [], arm: null, bin: [], routes: [], agv: null, agv2: null, rig: null };
+  const anim = { marks: [], beam: null, ring: null, slots: [], arm: null, arm2: null, boxes: [], packChips: [], bin: [], routes: [], agv: null, agv2: null, rig: null };
 
   /* ---------- 廠房地板（預留後續各幕的空間） ---------- */
   function floorPlate() {
@@ -548,7 +555,7 @@ export function buildScene(THREE, opts = {}) {
   const BIN = { x: BIN_POS.x, z: BIN_POS.z, w: 1.6, d: 1.5, h: 0.42, floor: 0.06, base: 0.14 + 0.22 };   // base：托盤高度，AGV 從下方頂起
   const CHIP_Y = BELT_TOP + CHIP.h / 2;   // 晶片在帶面上的中心高度
 
-  function pickArm() {
+  function pickArm(ARM) {
     const g = new THREE.Group(); g.name = 'pick_arm';
     const ped = bbox(0.8, 0.5, 0.8, M.frame, 'arm_pedestal', { fillet: 0.03 });
     ped.position.set(ARM.x, 0.14 + 0.25, ARM.z); g.add(ped);
@@ -636,7 +643,7 @@ export function buildScene(THREE, opts = {}) {
   }
 
   /* 二連桿解析解：夾爪中心點（世界座標）→ 底座迴轉、肩、肘角 */
-  function solveArm(tip) {
+  function solveArm(ARM, tip) {
     const dx = tip[0] - ARM.x, dz = tip[2] - ARM.z;
     const yaw = Math.atan2(dx, dz), r = Math.hypot(dx, dz);
     const ey = tip[1] + ARM.Lg - (ARM.baseY + ARM.H0);
@@ -701,11 +708,24 @@ export function buildScene(THREE, opts = {}) {
     const m = new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false });
     mats.push(m); return m;
   }
+  function pulseTexture() {
+    const { cv, c, t } = canvasTex(256, 4);
+    const gr = c.createLinearGradient(0, 0, 256, 0);
+    gr.addColorStop(0, 'rgba(255,255,255,.3)'); gr.addColorStop(0.3, 'rgba(255,255,255,.3)');
+    gr.addColorStop(0.5, 'rgba(255,255,255,1)'); gr.addColorStop(0.7, 'rgba(255,255,255,.3)'); gr.addColorStop(1, 'rgba(255,255,255,.3)');
+    c.fillStyle = gr; c.fillRect(0, 0, 256, 4);
+    t.wrapS = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
   function routes() {
     const g = new THREE.Group(); g.name = 'routes';
     routeVis.forEach((r, i) => {
       const curve = new THREE.CatmullRomCurve3(r.meta.pts.map(q => new THREE.Vector3(q[0], 0, q[1])));
-      const mat = new THREE.MeshBasicMaterial({ name: 'route_' + r.id, color: r.blocked ? 0xe5423b : 0x3aa0ff, transparent: true, opacity: 0, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({ name: 'route_' + r.id, color: r.blocked ? 0xe5423b : 0x3aa0ff, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+      if (!r.blocked) {
+        /* 可行路線：一道亮光沿路線流動（位移由 update(p) 決定） */
+        const pt = pulseTexture(); pt.repeat.set(Math.max(2, r.meta.length / 2.2), 1); mat.map = pt;
+      }
       mats.push(mat);
       const tube = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, ROUTE_TUBE_SEG, 0.075, ROUTE_RADIAL, false)), mat);
       tube.name = 'route_' + r.id; tube.position.y = 0.17; tube.scale.y = 0.3; tube.visible = false;
@@ -1001,6 +1021,72 @@ export function buildScene(THREE, opts = {}) {
   evidence.renderOrder = 10; bubbles.forEach(b => { b.renderOrder = 20; });
   evidence.scale.multiplyScalar(low ? 1.25 : 1);
 
+  /* ================= 第二支手臂：把合格品裝箱，輸送帶因此一直運轉 ================= */
+  const ARM2 = { x: PACK_X, z: 2.0, baseY: 0.64, H0: 0.47, L1: 1.15, L2: 1.05, Lg: 0.25 };
+  const BOXP = { z: 3.6, w: 1.7, d: 1.55, h: 0.36, floor: 0.05, pitch: 2.3 };
+  const RAIL_TOP = 0.14 + 0.06;
+  const BOX_SCALE = 0.72, POOL = 3 * BOX_PER;
+  const slotLocal = s2 => ({ x: ((s2 % 3) - 1) * 0.5, z: (Math.floor(s2 / 3) - 1) * 0.45 });
+  const SLOT_Y = RAIL_TOP + BOXP.floor + (CHIP.h * BOX_SCALE) / 2;
+  const HOME2 = [PACK_X - 0.55, 1.55, 1.15];
+  const GOOD = goodList(chipKind);
+  const slotAtFill = k => { const l = slotLocal(k % BOX_PER); return [PACK_X + l.x, SLOT_Y, BOXP.z + l.z]; };
+
+  /* 取放循環（相對取件點的帶面位移 d）：待命 → 追著晶片下探 → 夾起 → 放進箱內格位 → 回待命 */
+  function tipAt2(d, k) {
+    const slot = slotAtFill(k);
+    const grasp = [PACK_X + T2.closed, CHIP_Y, 0], lifted = [PACK_X + T2.closed + 0.1, HIGH_Y, 0.6];
+    if (d <= T2.start) return { pos: HOME2, grip: 0 };
+    if (d < T2.hover) return { pos: lerp3(HOME2, [PACK_X + T2.hover, HOVER_Y, 0], ss(T2.start, T2.hover, d)), grip: 0 };
+    if (d < T2.grasp) return { pos: [PACK_X + d, HOVER_Y + (CHIP_Y - HOVER_Y) * ss(T2.hover, T2.grasp, d), 0], grip: 0 };
+    if (d < T2.closed) return { pos: [PACK_X + d, CHIP_Y, 0], grip: ss(T2.grasp, T2.closed, d) };
+    if (d < T2.lift) return { pos: lerp3(grasp, lifted, ss(T2.closed, T2.lift, d)), grip: 1 };
+    if (d < T2.above) return { pos: lerp3(lifted, [slot[0], HIGH_Y, slot[2]], ss(T2.lift, T2.above, d)), grip: 1 };
+    if (d < T2.down) return { pos: lerp3([slot[0], HIGH_Y, slot[2]], slot, ss(T2.above, T2.down, d)), grip: 1 };
+    if (d < T2.open) return { pos: slot, grip: 1 - ss(T2.down, T2.open, d) };
+    if (d < T2.up) return { pos: lerp3(slot, [slot[0], HIGH_Y, slot[2]], ss(T2.open, T2.up, d)), grip: 0 };
+    if (d < T2.home) return { pos: lerp3([slot[0], HIGH_Y, slot[2]], HOME2, ss(T2.up, T2.home, d)), grip: 0 };
+    return { pos: HOME2, grip: 0 };
+  }
+
+  function packArm() {
+    const a = pickArm(ARM2);
+    a.g.traverse(o => { o.name += '_pack'; });
+    return a;
+  }
+  /* 箱子：紙箱 + 綠色 O 標籤；輸送軌在下方（箱子滿了往西滑走，新箱從東側滑入） */
+  function packBox(i) {
+    const g = new THREE.Group(); g.name = 'pack_box_' + pad(i + 1);
+    const fl = bbox(BOXP.w, BOXP.floor, BOXP.d, M.box, 'pack_box_floor', { fillet: 0.01 }); fl.position.y = RAIL_TOP + BOXP.floor / 2; g.add(fl);
+    for (const sgn of [-1, 1]) {
+      const wz = bbox(BOXP.w, BOXP.h, 0.05, M.box, 'pack_box_wall_' + (sgn > 0 ? 'front' : 'back'), { fillet: 0.01 });
+      wz.position.set(0, RAIL_TOP + BOXP.h / 2, sgn * (BOXP.d / 2 - 0.025)); g.add(wz);
+      const wx = bbox(0.05, BOXP.h, BOXP.d, M.box, 'pack_box_wall_' + (sgn > 0 ? 'east' : 'west'), { fillet: 0.01 });
+      wx.position.set(sgn * (BOXP.w / 2 - 0.025), RAIL_TOP + BOXP.h / 2, 0); g.add(wx);
+    }
+    const tag = bbox(0.4, 0.14, 0.02, M.boxTag, 'pack_box_tag_ok', { fillet: 0.01 });
+    tag.position.set(0, RAIL_TOP + BOXP.h * 0.6, BOXP.d / 2 + 0.005); g.add(tag);
+    return g;
+  }
+  function chipLite(i) {
+    const g = new THREE.Group(); g.name = 'pack_chip_' + pad(i + 1);
+    g.add(bbox(CHIP.w, CHIP.h, CHIP.w, M.chipBody, g.name + '_body', { fillet: 0.02, bevel: 0.012 }));
+    for (const sx of [-1, 1]) {
+      const pins = mesh(new THREE.BoxGeometry(0.05, 0.02, CHIP.w * 0.8), M.chipPin, g.name + '_pins_' + (sx > 0 ? 'e' : 'w'));
+      pins.position.set(sx * (CHIP.w / 2 + 0.02), -0.005, 0); g.add(pins);
+    }
+    const mk2 = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.012, seg(10, 6)), M.chipMark, g.name + '_marker');
+    mk2.position.set(-CHIP.w / 2 + 0.07, CHIP.h / 2 + 0.004, -CHIP.w / 2 + 0.07); g.add(mk2);
+    return g;
+  }
+  function packStation() {
+    const g = new THREE.Group(); g.name = 'pack_station';
+    const rail = bbox(7.4, 0.06, 1.3, M.steel, 'pack_rail', { fillet: 0.015 }); rail.position.set(PACK_X - 1.5, 0.14 + 0.03, BOXP.z); g.add(rail);
+    for (let i = 0; i < 4; i++) { const b = packBox(i); b.position.set(PACK_X, 0, BOXP.z); b.visible = false; g.add(b); anim.boxes.push(b); }
+    for (let i = 0; i < POOL; i++) { const c = chipLite(i); c.visible = false; g.add(c); anim.packChips.push(c); }
+    return g;
+  }
+
   /* 晶片池：每個槽位含三種外型、標示精靈與紅框，update(p) 只切換可見性 */
   function chipPool() {
     const g = new THREE.Group(); g.name = 'chips';
@@ -1018,13 +1104,14 @@ export function buildScene(THREE, opts = {}) {
     return g;
   }
 
-  anim.arm = pickArm();
+  anim.arm = pickArm(ARM);
+  anim.arm2 = packArm();
   /* 收納箱 + 托盤 + 箱內晶片放進同一個 rig：AGV 頂起時整組跟著走（座標仍是靜止時的世界座標） */
   anim.rig = new THREE.Group(); anim.rig.name = 'bin_rig';
   anim.rig.add(binCrate(), binChips());
   anim.agv = agv('01'); anim.agv.g.position.set(AGV_PARK.x, 0, AGV_PARK.z);
   anim.agv2 = agv('02'); anim.agv2.g.position.set(AGV_PARK.x + 0.2, 0, BIN_POS.z - 1.5); anim.agv2.g.rotation.y = Math.PI / 2;   // 待命中的第二台，示意車隊
-  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, anim.rig, analysisPad(), routes(), anim.agv.g, anim.agv2.g);
+  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, anim.arm2.g, packStation(), anim.rig, analysisPad(), routes(), anim.agv.g, anim.agv2.g);
   group.add(controlRoom(), twinTable(), andonTower(CAM_X + 1.3, -1.2, 'gantry'), andonTower(PICK_X - 1.4, -2.9, 'arm'));
   group.add(chars.worker.g, chars.ai.g, evidence, ...bubbles);
 
@@ -1084,7 +1171,7 @@ export function buildScene(THREE, opts = {}) {
     const lamp = p >= ANDON.green ? 'green' : p >= ANDON.amber ? 'amber' : 'red';
     const ks = n + '|' + card + '|' + saved + '|' + lamp;
     if (screens.stat.key !== ks) { screens.stat.key = ks; drawStat({ n, card, saved, lamp }); }
-    const live = p >= FEED_ON, tq = Math.round(Math.max(0, p - P_RESUME) * RESUME_PER_P * 20) / 20;
+    const live = p >= FEED_ON, tq = Math.round(travelAt(p) * 5) / 5;
     if (feedLive && !live) { feedLive = false; feedMat.map = screens.feed.t; feedMat.needsUpdate = true; }
     const kf = live + '|' + tq;
     if (!feedLive && screens.feed.key !== kf) { screens.feed.key = kf; drawFeed({ live: p >= P_RESUME, t: tq / 1.3 }); }
@@ -1098,27 +1185,68 @@ export function buildScene(THREE, opts = {}) {
     if (!feedLive) { feedLive = true; feedMat.map = feedRT.texture; feedMat.needsUpdate = true; }
   }
 
+  /* ---------- 第二支手臂與裝箱：只取決於 p ---------- */
+  function updatePack(p) {
+    /* 手臂：連續合格品時首尾相接；缺件時回待命點 */
+    let tip = null, c = 0;
+    for (const gd of GOOD) {
+      const d = chipX(gd.n, p) - PACK_X;
+      if (d >= T2.grasp) c++;
+      if (!tip && d > T2.start && d < T2.home) tip = tipAt2(d, gd.k);
+    }
+    if (!tip) tip = { pos: HOME2, grip: 0 };
+    const A = anim.arm2, ik = solveArm(ARM2, tip.pos);
+    A.yawG.rotation.y = ik.yaw; A.shoulder.rotation.x = ik.th1; A.elbow.rotation.x = ik.th2;
+    A.wrist.rotation.x = -(ik.th1 + ik.th2); A.gripYaw.rotation.y = -ik.yaw;
+    for (const f of A.fingers) f.position.x = f.userData.sign * (0.37 - 0.06 * tip.grip);
+
+    /* 箱子輸送：每箱第 9 顆放進去之後滑走，下一箱從東側滑入 */
+    let S = 0;
+    for (let b = 0; BOX_PER * b + BOX_PER - 1 < GOOD.length; b++) S += ss(0.75, 1.25, chipX(GOOD[BOX_PER * b + BOX_PER - 1].n, p) - PACK_X);
+    const bIdx = Math.floor(S);
+    anim.boxes.forEach(bx => { bx.visible = false; });
+    for (let b = Math.max(0, bIdx - 1); b <= bIdx + 1; b++) {
+      const rel = b - S, bx = anim.boxes[b % 4];
+      bx.visible = rel > -1.5 && rel < 1.2;
+      bx.position.x = PACK_X + rel * BOXP.pitch;
+      bx.scale.setScalar(Math.max(0.001, 1 - ss(1.0, 1.5, -rel)));
+    }
+    /* 箱內晶片：夾起後跟著夾爪走，放下後隨箱子移動 */
+    for (let j = 0; j < POOL; j++) {
+      const o = anim.packChips[j];
+      const k = c > 0 ? (c - 1) - ((((c - 1 - j) % POOL) + POOL) % POOL) : -1;
+      if (k < 0 || k >= GOOD.length) { o.visible = false; continue; }
+      const rel = Math.floor(k / BOX_PER) - S, fade = Math.max(0.001, 1 - ss(1.0, 1.5, -rel));
+      if (rel <= -1.5) { o.visible = false; continue; }
+      const d = chipX(GOOD[k].n, p) - PACK_X, l = slotLocal(k % BOX_PER);
+      const pos = d < T2.down ? tipAt2(d, k).pos : [PACK_X + rel * BOXP.pitch + l.x, SLOT_Y, BOXP.z + l.z];
+      const u = ss(T2.closed, T2.down, d);
+      o.visible = true; o.position.set(pos[0], pos[1], pos[2]);
+      o.rotation.y = 0; o.scale.setScalar((1 + (BOX_SCALE - 1) * u) * fade);
+    }
+  }
+
   /* ---------- AGV 與候選路線：全部只取決於 p ---------- */
   const bestMeta = routeVis[0].meta;
   function updateAgv(p) {
     let x, z, yaw, lift = 0, carry = false;
-    const T2 = AGV_T;
-    if (p <= T2.drive1) {                                   // 停靠位 → 箱下（朝西，前後對稱所以外觀不變）
-      const u = ss(T2.drive0, T2.drive1, p);
+    const AT = AGV_T;
+    if (p <= AT.drive1) {                                   // 停靠位 → 箱下（朝西，前後對稱所以外觀不變）
+      const u = ss(AT.drive0, AT.drive1, p);
       x = AGV_PARK.x + (BIN_POS.x - AGV_PARK.x) * u; z = AGV_PARK.z; yaw = Math.PI;
-    } else if (p <= T2.go0) {                               // 頂起、等待路線決定
-      x = BIN_POS.x; z = BIN_POS.z; yaw = 0; lift = ss(T2.drive1, T2.lift1, p); carry = lift > 0;
+    } else if (p <= AT.go0) {                               // 頂起、等待路線決定
+      x = BIN_POS.x; z = BIN_POS.z; yaw = 0; lift = ss(AT.drive1, AT.lift1, p); carry = lift > 0;
     } else {                                                // 沿最佳路線運送 → 放下
-      const q = pathAtDist(bestMeta, bestMeta.length * ss(T2.go0, T2.go1, p));
+      const q = pathAtDist(bestMeta, bestMeta.length * ss(AT.go0, AT.go1, p));
       x = q.x; z = q.z; yaw = Math.atan2(-q.tz, q.tx);
-      lift = 1 - ss(T2.go1, T2.lower1, p); carry = true;
+      lift = 1 - ss(AT.go1, AT.lower1, p); carry = true;
     }
     const A = anim.agv;
     A.g.position.set(x, 0, z); A.g.rotation.y = yaw; A.lift.position.y = 0.06 * lift;
     /* 箱組：頂起後與 AGV 同姿態；以箱心為軸旋轉 */
     const R = anim.rig;
     if (carry) {
-      const th = p <= T2.go0 ? 0 : yaw, c = Math.cos(th), s2 = Math.sin(th);
+      const th = p <= AT.go0 ? 0 : yaw, c = Math.cos(th), s2 = Math.sin(th);
       R.position.set(x - (BIN_POS.x * c + BIN_POS.z * s2), 0.06 * lift, z - (-BIN_POS.x * s2 + BIN_POS.z * c));
       R.rotation.y = th;
     } else { R.position.set(0, 0, 0); R.rotation.y = 0; }
@@ -1126,17 +1254,20 @@ export function buildScene(THREE, opts = {}) {
     /* 候選路線：依序畫出 → 被擋的與較長的逐一淡出 → 最佳路線發亮，抵達後淡出 */
     for (let i = 0; i < anim.routes.length; i++) {
       const o = anim.routes[i];
-      const f = clamp01((p - (T2.appear0 + i * T2.appearStep)) / T2.appearDur);
+      const f = clamp01((p - (AT.appear0 + i * AT.appearStep)) / AT.appearDur);
       let op = 1;
-      const fw = T2.fade[i];
+      const fw = AT.fade[i];
       if (fw) op = 1 - ss(fw[0], fw[1], p);
-      else op = 1 - ss(T2.go1, T2.lower1, p);
+      else op = 1 - ss(AT.go1, AT.lower1, p);
       const show = f > 0 && op > 0.01;
       o.tube.visible = show; o.sprite.visible = show && f > 0.6;
       if (!show) continue;
       o.tube.geometry.setDrawRange(0, Math.floor(f * ROUTE_TUBE_SEG) * ROUTE_RADIAL * 6);
-      const glow = i === 0 ? ss(T2.glow0, T2.glow1, p) : 0;
-      o.mat.opacity = 0.85 * op;
+      const glow = i === 0 ? ss(AT.glow0, AT.glow1, p) : 0;
+      /* 可行路線閃亮：亮光沿路線移動，整體亮度輕微起伏；最佳路線發亮時更亮 */
+      const shimmer = o.r.blocked ? 0 : 0.12 * Math.sin(p * 2600 + i * 2);
+      if (o.mat.map) o.mat.map.offset.x = -(p - AT.appear0) * 70;
+      o.mat.opacity = Math.min(1, (0.85 + shimmer + (i === 0 ? 0.1 * ss(AT.glow0, AT.glow1, p) : 0)) * op);
       if (!o.r.blocked) o.mat.color.setRGB(0.23 + (0.18 - 0.23) * glow, 0.63 + (0.66 - 0.63) * glow, 1 + (0.35 - 1) * glow);
       o.tube.scale.set(1, 0.3, 1 + 0);
       o.sprite.material.opacity = op;
@@ -1167,7 +1298,7 @@ export function buildScene(THREE, opts = {}) {
         s.sprite.material = labelMat(kind === 'ok' ? 'ok' : 'bad', id);
       }
       /* 瑕疵品被夾爪夾起後，改由箱內晶片物件接手（同一位置、同一姿態） */
-      const picked = s.kind !== 'ok' && x - PICK_X >= T.grasp;
+      const picked = (s.kind !== 'ok' && x - PICK_X >= T.grasp) || (s.kind === 'ok' && id >= N_PACK0 && x - PACK_X >= T2.grasp);
       s.slot.visible = !picked;
       if (picked) continue;
       /* 進出帶尾的兩端縮放淡入淡出，避免循環瞬移被看見 */
@@ -1192,7 +1323,7 @@ export function buildScene(THREE, opts = {}) {
       const d = chipX(df.n, p) - PICK_X;
       if (d > T.start && d < T.home) { tip = tipAt(d, df.k); break; }
     }
-    const A = anim.arm, ik = solveArm(tip.pos);
+    const A = anim.arm, ik = solveArm(ARM, tip.pos);
     A.yawG.rotation.y = ik.yaw;
     A.shoulder.rotation.x = ik.th1;
     A.elbow.rotation.x = ik.th2;
@@ -1201,6 +1332,7 @@ export function buildScene(THREE, opts = {}) {
     for (const f of A.fingers) f.position.x = f.userData.sign * (0.37 - 0.06 * tip.grip);
 
     updateAgv(p);
+    updatePack(p);
     updateActors(p);
 
     /* 箱內晶片：夾起後跟著夾爪走，放下後留在箱中 */
@@ -1226,9 +1358,10 @@ export function buildScene(THREE, opts = {}) {
   function shots(mobile) {
     const tgtWide = [1.2, 0.9, 0];
     return {
+      /* 開場俯視：整個產線（進料端到分析站、控制台）一次看完；開場時畫布只露出下半段，取景由 updateHero 補償 */
       wide: {
-        pos: mobile ? [4.0, 8.2, 15.5] : [3.4, 6.4, 12.6],
-        tgt: tgtWide
+        pos: mobile ? [17.0, 60, 2.5] : [3.2, 23.0, 19.4],
+        tgt: mobile ? [4.0, 0, 2.5] : [3.2, 0, 3.4]
       },
       pad: {
         pos: mobile ? [12.6, 5.4, 19.5] : [7.2, 5.0, 14.6],
@@ -1255,8 +1388,8 @@ export function buildScene(THREE, opts = {}) {
         tgt: mobile ? [9.2, 0, 0.8] : [10.0, 0, 0.7]
       },
       pick: {
-        pos: mobile ? [PICK_X + 8.4, 4.9, 4.7] : [PICK_X + 3.6, 3.1, 4.8],
-        tgt: mobile ? [PICK_X + 0.9, 0.8, -1.05] : [PICK_X + 0.9, 0.9, -0.7]
+        pos: mobile ? [PICK_X + 8.4, 4.9, 4.7] : [PICK_X - 2.9, 4.7, 7.6],
+        tgt: mobile ? [PICK_X + 0.9, 0.8, -1.05] : [PICK_X + 0.7, 0.9, -0.8]
       },
       detect: {
         pos: mobile ? [CAM_X - 4.4, 2.2, 1.9] : [CAM_X + 3.2, 1.9, 3.7],

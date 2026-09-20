@@ -1222,8 +1222,10 @@ class Component extends DCLogic {
     const W=L.size.w,H=L.size.h;
     const sx=mobile?0:Math.min(560,Math.max(320,window.innerWidth*0.36))*0.5*pp;
     const sy=mobile?Math.max(0,Math.min(window.innerHeight*0.52,440)*0.5-55)*pp:0;   // 扣掉頂部導覽列佔的高度
-    L.camera.setViewOffset(W,H,-sx,sy,W,H);
-    L.key=[prog.toFixed(5),W,H,sx.toFixed(1),sy.toFixed(1)].join('|');
+    /* 開場：畫布只露出標題下方的窗口（clip-path），讓主體落在露出的區域中央 */
+    const introShift=H*(clipTop/100)*(1-k)/2;
+    L.camera.setViewOffset(W,H,-sx,sy-introShift,W,H);
+    L.key=[prog.toFixed(5),W,H,sx.toFixed(1),sy.toFixed(1),introShift.toFixed(1)].join('|');
     const vm=document.getElementById('viewmode');
     if(vm)vm.textContent=st.act>=0?'ACT '+STATIONS[st.act].num+' · '+Math.round(st.local*100)+'%':(st.id==='transition'?'SORT & PICK':'WIDE SHOT');
   }
