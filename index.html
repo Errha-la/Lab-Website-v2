@@ -1103,7 +1103,7 @@ class Component extends DCLogic {
       const li=this.props.lightIntensity==null?1:this.props.lightIntensity;
       scene.add(new THREE.HemisphereLight(0xdfe7ee,0xb4bec6,0.9*li));
       const key=new THREE.DirectionalLight(0xffffff,1.5*li);
-      key.position.set(6.5,9.5,5.5);
+      key.position.set(11.5,9.5,5.5); key.target.position.set(5,0,0); scene.add(key.target);   // 陰影範圍以輸送帶與 AGV 區為中心
       if(shadows){
         key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.bias=-0.0006;
         const sp=11,c=key.shadow.camera;   // 陰影只覆蓋輸送帶一帶，不含整片地板，維持解析度
@@ -1149,8 +1149,8 @@ class Component extends DCLogic {
     const S=this._TL.SEGMENTS,mid=k=>(S[k].from+S[k].to)/2;
     const sh=this._L.line.shots(window.innerWidth<760);
     const key=(p,shot)=>({p:p,pos:shot.pos.slice(),tgt:shot.tgt.slice()});
-    /* 段落索引：1=01, 2=過場, 3=02；之後各幕的取景點隨場景設備逐張加入，暫時停在遠景 */
-    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.pick),key(mid(3),sh.wide)];
+    /* 段落索引：1=01, 2=過場, 3=02；之後各幕的取景點隨場景設備逐張加入，暫時停在最後一個取景點 */
+    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.pick),key(mid(3),sh.route)];
   }
 
   updateHero(prog){

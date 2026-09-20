@@ -15,7 +15,7 @@
  *   const THREE = await import('https://unpkg.com/three@0.184.0/build/three.module.js');
  *   const scene = buildScene(THREE, { detail:'high', shadows:true });
  *   root.add(scene.group); scene.update(p);   // p = 0..1
- *   scene.shots(mobile) → { wide, detect, pick }     // 鏡頭取景點（供時間軸關鍵影格）
+ *   scene.shots(mobile) → { wide, detect, pick, route }     // 鏡頭取景點（供時間軸關鍵影格）
  *   scene.bounds        → { center, radius, box, contentRadius }
  *   scene.dispose()
  *
@@ -37,6 +37,70 @@ export const P_FREEZE = 0.37;          // 過場結束後輸送帶停住（之�
 /* 手臂一次取放循環涵蓋的「帶面位移」（相對晶片抵達取件點的位置 Δ，公尺）；
    關鍵點之間用 smoothstep 插值。循環總長 3.7 m < 3 個晶片間距 3.9 m，所以兩顆瑕疵品不會同時占用手臂。 */
 const T = { start: -0.8, hover: -0.4, grasp: -0.05, closed: 0.2, lift: 0.6, above: 1.3, down: 1.6, open: 1.85, up: 2.1, home: 2.9 };
+
+/* ---------- 第 02 幕：AGV 與最佳化運送 ---------- */
+export const BIN_POS = { x: PICK_X + 1.7, z: -1.7 };   // 收納箱（AGV 取貨點）
+export const STATION_POS = { x: 12.6, z: 4.6 };        // 分析站（ticket 06 在此蓋設備）
+const AGV_PARK = { x: 9.8, z: BIN_POS.z };
+/* 進度時間表（p）：駛入 → 頂起 → 候選路線浮現 → 逐一淘汰 → 最佳路線發亮 → 運送 → 放下 */
+export const AGV_T = {
+  drive0: 0.370, drive1: 0.392, lift1: 0.400,
+  appear0: 0.400, appearStep: 0.0045, appearDur: 0.013,
+  fade: { 2: [0.428, 0.436], 3: [0.436, 0.444], 1: [0.444, 0.452] },   // 路線編號 → 淡出區間
+  glow0: 0.452, glow1: 0.458,
+  go0: 0.458, go1: 0.502, lower1: 0.510
+};
+/* 四條候選路線：0 = 沿輸送帶尾端繞行（可行且最短）、1 = 外圈繞行（可行但長）、
+   2 = 直穿輸送帶（被擋）、3 = 中途穿越輸送帶（被擋）。座標為 [x, z]。 */
+const S0 = [BIN_POS.x, BIN_POS.z], G0 = [STATION_POS.x, STATION_POS.z];
+export const ROUTES = [
+  { id: 'best',   blocked: false, pts: [S0, [11.2, S0[1]], [11.2, G0[1]], G0] },
+  { id: 'wide',   blocked: false, pts: [S0, [S0[0], -4.6], [13.8, -4.6], [13.8, G0[1]], G0] },
+  { id: 'direct', blocked: true,  pts: [S0, G0], cross: [S0[0] + (0 - S0[1]) / (G0[1] - S0[1]) * (G0[0] - S0[0]), 0] },
+  { id: 'mid',    blocked: true,  pts: [S0, [8.6, S0[1]], [8.6, G0[1]], G0], cross: [8.6, 0] }
+];
+const ROUTE_RADIUS = 0.8;
+
+const hyp = (x, z) => Math.hypot(x, z);
+/* 折線倒圓角 → 稠密取樣點 [[x,z],...] */
+export function roundedPath(pts, r, arcN = 10) {
+  const out = [pts[0].slice()];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const a = pts[i - 1], b = pts[i], c = pts[i + 1];
+    const l1 = hyp(a[0] - b[0], a[1] - b[1]), l2 = hyp(c[0] - b[0], c[1] - b[1]);
+    const u1 = [(a[0] - b[0]) / l1, (a[1] - b[1]) / l1], u2 = [(c[0] - b[0]) / l2, (c[1] - b[1]) / l2];
+    const ang = Math.acos(Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1])));
+    if (ang > Math.PI - 1e-3) { out.push(b.slice()); continue; }
+    const d = Math.min(r / Math.tan(ang / 2), l1 / 2, l2 / 2), rr = d * Math.tan(ang / 2);
+    const p1 = [b[0] + u1[0] * d, b[1] + u1[1] * d], p2 = [b[0] + u2[0] * d, b[1] + u2[1] * d];
+    const bis = [u1[0] + u2[0], u1[1] + u2[1]], bl = hyp(bis[0], bis[1]);
+    const cd = rr / Math.sin(ang / 2), C = [b[0] + bis[0] / bl * cd, b[1] + bis[1] / bl * cd];
+    const t1 = Math.atan2(p1[1] - C[1], p1[0] - C[0]);
+    let dt = Math.atan2(p2[1] - C[1], p2[0] - C[0]) - t1;
+    while (dt > Math.PI) dt -= 2 * Math.PI;
+    while (dt < -Math.PI) dt += 2 * Math.PI;
+    for (let k = 0; k <= arcN; k++) {
+      const t = t1 + dt * k / arcN;
+      out.push([C[0] + rr * Math.cos(t), C[1] + rr * Math.sin(t)]);
+    }
+  }
+  out.push(pts[pts.length - 1].slice());
+  return out;
+}
+export function pathMeta(samples) {
+  const cum = [0];
+  for (let i = 1; i < samples.length; i++) cum.push(cum[i - 1] + hyp(samples[i][0] - samples[i - 1][0], samples[i][1] - samples[i - 1][1]));
+  return { pts: samples, cum, length: cum[cum.length - 1] };
+}
+/* 沿路徑走 s 公尺 → 位置與切線 */
+export function pathAtDist(meta, s) {
+  s = Math.max(0, Math.min(meta.length, s));
+  let i = 1;
+  while (i < meta.cum.length - 1 && meta.cum[i] < s) i++;
+  const a = meta.pts[i - 1], b = meta.pts[i], seg = Math.max(1e-9, meta.cum[i] - meta.cum[i - 1]);
+  const u = (s - meta.cum[i - 1]) / seg, dx = (b[0] - a[0]) / seg, dz = (b[1] - a[1]) / seg;
+  return { x: a[0] + (b[0] - a[0]) * u, z: a[1] + (b[1] - a[1]) * u, tx: dx, tz: dz };
+}
 
 /* ---------- 確定性瑕疵序列（不用 Math.random） ---------- */
 export function hash01(n) {
@@ -163,7 +227,7 @@ export function buildScene(THREE, opts = {}) {
 
   const group = new THREE.Group();
   group.name = 'ai_manufacturing_scene';
-  const anim = { marks: [], beam: null, ring: null, slots: [], arm: null, bin: [] };
+  const anim = { marks: [], beam: null, ring: null, slots: [], arm: null, bin: [], routes: [], agv: null, agv2: null, rig: null };
 
   /* ---------- 廠房地板（預留後續各幕的空間） ---------- */
   function floorPlate() {
@@ -358,7 +422,7 @@ export function buildScene(THREE, opts = {}) {
 
   /* ---------- 取件站：機械手臂 + 收納箱 ---------- */
   const ARM = { x: PICK_X, z: -1.7, baseY: 0.64, H0: 0.47, L1: 1.15, L2: 1.05, Lg: 0.25 };
-  const BIN = { x: PICK_X + 1.7, z: -1.7, w: 1.6, d: 1.5, h: 0.42, floor: 0.06 };
+  const BIN = { x: BIN_POS.x, z: BIN_POS.z, w: 1.6, d: 1.5, h: 0.42, floor: 0.06, base: 0.14 + 0.22 };   // base：托盤高度，AGV 從下方頂起
   const CHIP_Y = BELT_TOP + CHIP.h / 2;   // 晶片在帶面上的中心高度
 
   function pickArm() {
@@ -395,16 +459,21 @@ export function buildScene(THREE, opts = {}) {
 
   function binCrate() {
     const g = new THREE.Group(); g.name = 'reject_bin';
+    /* 托盤：兩條滑軌，底下留出 AGV 的空間 */
+    for (const sgn of [-1, 1]) {
+      const run = bbox(BIN.w, BIN.base - 0.14, 0.24, M.steel, 'pallet_runner_' + (sgn > 0 ? 'front' : 'back'), { fillet: 0.015 });
+      run.position.set(BIN.x, 0.14 + (BIN.base - 0.14) / 2, BIN.z + sgn * (BIN.d / 2 - 0.22)); g.add(run);
+    }
     const fl = bbox(BIN.w, BIN.floor, BIN.d, M.frame, 'bin_floor', { fillet: 0.01 });
-    fl.position.set(BIN.x, 0.14 + BIN.floor / 2, BIN.z); g.add(fl);
+    fl.position.set(BIN.x, BIN.base + BIN.floor / 2, BIN.z); g.add(fl);
     for (const sgn of [-1, 1]) {
       const wz = bbox(BIN.w, BIN.h, 0.06, M.frame, 'bin_wall_' + (sgn > 0 ? 'front' : 'back'), { fillet: 0.015 });
-      wz.position.set(BIN.x, 0.14 + BIN.h / 2, BIN.z + sgn * (BIN.d / 2 - 0.03)); g.add(wz);
+      wz.position.set(BIN.x, BIN.base + BIN.h / 2, BIN.z + sgn * (BIN.d / 2 - 0.03)); g.add(wz);
       const wx = bbox(0.06, BIN.h, BIN.d, M.frame, 'bin_wall_' + (sgn > 0 ? 'right' : 'left'), { fillet: 0.015 });
-      wx.position.set(BIN.x + sgn * (BIN.w / 2 - 0.03), 0.14 + BIN.h / 2, BIN.z); g.add(wx);
+      wx.position.set(BIN.x + sgn * (BIN.w / 2 - 0.03), BIN.base + BIN.h / 2, BIN.z); g.add(wx);
     }
     const label = bbox(0.5, 0.16, 0.02, M.frameBad, 'bin_tag_x', { fillet: 0.01 });
-    label.position.set(BIN.x, 0.14 + BIN.h * 0.62, BIN.z + BIN.d / 2 + 0.005); g.add(label);   // 紅色 X 收納箱標記
+    label.position.set(BIN.x, BIN.base + BIN.h * 0.62, BIN.z + BIN.d / 2 + 0.005); g.add(label);   // 紅色 X 收納箱標記
     return g;
   }
   /* 第 k 個進箱的瑕疵品在箱內的位置：2×2 一層，滿了疊第二層 */
@@ -414,7 +483,7 @@ export function buildScene(THREE, opts = {}) {
     return {
       x: BIN.x + (i % 2 ? 0.38 : -0.38),
       z: BIN.z + (i < 2 ? -0.36 : 0.36),
-      y: 0.14 + BIN.floor + (CHIP.h * BIN_SCALE) / 2 + layer * 0.1,
+      y: BIN.base + BIN.floor + (CHIP.h * BIN_SCALE) / 2 + layer * 0.1,
       yaw: (hash01(k + 77) - 0.5) * 0.9
     };
   }
@@ -469,6 +538,77 @@ export function buildScene(THREE, opts = {}) {
     return g;
   }
 
+  /* ---------- AGV：前後對稱（沒有「車頭」），倒車與前進外觀一致 ---------- */
+  M.agvBeacon = mk('agv_beacon', 0xffb020, 0.4, 0.1, { emissive: new THREE.Color(0xffa000), emissiveIntensity: 0.9 });
+  function agv(tag) {
+    const g = new THREE.Group(); g.name = 'agv_' + tag;
+    const body = bbox(1.2, 0.2, 0.8, M.dark, 'agv_body', { fillet: 0.03 }); body.position.y = 0.14 + 0.1; g.add(body);
+    const band = bbox(1.23, 0.045, 0.83, M.arm, 'agv_band', { fillet: 0.015 }); band.position.y = 0.14 + 0.12; g.add(band);
+    for (const sx of [-1, 1]) {
+      const bump = bbox(0.06, 0.12, 0.7, M.kerb, 'agv_bumper_' + (sx > 0 ? 'e' : 'w'), { fillet: 0.01 });
+      bump.position.set(sx * 0.63, 0.14 + 0.09, 0); g.add(bump);
+      for (const sz of [-1, 1]) {
+        const w = mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, seg(16, 8)), M.dark, 'agv_wheel_' + (sx > 0 ? 'e' : 'w') + (sz > 0 ? 'f' : 'b'));
+        w.rotation.x = Math.PI / 2; w.position.set(sx * 0.45, 0.14 + 0.09, sz * 0.42); g.add(w);
+      }
+    }
+    const lift = new THREE.Group(); lift.name = 'agv_lift'; g.add(lift);
+    const plate = bbox(1.0, 0.03, 0.7, M.frame, 'agv_lift_plate', { fillet: 0.01 }); plate.position.y = 0.345; lift.add(plate);
+    const beacon = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.07, seg(12, 6)), M.agvBeacon, 'agv_beacon');
+    beacon.position.set(0, 0.14 + 0.235, 0.36); g.add(beacon);
+    return { g, lift };
+  }
+
+  /* ---------- 候選路線：地面光帶（可逐段「畫出」）、代價標籤、被擋處的 X ---------- */
+  const routeVis = ROUTES.map(r => ({ ...r, meta: pathMeta(roundedPath(r.pts, ROUTE_RADIUS, seg(10, 5))) }));
+  const ROUTE_TUBE_SEG = seg(160, 60), ROUTE_RADIAL = 6;
+  function tagTexture(text, blocked) {
+    const cv = document.createElement('canvas'); cv.width = 192; cv.height = 96;
+    const c = cv.getContext('2d');
+    if (blocked) {
+      c.fillStyle = '#e5423b'; c.beginPath(); c.arc(96, 48, 40, 0, Math.PI * 2); c.fill();
+      c.lineWidth = 5; c.strokeStyle = '#ffffff'; c.stroke();
+      c.fillStyle = '#ffffff'; c.font = '700 54px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('X', 96, 52);
+    } else {
+      c.fillStyle = '#ffffff'; c.strokeStyle = 'rgba(29,45,61,.35)'; c.lineWidth = 4;
+      c.beginPath(); c.roundRect ? c.roundRect(8, 16, 176, 64, 22) : c.rect(8, 16, 176, 64); c.fill(); c.stroke();
+      c.fillStyle = '#1d2d3d'; c.font = '700 38px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, 96, 50);
+    }
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; texs.push(t);
+    const m = new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false });
+    mats.push(m); return m;
+  }
+  function routes() {
+    const g = new THREE.Group(); g.name = 'routes';
+    routeVis.forEach((r, i) => {
+      const curve = new THREE.CatmullRomCurve3(r.meta.pts.map(q => new THREE.Vector3(q[0], 0, q[1])));
+      const mat = new THREE.MeshBasicMaterial({ name: 'route_' + r.id, color: r.blocked ? 0xe5423b : 0x3aa0ff, transparent: true, opacity: 0, depthWrite: false });
+      mats.push(mat);
+      const tube = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, ROUTE_TUBE_SEG, 0.075, ROUTE_RADIAL, false)), mat);
+      tube.name = 'route_' + r.id; tube.position.y = 0.17; tube.scale.y = 0.3; tube.visible = false;
+      g.add(tube);
+      const mid = pathAtDist(r.meta, r.meta.length * 0.45);
+      const at = r.blocked ? r.cross : [mid.x, mid.z];
+      const sp = new THREE.Sprite(tagTexture(r.meta.length.toFixed(1) + ' m', r.blocked));
+      sp.name = 'route_tag_' + r.id; sp.position.set(at[0], 0.75, at[1]); sp.scale.set(r.blocked ? 0.62 : 1.05, r.blocked ? 0.62 : 0.52, 1); sp.visible = false;
+      g.add(sp);
+      anim.routes.push({ tube, mat, sprite: sp, r });
+    });
+    return g;
+  }
+
+  /* ---------- 分析站落點（設備由 ticket 06 建置） ---------- */
+  function analysisPad() {
+    const g = new THREE.Group(); g.name = 'analysis_pad';
+    const pad = bbox(3.4, 0.03, 3.4, M.steel, 'analysis_pad_plate', { fillet: 0.01 });
+    pad.position.set(STATION_POS.x, 0.14 + 0.015, STATION_POS.z); g.add(pad);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const c = bbox(0.5, 0.035, 0.5, M.kerb, 'analysis_pad_corner_' + (sx > 0 ? 'e' : 'w') + (sz > 0 ? 's' : 'n'), { fillet: 0.01 });
+      c.position.set(STATION_POS.x + sx * 1.55, 0.14 + 0.02, STATION_POS.z + sz * 1.55); g.add(c);
+    }
+    return g;
+  }
+
   /* 晶片池：每個槽位含三種外型、標示精靈與紅框，update(p) 只切換可見性 */
   function chipPool() {
     const g = new THREE.Group(); g.name = 'chips';
@@ -487,7 +627,12 @@ export function buildScene(THREE, opts = {}) {
   }
 
   anim.arm = pickArm();
-  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, binCrate(), binChips());
+  /* 收納箱 + 托盤 + 箱內晶片放進同一個 rig：AGV 頂起時整組跟著走（座標仍是靜止時的世界座標） */
+  anim.rig = new THREE.Group(); anim.rig.name = 'bin_rig';
+  anim.rig.add(binCrate(), binChips());
+  anim.agv = agv('01'); anim.agv.g.position.set(AGV_PARK.x, 0, AGV_PARK.z);
+  anim.agv2 = agv('02'); anim.agv2.g.position.set(AGV_PARK.x + 0.2, 0, BIN_POS.z - 1.5); anim.agv2.g.rotation.y = Math.PI / 2;   // 待命中的第二台，示意車隊
+  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, anim.rig, analysisPad(), routes(), anim.agv.g, anim.agv2.g);
 
   /* 取景用邊界（相機距離與光源範圍由此推導，不寫死數字） */
   const bb = new THREE.Box3().setFromObject(group);
@@ -496,6 +641,52 @@ export function buildScene(THREE, opts = {}) {
     center: sph.center.clone(), radius: sph.radius, box: bb,
     contentRadius: 0.5 * Math.hypot(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.86
   };
+
+  /* ---------- AGV 與候選路線：全部只取決於 p ---------- */
+  const bestMeta = routeVis[0].meta;
+  function updateAgv(p) {
+    let x, z, yaw, lift = 0, carry = false;
+    const T2 = AGV_T;
+    if (p <= T2.drive1) {                                   // 停靠位 → 箱下（朝西，前後對稱所以外觀不變）
+      const u = ss(T2.drive0, T2.drive1, p);
+      x = AGV_PARK.x + (BIN_POS.x - AGV_PARK.x) * u; z = AGV_PARK.z; yaw = Math.PI;
+    } else if (p <= T2.go0) {                               // 頂起、等待路線決定
+      x = BIN_POS.x; z = BIN_POS.z; yaw = 0; lift = ss(T2.drive1, T2.lift1, p); carry = lift > 0;
+    } else {                                                // 沿最佳路線運送 → 放下
+      const q = pathAtDist(bestMeta, bestMeta.length * ss(T2.go0, T2.go1, p));
+      x = q.x; z = q.z; yaw = Math.atan2(-q.tz, q.tx);
+      lift = 1 - ss(T2.go1, T2.lower1, p); carry = true;
+    }
+    const A = anim.agv;
+    A.g.position.set(x, 0, z); A.g.rotation.y = yaw; A.lift.position.y = 0.06 * lift;
+    /* 箱組：頂起後與 AGV 同姿態；以箱心為軸旋轉 */
+    const R = anim.rig;
+    if (carry) {
+      const th = p <= T2.go0 ? 0 : yaw, c = Math.cos(th), s2 = Math.sin(th);
+      R.position.set(x - (BIN_POS.x * c + BIN_POS.z * s2), 0.06 * lift, z - (-BIN_POS.x * s2 + BIN_POS.z * c));
+      R.rotation.y = th;
+    } else { R.position.set(0, 0, 0); R.rotation.y = 0; }
+
+    /* 候選路線：依序畫出 → 被擋的與較長的逐一淡出 → 最佳路線發亮，抵達後淡出 */
+    for (let i = 0; i < anim.routes.length; i++) {
+      const o = anim.routes[i];
+      const f = clamp01((p - (T2.appear0 + i * T2.appearStep)) / T2.appearDur);
+      let op = 1;
+      const fw = T2.fade[i];
+      if (fw) op = 1 - ss(fw[0], fw[1], p);
+      else op = 1 - ss(T2.go1, T2.lower1, p);
+      const show = f > 0 && op > 0.01;
+      o.tube.visible = show; o.sprite.visible = show && f > 0.6;
+      if (!show) continue;
+      o.tube.geometry.setDrawRange(0, Math.floor(f * ROUTE_TUBE_SEG) * ROUTE_RADIAL * 6);
+      const glow = i === 0 ? ss(T2.glow0, T2.glow1, p) : 0;
+      o.mat.opacity = 0.85 * op;
+      if (!o.r.blocked) o.mat.color.setRGB(0.23 + (0.18 - 0.23) * glow, 0.63 + (0.66 - 0.63) * glow, 1 + (0.35 - 1) * glow);
+      o.tube.scale.set(1, 0.3, 1 + 0);
+      o.sprite.material.opacity = op;
+      o.sprite.material.color.setRGB(1 - 0.25 * glow, 1, 1 - 0.25 * glow);
+    }
+  }
 
   /* ---------- 動態：全部只取決於 p ---------- */
   function update(p) {
@@ -553,6 +744,8 @@ export function buildScene(THREE, opts = {}) {
     A.gripYaw.rotation.y = -ik.yaw;            // 抵消底座迴轉，夾爪與帶向對齊
     for (const f of A.fingers) f.position.x = f.userData.sign * (0.37 - 0.06 * tip.grip);
 
+    updateAgv(p);
+
     /* 箱內晶片：夾起後跟著夾爪走，放下後留在箱中 */
     for (let k = 0; k < BIN_CAP; k++) {
       const o = anim.bin[k], df = DEFECTS[k];
@@ -579,6 +772,10 @@ export function buildScene(THREE, opts = {}) {
       wide: {
         pos: mobile ? [4.0, 8.2, 15.5] : [3.4, 6.4, 12.6],
         tgt: tgtWide
+      },
+      route: {
+        pos: mobile ? [11.4, 33, 0.8] : [8.6, 14.6, 12.6],
+        tgt: mobile ? [9.2, 0, 0.8] : [10.0, 0, 0.7]
       },
       pick: {
         pos: mobile ? [PICK_X + 8.4, 4.9, 4.7] : [PICK_X + 3.6, 3.1, 4.8],
