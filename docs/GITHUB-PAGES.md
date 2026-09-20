@@ -20,7 +20,7 @@
 - `assets/images/` 的標頭、人像與輪播照片正常顯示。
 - `assets/data/story-data.js` 可載入，六幕文案資料正確。
 - 3D 產線可顯示；瀏覽器主控台沒有 404 或 module 載入錯誤。
-- `tools/production-line-3d.html` 可開啟開發檢視器。
+- `tools/production-line-3d.html` 可開啟開發檢視器（新場景預覽，含進度 p 滑桿）。
 
 ## 外部資源
 

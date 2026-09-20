@@ -35,18 +35,21 @@
 │  ├─ design-system/         # 色彩、字體與元件設計系統
 │  ├─ images/                # 教授、成員、實驗室與活動照片
 │  └─ js/
-│     ├─ line-model.js       # Three.js 產線幾何
+│     ├─ factory-scene.js    # Three.js 首頁 AI 製造場景（捲動進度 p 的純函式）
 │     ├─ runtime.js          # 宣告式頁面執行環境（產生檔）
+│     ├─ story-timeline.js   # 首頁捲動時間軸與鏡頭樣條（純函式）
 │     └─ three-d-stage.js    # 3D 檢視器 Web Component
 ├─ archive/
-│  └─ lab-site-v2.html       # 舊版網站，保留供比對
+│  ├─ lab-site-v2.html       # 舊版網站，保留供比對
+│  ├─ line-model.js          # 舊版 U 形產線幾何（首頁改版前）
+│  └─ production-line-3d.html # 舊版產線預覽工具
 ├─ docs/
 │  ├─ GITHUB-PAGES.md        # GitHub Pages 維護與部署說明
 │  └─ screens/               # 設計與畫面參考
 ├─ security-reports/
 │  └─ 2026-08-20/            # 歷史安全掃描產物
 ├─ tools/
-│  └─ production-line-3d.html # 3D 產線開發／匯出工具
+│  └─ production-line-3d.html # 新場景 3D 預覽／匯出工具
 └─ .nojekyll                 # 讓 GitHub Pages 原樣提供靜態資源
 ```
 
@@ -60,7 +63,8 @@
 | 實驗室照片輪播 | `index.html` 的 `LAB_PHOTOS` |
 | 交通方式與地圖 | `index.html` 的 `TRANSIT`、`TRANSIT_LINK`、`MAP_SRC` |
 | 各幕標題、說明、技術標籤與對話 | `assets/data/story-data.js` |
-| 3D 設備造型與尺寸 | `assets/js/line-model.js` |
+| 3D 設備造型、尺寸與取景點 | `assets/js/factory-scene.js` |
+| 各幕捲動區間與鏡頭插值 | `assets/js/story-timeline.js` |
 | 色彩、字體與元件樣式 | `assets/design-system/` |
 
 `assets/js/runtime.js` 是產生的執行環境檔案，除非同步更新產生來源，否則不建議手動編輯。
@@ -69,8 +73,8 @@
 
 啟動本機伺服器後，開啟 [http://localhost:8000/tools/production-line-3d.html](http://localhost:8000/tools/production-line-3d.html)。工具支援：
 
-- 六個工站與全線鏡頭切換
-- 線架、法線、動畫與低細節模式
+- 進度 p 滑桿（等同首頁捲動進度）、全景與檢測取景（桌機／手機）、良品／裂痕／缺角特寫
+- 線架、法線與低細節模式
 - OBJ／GLB 匯出
 
 ## 技術組成

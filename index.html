@@ -94,8 +94,7 @@ button,a,select{touch-action:manipulation}
   #heroFrame > span:first-child{left:16px !important}
   #heroFrame > span:last-child{right:16px !important;text-align:right}
   #worldBox{clip-path:inset(42% 0 0 0);}
-  #lineLabels{display:none !important}
-  #stationUI{inset:auto 0 0 0 !important;top:auto !important;height:min(58dvh,460px) !important;min-height:270px;opacity:0;pointer-events:none;overflow:visible !important}
+  #stationUI{inset:auto 0 0 0 !important;top:auto !important;height:min(52dvh,440px) !important;min-height:270px;opacity:0;pointer-events:none;overflow:visible !important}
   #stationUI .station-title{top:12px !important;left:16px !important;right:16px !important;justify-content:space-between;gap:8px !important}
   #stationUI .station-title h2{font-size:16px !important;text-align:right}
   #stationUI .station-mode{top:42px !important;right:16px !important;font-size:10px !important}
@@ -178,7 +177,6 @@ button,a,select{touch-action:manipulation}
 
       <div id="worldBox" style="position:absolute;inset:0;clip-path:inset(44% 0% 0% 0%);will-change:clip-path">
         <canvas id="lineCanvas" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
-        <div id="lineLabels" style="position:absolute;inset:0;pointer-events:none"></div>
         <div id="lineFallback" aria-hidden="true" style="position:absolute;inset:0;display:grid;place-items:center;background-color:var(--color-neutral-100);background-image:linear-gradient(var(--color-accent-200) 1px,transparent 1px),linear-gradient(90deg,var(--color-accent-200) 1px,transparent 1px);background-size:44px 44px;background-position:center;transition:opacity .4s ease">
           <span style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:11px;letter-spacing:.2em;color:var(--color-accent-700)">LOADING 3D MODEL…</span>
         </div>
@@ -1076,7 +1074,7 @@ class Component extends DCLogic {
      · 相機距離由模型邊界球推導（不寫死數字）
      · tone mapping 只在 renderer 擁有一次；輸出為 sRGB
      · 手機載簡化版（低面數、關陰影、dpr 上限 1.5）
-     · 幾何與設備外型在 assets/js/line-model.js；文案在 assets/data/story-data.js */
+     · 幾何與設備外型在 assets/js/factory-scene.js；文案在 assets/data/story-data.js */
   async initLine(){
     if(this._lineBusy||this._L)return;
     const cv=document.getElementById('lineCanvas');
@@ -1084,7 +1082,7 @@ class Component extends DCLogic {
     this._lineBusy=true;
     try{
       const THREE=await import('https://unpkg.com/three@0.184.0/build/three.module.js');
-      const mod=await import('./line-model.js');
+      const mod=await import('./factory-scene.js');
       const low=window.innerWidth<760;
       const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!low});
       renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,low?1.5:2));
@@ -1097,8 +1095,7 @@ class Component extends DCLogic {
 
       const scene=new THREE.Scene();
       scene.background=new THREE.Color(0xf2f2f3);
-      const line=mod.buildLine(THREE,{accent:this.props.accent||'#5980a6',detail:low?'low':'high',shadows:shadows,
-        stations:STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.code}))});
+      const line=mod.buildScene(THREE,{detail:low?'low':'high',shadows:shadows});
       scene.add(line.group);
 
       const li=this.props.lightIntensity==null?1:this.props.lightIntensity;
@@ -1106,8 +1103,8 @@ class Component extends DCLogic {
       const key=new THREE.DirectionalLight(0xffffff,1.5*li);
       key.position.set(6.5,9.5,5.5);
       if(shadows){
-        key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.bias=-0.0006;
-        const sp=line.bounds.radius*1.15,c=key.shadow.camera;
+        key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.bias=-0.0006;
+        const sp=11,c=key.shadow.camera;   // 陰影只覆蓋輸送帶一帶，不含整片地板，維持解析度
         c.left=-sp;c.right=sp;c.top=sp;c.bottom=-sp;c.near=0.5;c.far=sp*6;c.updateProjectionMatrix();
       }
       scene.add(key);
@@ -1120,7 +1117,6 @@ class Component extends DCLogic {
       const camera=new THREE.PerspectiveCamera(low?44:38,1,0.1,260);
       this._L={THREE:THREE,renderer:renderer,scene:scene,camera:camera,line:line,ground:ground,
         t0:performance.now(),size:{w:0,h:0}};
-      this.loadSignText();
       const fb=document.getElementById('lineFallback'); if(fb){ fb.style.opacity='0'; setTimeout(()=>{fb.style.display='none';},450); }
       this.resizeLine();
       this.updateHero(this._lastProg||0,true);
@@ -1143,80 +1139,16 @@ class Component extends DCLogic {
     L.camera.updateProjectionMatrix();
   }
 
-  /* 工站文字改由 3D 立牌承載；資料來自 assets/data/story-data.js（已於建構時帶入，此處無需再覆寫） */
-  loadSignText(){}
-
-  /* 工站標註（編號＋站名＋設備名）；資料來自 assets/data/story-data.js */
-  buildLabels(){
-    const host=document.getElementById('lineLabels'); if(!host||host.__built)return;
-    host.__built=true; this._labels=[];
-    const make=(i,st)=>{
-      const el=document.createElement('div');
-      el.style.cssText='position:absolute;left:0;top:0;transform:translate(-50%,-100%);opacity:0;transition:opacity .35s ease;white-space:nowrap;text-align:center';
-      el.innerHTML='<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:11px;letter-spacing:.22em;color:var(--color-accent-700)">'+st.num+'</div>'+
-        '<div style="font-family:\'Barlow Condensed\',\'Noto Sans TC\',sans-serif;font-weight:600;font-size:16px;color:var(--color-accent-900);line-height:1.2">'+st.zh+'</div>'+
-        '<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">'+st.device+'</div>'+
-        '<div style="width:1px;height:20px;margin:6px auto 0;background:var(--color-accent-500)"></div>';
-      host.appendChild(el);
-      this._labels[i]=el;
-    };
-    STATIONS.forEach((s,i)=>make(i,{num:s.num,zh:s.zh,device:s.code}));
-  }
-
-  updateLabels(activeIdx,show){
-    const L=this._L,host=document.getElementById('lineLabels');
-    if(!L||!host||!this._labels)return;
-    const w=L.size.w,h=L.size.h;
-    L.line.anchors.forEach((a,i)=>{
-      const el=this._labels[i]; if(!el)return;
-      const p=a.position.clone().project(L.camera);
-      const on=show&&p.z<1&&p.x>-1.05&&p.x<1.05&&p.y>-1.1&&p.y<1.1;
-      el.style.transform='translate(-50%,-100%) translate('+((p.x*0.5+0.5)*w).toFixed(1)+'px,'+((-p.y*0.5+0.5)*h).toFixed(1)+'px)';
-      el.style.opacity=on?(i===activeIdx?'1':'0.32'):'0';
-    });
-  }
-
   /* ---------- 鏡頭關鍵影格 ----------
-     過渡期以舊產線的六個工站取景當佔位；新場景（ticket 03 起）只需替換這裡的取景點。
+     取景點由場景提供（scene.shots）；新增一幕時在 factory-scene.js 補取景點，再於這裡加一個關鍵影格。
      時間軸與樣條在 assets/js/story-timeline.js（純函式，倒捲畫面一致）。
      取景不再手動偏移主體：文字欄佔掉的區域由 setViewOffset 補償（見 updateHero）。 */
-  shotAt(i,near){
-    const L=this._L,V=L.THREE.Vector3;
-    const A=L.line.anchors[i];
-    const yawOff=(this.props.camYaw==null?0:this.props.camYaw)*Math.PI/180;
-    const outward=A.outward.clone();
-    if(!near){
-      const r=L.line.bounds.contentRadius||L.line.bounds.radius,half=L.camera.fov*Math.PI/360;
-      const dist=(r/Math.tan(half))*1.1,tilt=this.props.camTilt==null?0.6:this.props.camTilt;
-      const bc=L.line.bounds.center,az=Math.atan2(outward.z,outward.x)+yawOff;
-      const tgt=new V(bc.x,1.2,bc.z);
-      const pos=new V(tgt.x+Math.cos(az)*Math.cos(tilt)*dist,tgt.y+Math.sin(tilt)*dist,tgt.z+Math.sin(az)*Math.cos(tilt)*dist);
-      return {pos:pos.toArray(),tgt:tgt.toArray()};
-    }
-    const dolly=this.props.dolly==null?1:this.props.dolly;
-    const mobile=window.innerWidth<760;
-    const yq=new (L.THREE.Quaternion)().setFromAxisAngle(new V(0,1,0),yawOff);
-    const radial=outward.applyQuaternion(yq);
-    const standBack=(mobile?11.8:9.1)/dolly;                    // 手機拉遠，避免工站被裁切
-    const pos=A.center.clone().add(radial.multiplyScalar(standBack)).setY(mobile?4.2:3.5);
-    const tgt=A.center.clone().setY(1.75);
-    return {pos:pos.toArray(),tgt:tgt.toArray()};
-  }
-
   buildKeys(){
     const S=this._TL.SEGMENTS,mid=k=>(S[k].from+S[k].to)/2;
-    const key=(p,shot)=>({p:p,pos:shot.pos,tgt:shot.tgt});
-    /* 段落索引：1=01, 2=過場, 3=02, 4=03, 5=04, 6=05, 7=06 */
-    return [
-      key(0,this.shotAt(0,false)),
-      key(mid(1),this.shotAt(0,true)),
-      key(mid(2),this.shotAt(1,false)),
-      key(mid(3),this.shotAt(1,true)),
-      key(mid(4),this.shotAt(2,true)),
-      key(mid(5),this.shotAt(3,true)),
-      key(mid(6),this.shotAt(4,true)),
-      key(mid(7),this.shotAt(5,true))
-    ];
+    const sh=this._L.line.shots(window.innerWidth<760);
+    const key=(p,shot)=>({p:p,pos:shot.pos.slice(),tgt:shot.tgt.slice()});
+    /* 段落索引：1=01, 2=過場；之後各幕的取景點隨場景設備逐張加入，暫時停在遠景 */
+    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.wide)];
   }
 
   updateHero(prog){
@@ -1276,16 +1208,18 @@ class Component extends DCLogic {
     /* 畫布固定全寬；文字欄佔掉的區域用視窗偏移補償，主體維持在可見區中央（過場時 pp=0，即滿版） */
     const W=L.size.w,H=L.size.h;
     const sx=mobile?0:Math.min(560,Math.max(320,window.innerWidth*0.36))*0.5*pp;
-    const sy=mobile?Math.min(window.innerHeight*0.58,460)*0.5*pp:0;
+    const sy=mobile?Math.max(0,Math.min(window.innerHeight*0.52,440)*0.5-55)*pp:0;   // 扣掉頂部導覽列佔的高度
     L.camera.setViewOffset(W,H,-sx,sy,W,H);
+    L.key=[prog.toFixed(5),W,H,sx.toFixed(1),sy.toFixed(1)].join('|');
     const vm=document.getElementById('viewmode');
     if(vm)vm.textContent=st.act>=0?'ACT '+STATIONS[st.act].num+' · '+Math.round(st.local*100)+'%':(st.id==='transition'?'SORT & PICK':'WIDE SHOT');
-    this.updateLabels(act,false);
   }
 
   renderLine(){
     const L=this._L; if(!L)return;
-    L.line.update((performance.now()-L.t0)/1000);
+    if(L.drawn===L.key)return;                 // 進度與視窗都沒變就不重畫
+    L.drawn=L.key;
+    L.line.update(this._lastProg||0);
     L.renderer.render(L.scene,L.camera);
   }
 
@@ -1298,9 +1232,6 @@ class Component extends DCLogic {
       L.renderer.dispose();
       if(L.renderer.forceContextLoss)L.renderer.forceContextLoss();
     }catch(e){}
-    const host=document.getElementById('lineLabels');
-    if(host){host.innerHTML='';host.__built=false;}
-    this._labels=null;
   }
 
   startLoop(){
