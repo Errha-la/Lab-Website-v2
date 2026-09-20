@@ -64,6 +64,48 @@ button,a,select{touch-action:manipulation}
 #worldBox{touch-action:pan-y;overscroll-behavior-x:none}
 #lineCanvas{touch-action:pan-y}
 #graphsvg{max-width:100%;overscroll-behavior:contain}
+.cv-page{--cv-ink:#1f2d3d;--cv-teal:#0b7f97;--cv-gold:#f2c230;--cv-side:color-mix(in srgb,var(--cv-teal) 6%,#fff);--cv-line:color-mix(in srgb,var(--cv-ink) 16%,#fff);--cv-mute:color-mix(in srgb,var(--cv-ink) 78%,#fff);padding:40px 28px 90px;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;color:var(--cv-ink)}
+.cv-page h2,.cv-page h3,.cv-page h4,.cv-page button{font-family:inherit}
+.cv{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;background:#fff;border:1px solid var(--cv-line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(29,45,61,.08)}
+.cv-side{background:var(--cv-side);padding:40px 32px 36px;border-right:1px solid var(--cv-line)}
+.cv-photo{display:block;width:176px;height:176px;margin:0 auto 20px;border-radius:50%;object-fit:cover;object-position:center 22%;border:4px solid #fff;box-shadow:0 0 0 1px var(--cv-line),0 6px 16px rgba(29,45,61,.16)}
+.cv-name{margin:0;text-align:center;font-size:28px;font-weight:700;color:var(--cv-ink)}
+.cv-name-alt{margin:2px 0 14px;text-align:center;font-size:16px;color:var(--cv-mute)}
+.cv-role{margin:0;text-align:center;font-size:14px;line-height:1.55;color:var(--cv-ink)}
+.cv-role-org{color:var(--cv-mute);margin-bottom:12px}
+.cv-mail{display:block;text-align:center;font-size:14px;color:var(--cv-teal);word-break:break-all}
+.cv-loc{margin:8px 0 28px;text-align:center;font-size:12.5px;line-height:1.6;color:var(--cv-mute)}
+.cv-loc span{display:block}
+.cv-h{margin:26px 0 12px;padding-bottom:6px;font-size:20px;font-weight:700;color:var(--cv-teal);border-bottom:2px solid var(--cv-line)}
+.cv-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.cv-list li{font-size:13.5px;line-height:1.5;color:var(--cv-mute)}
+.cv-list b{display:block;font-size:14px;font-weight:600;color:var(--cv-ink)}
+.cv-main{padding:40px 48px 44px;min-width:0}
+.cv-title{margin:0 0 12px;font-size:26px;font-weight:700;color:var(--cv-ink)}
+.cv-main .cv-title:not(:first-child){margin-top:36px;padding-top:24px;border-top:3px solid var(--cv-gold)}
+.cv-main .cv-title:first-child{padding-top:0}
+.cv-text{margin:0 0 12px;font-size:15.5px;line-height:1.85;color:var(--cv-ink);text-align:justify;text-wrap:pretty}
+.cv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cv-tag{display:inline-block;padding:3px 10px;border:1px solid var(--cv-teal);color:var(--cv-teal);font-size:12.5px;border-radius:999px;background:#fff}
+.cv-fig{margin:26px 0 0;text-align:center}
+.cv-fig img{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
+.cv-fig figcaption{font-size:12.5px;color:var(--cv-mute);margin-top:6px}
+.cv-proj{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.cv-proj li{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--cv-line);font-size:14.5px;line-height:1.55;color:var(--cv-ink)}
+.cv-proj b{font-size:16px;font-weight:700;color:var(--cv-teal)}
+.cv-proj i{display:block;margin-top:2px;font-style:normal;font-size:12.5px;color:var(--cv-mute)}
+.cv-pubhead{margin-top:36px;padding-top:24px;border-top:3px solid var(--cv-gold);display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cv-pubhead .cv-title{flex:1 1 auto;margin:0 !important;padding:0 !important;border:0 !important}
+.cv-more{background:transparent;border:0;cursor:pointer;font-weight:600;font-size:15px;color:var(--cv-teal)}
+.cv-pubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+.cv-pub{padding:18px 20px;border:1px solid var(--cv-line);border-radius:10px;background:#fff}
+.cv-pub-meta{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:13px;color:var(--cv-mute)}
+.cv-pub h4{margin:0 0 8px;font-size:16.5px;line-height:1.35;font-weight:700;color:var(--cv-ink)}
+.cv-pub p{margin:0 0 4px;font-size:13px;color:var(--cv-mute)}
+.cv-venue{font-style:italic}
+.cv-pub a{display:inline-block;margin-top:10px;font-weight:600;font-size:14px;color:var(--cv-teal)}
+@media (max-width:1000px){.cv{grid-template-columns:1fr}.cv-side{border-right:0;border-bottom:1px solid var(--cv-line)}.cv-main{padding:32px 24px 36px}}
+@media (max-width:760px){.cv-page{padding:20px 12px 64px}.cv{border-radius:12px}.cv-side{padding:28px 20px}.cv-text{text-align:left}.cv-pubs{grid-template-columns:1fr}.cv-proj li{grid-template-columns:44px 1fr}}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
 }
@@ -98,9 +140,9 @@ button,a,select{touch-action:manipulation}
   #stationUI .station-panel h3{font-size:30px !important}
   #stationUI .station-panel p{font-size:14px !important}
   #stationUI .station-panel ol{margin-bottom:18px !important}
-  #g-feat,#g-tech,#g-pubs,#g-recent{grid-template-columns:1fr !important}
-  #g-pubs,#g-recent{grid-auto-rows:auto !important;row-gap:18px !important}
-  #g-pubs > *,#g-recent > *{grid-row-end:auto !important;margin-bottom:0 !important}
+  #g-feat,#g-tech,#g-pubs{grid-template-columns:1fr !important}
+  #g-pubs{grid-auto-rows:auto !important;row-gap:18px !important}
+  #g-pubs > *{grid-row-end:auto !important;margin-bottom:0 !important}
   #g-graph{gap:12px !important}
   #g-graph > div:first-child{width:100% !important;min-width:0 !important}
   #g-graph > div:first-child svg{height:min(92vw,520px) !important}
@@ -108,12 +150,6 @@ button,a,select{touch-action:manipulation}
   #g-contact{grid-template-columns:1fr !important}
   #g-contact figure,#g-contact > .blueprint{min-height:420px !important}
   #g-contact figure iframe{min-height:320px}
-  .prof-intro{grid-template-columns:1fr !important;gap:24px !important}
-  .prof-intro figure{order:0 !important;max-width:320px;width:100%;margin:0 auto !important}
-  .prof-intro figure img{aspect-ratio:3/4}
-  .prof-education{grid-template-columns:1fr !important}
-  .exp-list{padding-left:26px !important}
-  .exp-list > #expLine{left:5px !important}
   #teamWrap{padding:56px 16px 72px !important}
   #teamWrap > sc-for > div > div:first-child{align-items:flex-start !important;flex-wrap:wrap}
   #teamWrap select{min-height:44px !important;max-width:100%}
@@ -462,110 +498,73 @@ button,a,select{touch-action:manipulation}
 </sc-if>
 
 <sc-if value="{{ atProf }}" hint-placeholder-val="{{ false }}">
-<section>
-  <div style="max-width:1320px;margin:0 auto;padding:74px 28px 40px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <span style="width:34px;height:1px;background:var(--color-accent)"></span>
-      <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Professor</span>
-    </div>
-    <div class="prof-intro" style="display:grid;grid-template-columns:1fr 268px;gap:34px;align-items:start">
-      <figure class="blueprint" style="position:relative;order:2;margin:0;background:transparent;display:flex;flex-direction:column">
-        <div style="flex:1;aspect-ratio:3/4;border-bottom:1px solid var(--color-divider);overflow:hidden">
-          <img src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" style="width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block">
-        </div>
-        <figcaption style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01 — PORTRAIT</span>
-          <span style="display:flex;gap:5px">
-            <span style="width:18px;height:3px;background:var(--color-accent)"></span>
-            <span style="width:18px;height:3px;background:var(--color-accent-200)"></span>
-            <span style="width:18px;height:3px;background:var(--color-accent-200)"></span>
-          </span>
-        </figcaption>
-        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-      </figure>
-      <div>
-        <h2 style="font-size:48px;margin:0 0 4px"><span class="l-zh">鄧志峰</span><span class="l-en">Jr-Fong Dang</span></h2>
-        <p style="margin:0 0 18px;font-family:'Barlow Condensed',sans-serif;font-size:19px;letter-spacing:.02em;color:var(--color-accent-700)"><span class="l-zh">Jr-Fong Dang</span><span class="l-en">鄧志峰</span></p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-          <span class="tag tag-accent"><span class="l-zh">副教授 Associate Professor</span><span class="l-en">Associate Professor</span></span>
-          <span class="tag tag-outline">NTUST</span>
-        </div>
-        <p class="l-zh" style="margin:0;font-size:15.5px;line-height:1.8;text-wrap:pretty;color:var(--color-neutral-800)">研究橫跨智慧製造、設備健康監測與 AI Agent 應用，並具半導體與製造業界資訊系統實務經歷，長期將工業知識與先進控制結合為可落地的決策系統。</p>
-        <p class="l-en" style="margin:0;font-size:15px;line-height:1.75;max-width:68ch;color:var(--color-neutral-800)">Research spanning smart manufacturing, equipment health monitoring and AI agent applications, backed by industry experience in semiconductor and manufacturing information systems.</p>
-        <div style="display:flex;gap:10px;margin-top:24px">
-          <a href="mailto:jfdang@mail.ntust.edu.tw" class="btn btn-primary blueprint" style="position:relative;font-size:15px">jfdang@mail.ntust.edu.tw<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></a>
-          <button type="button" class="btn btn-secondary" onClick="{{ goPubs }}" style="font-size:15px"><span class="l-zh">代表著作</span><span class="l-en">Publications</span> →</button>
-        </div>
+<section class="cv-page">
+  <div class="cv">
+    <aside class="cv-side">
+      <img class="cv-photo" src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" width="176" height="176">
+      <h2 class="cv-name"><span class="l-zh">鄧志峰 博士</span><span class="l-en">Jr-Fong Dang, Ph.D.</span></h2>
+      <p class="cv-name-alt"><span class="l-zh">Jr-Fong Dang, Ph.D.</span><span class="l-en">鄧志峰 博士</span></p>
+      <p class="cv-role"><span class="l-zh">副教授・智慧製造科技研究所</span><span class="l-en">Associate Professor, Institute of Intelligent Manufacturing Technology</span></p>
+      <p class="cv-role cv-role-org"><span class="l-zh">國立臺灣科技大學</span><span class="l-en">National Taiwan University of Science and Technology</span></p>
+      <a class="cv-mail" href="mailto:jfdang@mail.ntust.edu.tw">jfdang@mail.ntust.edu.tw</a>
+      <p class="cv-loc"><span class="l-zh">研究室 C209-1</span><span class="l-zh">實驗室 C219</span><span class="l-en">Office C209-1</span><span class="l-en">Lab C219</span></p>
+
+      <h3 class="cv-h"><span class="l-zh">學歷</span><span class="l-en">Education</span></h3>
+      <ul class="cv-list">
+        <sc-for list="{{ education }}" as="e" hint-placeholder-count="3">
+          <li><b>{{ e.y }}</b><span class="l-zh">{{ e.zh }}</span><span class="l-en">{{ e.en }}</span></li>
+        </sc-for>
+      </ul>
+
+      <h3 class="cv-h"><span class="l-zh">經歷</span><span class="l-en">Professional Experience</span></h3>
+      <ul class="cv-list">
+        <sc-for list="{{ experience }}" as="x" hint-placeholder-count="6">
+          <li><b>{{ x.p }}</b><span class="l-zh">{{ x.orgZh }}・{{ x.zh }}</span><span class="l-en">{{ x.orgEn }}, {{ x.en }}</span></li>
+        </sc-for>
+      </ul>
+    </aside>
+
+    <div class="cv-main">
+      <h3 class="cv-title"><span class="l-zh">關於</span><span class="l-en">About</span></h3>
+      <p class="cv-text l-zh">鄧志峰博士現任國立臺灣科技大學智慧製造科技研究所副教授，並獲國立交通大學工業工程與管理學博士學位。研究聚焦於整合大型語言模型、最佳化方法與工業資訊系統之 AI Agent 應用，涵蓋機器學習、深度學習、異常與缺陷偵測、設備健康監測與智慧排程。曾任職於台灣積體電路製造與戴樂格半導體，具備半導體製造資訊系統與巨量資料分析之產業實務經驗，致力於將工業領域知識轉化為可落地的自主決策系統。</p>
+      <p class="cv-text l-en">Dr. Jr-Fong Dang is an Associate Professor at the Institute of Intelligent Manufacturing Technology, National Taiwan University of Science and Technology, and holds a Ph.D. in Industrial Engineering and Management from National Chiao Tung University. His research focuses on AI agent applications that integrate large language models, optimization methods and industrial information systems, spanning machine learning, deep learning, anomaly and defect detection, equipment health monitoring and intelligent scheduling. With prior industry experience at TSMC and Dialog Semiconductor in manufacturing information systems and big-data analytics, he translates domain knowledge into deployable autonomous decision-making systems.</p>
+
+      <h3 class="cv-title"><span class="l-zh">研究領域</span><span class="l-en">Research Field</span></h3>
+      <p class="cv-text l-zh">本實驗室致力於發展結合大型語言模型（LLM）、最佳化方法與工業資訊系統之 AI Agent 應用，以實現自主決策與協作式問題求解。研究涵蓋 Agent 架構、多 Agent 協作、任務規劃、工具整合與人機協作，並運用 MES、ERP、PLM 與 IoT 平台之即時資料，應用於智慧排程、缺陷偵測、預測性維護與知識管理。</p>
+      <p class="cv-text l-en">Our laboratory focuses on developing AI agent applications that integrate large language models (LLMs), optimization methods, and industrial information systems to enable autonomous decision-making and collaborative problem solving. Our research encompasses agent architectures, multi-agent coordination, task planning, tool integration, and human–AI collaboration, with applications in intelligent scheduling, defect detection, predictive maintenance, and knowledge-based management using real-time data from MES, ERP, PLM, and IoT platforms.</p>
+      <div class="cv-tags">
+        <sc-for list="{{ profTags }}" as="t" hint-placeholder-count="6"><span class="cv-tag">{{ t.label }}</span></sc-for>
       </div>
-    </div>
-  </div>
 
-  <div style="max-width:1320px;margin:0 auto;padding:36px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 8px"><span class="l-zh">學歷</span><span class="l-en">Education</span></h3>
-    <div class="prof-education" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px">
-      <sc-for list="{{ education }}" as="e" hint-placeholder-count="3">
-        <div class="blueprint" data-reveal="" style="position:relative;padding:20px;background:transparent">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;letter-spacing:.04em;color:var(--color-accent);margin-bottom:10px">{{ e.y }}</div>
-          <p style="margin:0;font-size:14.5px;line-height:1.55"><span class="l-zh">{{ e.zh }}</span><span class="l-en">{{ e.en }}</span></p>
-          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-        </div>
-      </sc-for>
-    </div>
-  </div>
+      <figure class="cv-fig">
+        <img src="assets/images/agent-architecture.jpg" alt="Multi-agent architecture: a query is routed by an orchestrator to Quality, Scheduling, EHM and Knowledge agents, backed by an LLM, a database and a feedback loop." loading="lazy" decoding="async">
+        <figcaption><span class="l-zh">圖：本實驗室之多 Agent 決策架構示意</span><span class="l-en">Fig. Multi-agent decision architecture of the laboratory</span></figcaption>
+      </figure>
 
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 6px"><span class="l-zh">經歷</span><span class="l-en">Experience</span></h3>
-    <div style="height:26px"></div>
-    <ol id="exp" class="exp-list" style="position:relative;margin:0;padding:0 0 0 34px;list-style:none;display:flex;flex-direction:column;gap:18px">
-      <span id="expLine" style="position:absolute;left:6px;top:6px;width:1px;background:var(--color-accent-400);height:0;transition:height .8s cubic-bezier(.4,0,.2,1)"></span>
-      <sc-for list="{{ experience }}" as="x" hint-placeholder-count="5">
-        <li data-exp="" style="position:relative;opacity:0;transform:translateX(26px);transition:opacity .55s ease,transform .55s ease">
-          <span style="position:absolute;left:-34px;top:16px;width:13px;height:13px;background:var(--color-bg);border:1.5px solid var(--color-accent);"></span>
-          <div class="blueprint" style="position:relative;padding:18px 20px;background:transparent">
-            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px">
-              <h4 style="font-size:21px;margin:0"><span class="l-zh">{{ x.zh }}</span><span class="l-en">{{ x.en }}</span></h4>
-              <span style="font-size:14px;color:var(--color-accent-700)"><span class="l-zh">{{ x.orgZh }}</span><span class="l-en">{{ x.orgEn }}</span></span>
-            </div>
-            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-          </div>
-        </li>
-      </sc-for>
-    </ol>
-  </div>
+      <h3 class="cv-title"><span class="l-zh">研究計畫</span><span class="l-en">Research Projects</span></h3>
+      <ul class="cv-proj">
+        <sc-for list="{{ projects }}" as="j" hint-placeholder-count="6">
+          <li><b>{{ j.y }}</b><span class="l-zh">{{ j.zh }}<i>{{ j.typeZh }}</i></span><span class="l-en">{{ j.en }}<i>{{ j.typeEn }}</i></span></li>
+        </sc-for>
+      </ul>
 
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 18px"><span class="l-zh">研究領域</span><span class="l-en">Research Areas</span></h3>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      <sc-for list="{{ profTags }}" as="t" hint-placeholder-count="6">
-        <span class="tag tag-outline" style="font-size:13px">{{ t.label }}</span>
-      </sc-for>
-    </div>
-  </div>
-
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 90px">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px">
-      <h3 style="font-size:30px;margin:0"><span class="l-zh">代表著作</span><span class="l-en">Representative Publications</span></h3>
-      <button type="button" onClick="{{ goPubs }}" style="background:transparent;border:0;cursor:pointer;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:15px;color:var(--color-accent-700)"><span class="l-zh">查看完整論文列表</span><span class="l-en">All publications</span> →</button>
-    </div>
-    <div id="g-recent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;align-items:start">
-      <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
-        <article class="blueprint" data-reveal="" style="position:relative;padding:20px 22px;background:transparent">
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-            <span class="tag tag-outline">{{ p.typeLabel }}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-          </div>
-          <h4 style="font-size:17px;line-height:1.32;margin:0 0 8px">{{ p.title }}</h4>
-          <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
-          <p style="margin:0 0 12px;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-neutral">{{ t.label }}</span></sc-for>
-          </div>
-          <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
-            <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:14px"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
-          </sc-if>
-          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-        </article>
-      </sc-for>
+      <div class="cv-pubhead">
+        <h3 class="cv-title"><span class="l-zh">代表著作</span><span class="l-en">Representative Publications</span></h3>
+        <button type="button" class="cv-more" onClick="{{ goPubs }}"><span class="l-zh">查看完整論文列表</span><span class="l-en">All publications</span> →</button>
+      </div>
+      <div class="cv-pubs">
+        <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
+          <article class="cv-pub" data-reveal="">
+            <div class="cv-pub-meta"><span class="cv-tag">{{ p.typeLabel }}</span><span>{{ p.date }}</span></div>
+            <h4>{{ p.title }}</h4>
+            <p>{{ p.authorLine }}</p>
+            <p class="cv-venue">{{ p.venue }}</p>
+            <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
+              <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
+            </sc-if>
+          </article>
+        </sc-for>
+      </div>
     </div>
   </div>
 </section>
@@ -821,11 +820,20 @@ const EDU=[
 {y:'2004',zh:'國立臺灣師範大學 圖文傳播學系 學士',en:'B.S., Graphic Arts Communication, National Taiwan Normal University'}];
 
 const EXP=[
-{zh:'副教授',en:'Associate Professor',orgZh:'國立臺灣科技大學',orgEn:'National Taiwan University of Science and Technology'},
-{zh:'助理教授',en:'Assistant Professor',orgZh:'國立中興大學',orgEn:'National Chung Hsing University'},
-{zh:'助理教授',en:'Assistant Professor',orgZh:'逢甲大學',orgEn:'Feng Chia University'},
-{zh:'Principal IT Applications Architect（IT／全球製造資訊部門）',en:'Principal IT Applications Architect, IT / Global Manufacturing Information',orgZh:'戴樂格半導體有限公司',orgEn:'Dialog Semiconductor'},
-{zh:'Principal Engineer（IT／巨量資料分析課）',en:'Principal Engineer, IT / Big Data Analytics',orgZh:'台灣積體電路製造股份有限公司',orgEn:'Taiwan Semiconductor Manufacturing Company (TSMC)'}];
+{p:'2025.08 –',zh:'副教授',en:'Associate Professor',orgZh:'國立臺灣科技大學 智慧製造科技研究所',orgEn:'National Taiwan University of Science and Technology, Institute of Intelligent Manufacturing Technology'},
+{p:'2023.08 – 2025.07',zh:'助理教授',en:'Assistant Professor',orgZh:'國立臺灣科技大學 智慧製造科技研究所',orgEn:'National Taiwan University of Science and Technology, Institute of Intelligent Manufacturing Technology'},
+{p:'2021.08 – 2023.07',zh:'助理教授',en:'Assistant Professor',orgZh:'國立中興大學 智慧創意工程學士學位學程',orgEn:'National Chung Hsing University, B.S. Program in Intelligent Creative Engineering'},
+{p:'2020.02 – 2021.07',zh:'助理教授',en:'Assistant Professor',orgZh:'逢甲大學 工業工程與系統管理學系（所）',orgEn:'Feng Chia University, Department of Industrial Engineering and Systems Management'},
+{p:'2019.09 – 2020.01',zh:'Principal IT Applications Architect',en:'Principal IT Applications Architect',orgZh:'戴樂格半導體 IT／全球製造資訊部門',orgEn:'Dialog Semiconductor, IT / Global Manufacturing Information'},
+{p:'2012.08 – 2019.09',zh:'主任工程師',en:'Principal Engineer',orgZh:'台灣積體電路製造 IT／巨量資料分析課',orgEn:'TSMC, IT / Big Data Analytics'}];
+
+const PROJECTS=[
+{y:'2026',zh:'結合生成式人工智慧與多代理協作之工業自主決策架構研究',en:'Autonomous Industrial Decision-Making Architecture Integrating Generative AI and Multi-Agent Collaboration',typeZh:'國科會專題研究計畫（一般研究計畫）',typeEn:'NSTC Research Project (General)'},
+{y:'2026',zh:'基於神經符號 AI 與動態知識圖譜之製程智慧決策支援系統',en:'Neuro-Symbolic AI and Dynamic Knowledge Graph-Based Intelligent Decision Support for Manufacturing Processes',typeZh:'國科會專題研究計畫（產學合作研究計畫）',typeEn:'NSTC Research Project (Industry-Academia Collaboration)'},
+{y:'2025',zh:'建構結合多模態知識圖譜與大語言模型之缺陷檢測分析架構與流程之研究',en:'Defect Detection and Analysis Framework Combining Multimodal Knowledge Graphs and Large Language Models',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2023',zh:'建構基於生成對抗網路之知識蒸餾模型與其解釋力探討',en:'Knowledge Distillation Models Based on Generative Adversarial Networks and Their Explainability',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2021',zh:'深度學習在預測保養與排程模式之研究',en:'Deep Learning for Predictive Maintenance and Scheduling Models',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2020',zh:'考量機台健康狀況下之排程派工模型',en:'Dispatching and Scheduling Models Considering Machine Health Conditions',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'}];
 
 const PROF_TAGS=['machine-learning','deep-learning','anomaly-detection','defect-detection','smart-manufacturing','equipment-health-monitoring'];
 
@@ -921,7 +929,7 @@ class Component extends DCLogic {
   /* 論文卡片自動上移：以 grid 列跨距做 masonry，上下排間距固定 */
   wireMasonry(){
     const gap=18;
-    ['g-pubs','g-recent'].forEach(id=>{
+    ['g-pubs'].forEach(id=>{
       const grid=document.getElementById(id); if(!grid)return;
       if(window.innerWidth<=760){
         grid.style.gridAutoRows='auto';
@@ -1644,7 +1652,7 @@ class Component extends DCLogic {
 
     return {
       atProf:s.page==='professor', atTeam:s.page==='team', atContact:s.page==='contact',
-      education:EDU, experience:EXP,
+      education:EDU, experience:EXP, projects:PROJECTS,
       recentPapers:PAPERS.slice().sort((a,b)=>a.y!==b.y?b.y-a.y:b.m-a.m).slice(0,6).map(fmt),
       profTags:PROF_TAGS.map(k=>({label:(TAGS[k]||[k,k])[zh?0:1]})),
       labPhotos:LAB_PHOTOS.map((p,i)=>({src:p.src,alt:zh?p.zh:p.en,op:i===s.photo?1:0})),
