@@ -80,7 +80,7 @@ html[data-lang="en"] #boot .l-en{display:block}
 .pill-type{background:var(--color-accent-100);color:var(--color-accent);border:1px solid var(--color-accent-200)}
 /* 視圖切換（Uiverse radio-inputs 版型，配色為站內青綠） */
 .radio-inputs{position:relative;display:flex;flex-wrap:wrap;width:300px;max-width:100%;box-sizing:border-box;padding:.25rem;border-radius:.5rem;background:var(--color-accent-100);box-shadow:0 0 0 1px rgba(31,45,61,.06);font-size:14px}
-.radio-inputs .radio{flex:1 1 auto;text-align:center}
+.radio-inputs .radio{display:block;flex:1 1 0;min-width:0;gap:0;text-align:center}
 .radio-inputs .radio input{display:none}
 .radio-inputs .radio .name{display:flex;align-items:center;justify-content:center;padding:.5rem 0;border-radius:.5rem;border:0;cursor:pointer;color:var(--color-neutral-700);transition:all .15s ease-in-out}
 .radio-inputs .radio:hover .name{box-shadow:inset 0 0 0 999px rgba(255,255,255,.5)}
@@ -89,6 +89,8 @@ html[data-lang="en"] #boot .l-en{display:block}
 .blueprint.soft-card{border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--card-shadow)}
 .blueprint.soft-card>.corner{display:none}
 .input,select.input{background:#fff}
+select.input{border-radius:999px;padding-left:14px !important}
+.btn.btn-secondary,.btn.btn-ghost{border-radius:999px}
 #g-pubs>article{display:flex;flex-direction:column}
 #g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -465,7 +467,7 @@ button,a,select{touch-action:manipulation}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
             <sc-for list="{{ chips }}" as="c" hint-placeholder-count="12">
-              <button type="button" onClick="{{ c.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);padding:4px 11px;font-size:12px;background: {{ c.bg }};color: {{ c.fg }}">{{ c.label }}</button>
+              <button type="button" onClick="{{ c.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);border-radius:999px;padding:4px 12px;font-size:12px;background: {{ c.bg }};color: {{ c.fg }}">{{ c.label }}</button>
             </sc-for>
           </div>
           <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
@@ -1392,14 +1394,19 @@ class Component extends DCLogic {
     if(!els.length)return;
     const vh=window.innerHeight||800;
     this._rev=this._rev||[];
-    els.forEach((e,i)=>{
+    /* 依版面位置排序：同一列由左到右依序浮出 */
+    const info=els.map(e=>{ const r=e.getBoundingClientRect(); return {e:e,top:r.top,left:r.left}; })
+      .sort((a,b)=>Math.abs(a.top-b.top)<24?a.left-b.left:a.top-b.top);
+    let rowTop=null,col=0;
+    info.forEach(o=>{
+      if(rowTop===null||Math.abs(o.top-rowTop)>=24){ rowTop=o.top; col=0; } else col++;
+      const e=o.e;
       e.__rev=true;
-      if(e.getBoundingClientRect().top<vh*0.99){ e.classList.add('shown'); return; }
-      e.style.transitionDelay=(i%6)*70+'ms';
+      e.style.transitionDelay=col*90+'ms';
+      if(o.top<vh*0.99){ e.classList.add('shown'); return; }
       this._rev.push(e);
     });
   }
-
   releaseReveals(){
     if(!this._rev||!this._rev.length)return;
     const vh=window.innerHeight||800;
