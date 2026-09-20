@@ -157,7 +157,7 @@
         }
       }
     }
-    window.__preview = { goView, focus, setP };
+    window.__preview = { goView, focus, setP, inspect: () => scene.inspect() };
 
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => goView(b.dataset.view)));
     document.querySelectorAll('[data-focus]').forEach(b => b.addEventListener('click', () => focus(b.dataset.focus)));

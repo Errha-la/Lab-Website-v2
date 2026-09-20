@@ -61,6 +61,20 @@ export function panelPresence(p) {
   return smooth(v);
 }
 
+/* 滿版過場的邊框存在度 0..1：過場中為 1，與過場相鄰的幕在文字欄退場的緩動區間內同步淡入 */
+export function bleedPresence(p) {
+  p = clamp01(p);
+  const st = stateAt(p);
+  if (st.id === 'transition') return 1;
+  if (st.act < 0) return 0;
+  const s = SEGMENTS[st.index];
+  const prev = SEGMENTS[st.index - 1], next = SEGMENTS[st.index + 1];
+  let v = 0;
+  if (prev && prev.id === 'transition') v = Math.max(v, 1 - clamp01((p - s.from) / PANEL_RAMP));
+  if (next && next.id === 'transition') v = Math.max(v, 1 - clamp01((s.to - p) / PANEL_RAMP));
+  return smooth(v);
+}
+
 /* 標題（intro）淡出程度 0..1：1 = 完全顯示 */
 export function introPresence(p) {
   const end = SEGMENTS[0].to;

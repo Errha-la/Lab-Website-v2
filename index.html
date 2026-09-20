@@ -182,6 +182,8 @@ button,a,select{touch-action:manipulation}
         </div>
       </div>
 
+      <div id="bleedFrame" aria-hidden="true" style="position:absolute;inset:0;z-index:3;pointer-events:none;box-sizing:border-box;border:12px solid var(--color-neutral-100);box-shadow:inset 0 0 0 1px var(--color-accent-500);opacity:0"></div>
+
       <div id="heroFrame" style="position:absolute;left:0;right:0;top:44%;bottom:0;z-index:4;pointer-events:none;border-top:1px solid var(--color-accent-500)">
         <span style="position:absolute;left:28px;top:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01 — CLOSED LOOP LINE</span>
         <span style="position:absolute;right:28px;top:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--color-accent-700)">ISOMETRIC · NTUST APC LAB</span>
@@ -1147,8 +1149,8 @@ class Component extends DCLogic {
     const S=this._TL.SEGMENTS,mid=k=>(S[k].from+S[k].to)/2;
     const sh=this._L.line.shots(window.innerWidth<760);
     const key=(p,shot)=>({p:p,pos:shot.pos.slice(),tgt:shot.tgt.slice()});
-    /* 段落索引：1=01, 2=過場；之後各幕的取景點隨場景設備逐張加入，暫時停在遠景 */
-    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.wide)];
+    /* 段落索引：1=01, 2=過場, 3=02；之後各幕的取景點隨場景設備逐張加入，暫時停在遠景 */
+    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.pick),key(mid(3),sh.wide)];
   }
 
   updateHero(prog){
@@ -1165,6 +1167,7 @@ class Component extends DCLogic {
     const frame=document.getElementById('heroFrame');
     const ui=document.getElementById('stationUI');
     const nav=document.getElementById('actNav');
+    const bleed=document.getElementById('bleedFrame');
     const panel=document.getElementById('actPanel');
     const clipTop=mobile?42:44;
     if(box)box.style.clipPath='inset('+(clipTop*(1-k)).toFixed(2)+'% 0% 0% 0%)';
@@ -1173,6 +1176,7 @@ class Component extends DCLogic {
       hero.style.transform='translateY('+(-70*(1-f)).toFixed(1)+'px)';
     }
     if(frame)frame.style.opacity=f.toFixed(3);
+    if(bleed)bleed.style.opacity=TL.bleedPresence(prog).toFixed(3);
     if(ui)ui.style.opacity=k.toFixed(3);
     if(nav){ nav.style.opacity=k.toFixed(3); nav.style.pointerEvents=k>0.6?'auto':'none'; }
     /* 標題與檢視模式標籤跟著文字欄退場，過場時畫面只剩場景 */

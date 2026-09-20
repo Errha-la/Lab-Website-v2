@@ -7,14 +7,15 @@
  *   · 材質按角色分槽（M），每個 mesh 具名，方便匯出後在其他軟體選取。
  *   · 文案在 assets/data/story-data.js，不在這裡。
  *
- * 目前包含（ticket 03）：地板、直線輸送帶（帶面橫紋隨進度移動）、晶片（良品／裂痕／缺角）、檢測相機龍門架與環形補光、
- * 檢測後的 O／X 標示、紅框與信心分數。後續各幕的設備在這個檔案往下加。
+ * 目前包含：地板、直線輸送帶（帶面橫紋隨進度移動）、晶片（良品／裂痕／缺角）、檢測相機龍門架與環形補光、
+ * 檢測後的 O／X 標示、紅框與信心分數（ticket 03）；機械手臂取出瑕疵品並裝箱（ticket 04，輸送帶在
+ * p = P_FREEZE 停住）。後續各幕的設備在這個檔案往下加。
  *
  * 用法
  *   const THREE = await import('https://unpkg.com/three@0.184.0/build/three.module.js');
  *   const scene = buildScene(THREE, { detail:'high', shadows:true });
  *   root.add(scene.group); scene.update(p);   // p = 0..1
- *   scene.shots(mobile) → { wide, detect }     // 鏡頭取景點（供時間軸關鍵影格）
+ *   scene.shots(mobile) → { wide, detect, pick }     // 鏡頭取景點（供時間軸關鍵影格）
  *   scene.bounds        → { center, radius, box, contentRadius }
  *   scene.dispose()
  *
@@ -26,10 +27,16 @@ export const DECK_Y = 0.62;            // 輸送帶中心高度
 export const BELT_TOP = DECK_Y + 0.05; // 帶面高度（晶片擺放面）
 export const BELT_X0 = -8;             // 帶尾（進料端）
 export const CAM_X = 0;                // 檢測相機位置
+export const PICK_X = 4.5;             // 機械手臂取件位置（相機下游）
 export const PITCH = 1.3;              // 晶片間距
-export const SLOTS = 11;               // 同時在帶上的晶片數
-export const CYCLE = PITCH * SLOTS;    // 循環長度（= 可見帶長 14.3 m）
-export const TRAVEL_PER_P = 50;        // 捲完整段時輸送帶總位移（公尺）
+export const SLOTS = 14;               // 同時在帶上的晶片數
+export const CYCLE = PITCH * SLOTS;    // 循環長度（= 可見帶長 18.2 m，帶尾 x = 10.2）
+export const TRAVEL_PER_P = 50;        // 輸送帶每單位進度的位移（公尺）
+export const P_FREEZE = 0.37;          // 過場結束後輸送帶停住（之後由 AGV 幕接手，見 ticket 05）
+
+/* 手臂一次取放循環涵蓋的「帶面位移」（相對晶片抵達取件點的位置 Δ，公尺）；
+   關鍵點之間用 smoothstep 插值。循環總長 3.7 m < 3 個晶片間距 3.9 m，所以兩顆瑕疵品不會同時占用手臂。 */
+const T = { start: -0.8, hover: -0.4, grasp: -0.05, closed: 0.2, lift: 0.6, above: 1.3, down: 1.6, open: 1.85, up: 2.1, home: 2.9 };
 
 /* ---------- 確定性瑕疵序列（不用 Math.random） ---------- */
 export function hash01(n) {
@@ -38,22 +45,54 @@ export function hash01(n) {
   h ^= h >>> 16;
   return (h >>> 0) / 4294967296;
 }
-/* 晶片編號 → 'ok' | 'crack'（裂成兩半）| 'chip'（缺角） */
-/* 種子 16：使第 01 幕（p 0.07–0.25）通過相機的晶片為 ok×4、crack、ok、chip，過場中至少再出現一個缺角；改動 PITCH／TRAVEL 後要重挑 */
-const KIND_SEED = 16;
-export function chipKind(id) {
-  const r = hash01(id + KIND_SEED);
-  if (r < 0.58) return 'ok';
-  return r < 0.79 ? 'crack' : 'chip';
-}
 const CONF = [0.87, 0.89, 0.91, 0.93, 0.94, 0.96, 0.97, 0.98];
-export function chipConfidenceIndex(id) { return Math.floor(hash01(id + 9001) * CONF.length); }
+export function chipConfidenceIndex(n) { return Math.floor(hash01(n + 9001) * CONF.length); }
 
-/* 第 i 個槽位在進度 p 時的位置與晶片編號（循環時編號遞增） */
+/* 晶片流水號 n（第 n 顆進料，可為負：捲動開始時已在帶上的晶片）。
+   序號 < N_MIN 的晶片在 p=0 時已過了取件點（或取件循環已開始），一律視為良品，手臂才不會在第一格就「跳」在半空。 */
+export const N_MIN = Math.ceil((BELT_X0 - PICK_X - T.start) / PITCH);
+
+/* 種子 → 晶片種類函式。規則：原始機率抽到瑕疵，且前兩顆都不是瑕疵，才算瑕疵
+   （瑕疵品至少相隔 3 顆，手臂才來得及取放）。改動 PITCH／TRAVEL／T 後要重挑種子。 */
+export function makeKinds(seed) {
+  const cache = new Map();
+  const raw = n => {
+    const r = hash01(n + seed);
+    if (r >= 0.42) return 'ok';
+    return hash01(n + seed + 5555) < 0.5 ? 'crack' : 'chip';
+  };
+  const kind = n => {
+    if (n < N_MIN) return 'ok';
+    if (cache.has(n)) return cache.get(n);
+    const k = (raw(n) !== 'ok' && kind(n - 1) === 'ok' && kind(n - 2) === 'ok') ? raw(n) : 'ok';
+    cache.set(n, k);
+    return k;
+  };
+  return kind;
+}
+const KIND_SEED = 420;   // 種子搜尋條件：第 01 幕通過相機的晶片含裂痕與缺角；p≈0.224 與 0.302 各有一次完整取件；過場結束（凍結）時手臂不在半空
+export const chipKind = makeKinds(KIND_SEED);
+
+/* 輸送帶位移（進度 p → 公尺）：過場結束後停住 */
+export function travelAt(p) { return TRAVEL_PER_P * Math.min(Math.max(p, 0), P_FREEZE); }
+/* 晶片 n 的 x 位置 */
+export const chipX = (n, p) => BELT_X0 + travelAt(p) - n * PITCH;
+/* 第 i 個槽位在進度 p 時的晶片流水號與 x 位置 */
 export function slotAt(i, p) {
-  const d = i * PITCH + p * TRAVEL_PER_P;
-  const wraps = Math.floor(d / CYCLE);
-  return { x: BELT_X0 + (d - wraps * CYCLE), id: i + SLOTS * wraps };
+  const t = travelAt(p), m = Math.floor(t / PITCH);
+  const n = m - ((((m - i) % SLOTS) + SLOTS) % SLOTS);
+  return { x: BELT_X0 + t - n * PITCH, id: n };
+}
+
+/* 全程的瑕疵品清單（依取件順序）：k = 進箱順序，供箱內位置與晶片外型使用 */
+export function defectList(kindFn) {
+  const out = [];
+  const nMax = Math.floor(TRAVEL_PER_P * P_FREEZE / PITCH) + 1;
+  for (let n = N_MIN; n <= nMax; n++) {
+    const kd = kindFn(n);
+    if (kd !== 'ok') out.push({ n, k: out.length, kind: kd });
+  }
+  return out;
 }
 
 const clamp01 = x => Math.max(0, Math.min(1, x));
@@ -82,6 +121,7 @@ export function buildScene(THREE, opts = {}) {
     chipPin:  mk('chip_pin',       0xd5dbe0, 0.30, 0.85),
     chipMark: mk('chip_marker',    0xf28c28, 0.50, 0.10),
     fracture: mk('chip_fracture',  0xeef1f3, 0.55, 0.05, { emissive: new THREE.Color(0xffffff), emissiveIntensity: 0.25 }),
+    arm:      mk('arm_orange',     0xf28c28, 0.45, 0.25),
     frameBad: mk('defect_frame',   0xe5423b, 0.50, 0.10, { emissive: new THREE.Color(0xe5423b), emissiveIntensity: 0.6 }),
     beam:     new THREE.MeshBasicMaterial({ name: 'scan_beam', color: 0x66e0ff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
   };
@@ -123,7 +163,7 @@ export function buildScene(THREE, opts = {}) {
 
   const group = new THREE.Group();
   group.name = 'ai_manufacturing_scene';
-  const anim = { marks: [], beam: null, ring: null, slots: [] };
+  const anim = { marks: [], beam: null, ring: null, slots: [], arm: null, bin: [] };
 
   /* ---------- 廠房地板（預留後續各幕的空間） ---------- */
   function floorPlate() {
@@ -316,6 +356,119 @@ export function buildScene(THREE, opts = {}) {
     return g;
   }
 
+  /* ---------- 取件站：機械手臂 + 收納箱 ---------- */
+  const ARM = { x: PICK_X, z: -1.7, baseY: 0.64, H0: 0.47, L1: 1.15, L2: 1.05, Lg: 0.25 };
+  const BIN = { x: PICK_X + 1.7, z: -1.7, w: 1.6, d: 1.5, h: 0.42, floor: 0.06 };
+  const CHIP_Y = BELT_TOP + CHIP.h / 2;   // 晶片在帶面上的中心高度
+
+  function pickArm() {
+    const g = new THREE.Group(); g.name = 'pick_arm';
+    const ped = bbox(0.8, 0.5, 0.8, M.frame, 'arm_pedestal', { fillet: 0.03 });
+    ped.position.set(ARM.x, 0.14 + 0.25, ARM.z); g.add(ped);
+    const yawG = new THREE.Group(); yawG.name = 'arm_yaw'; yawG.position.set(ARM.x, ARM.baseY, ARM.z); g.add(yawG);
+    const plate = mesh(new THREE.CylinderGeometry(0.34, 0.38, 0.12, seg(24, 10)), M.dark, 'arm_turntable');
+    plate.position.y = 0.06; yawG.add(plate);
+    const col = bbox(0.3, ARM.H0 - 0.12, 0.3, M.arm, 'arm_column', { fillet: 0.03 });
+    col.position.y = 0.12 + (ARM.H0 - 0.12) / 2; yawG.add(col);
+
+    const joint = (parent, name, r, len) => {
+      const j = mesh(new THREE.CylinderGeometry(r, r, len, seg(20, 8)), M.dark, name);
+      j.rotation.z = Math.PI / 2; parent.add(j); return j;
+    };
+    const shoulder = new THREE.Group(); shoulder.name = 'arm_shoulder'; shoulder.position.y = ARM.H0; yawG.add(shoulder);
+    joint(shoulder, 'arm_shoulder_joint', 0.17, 0.4);
+    const l1 = bbox(0.2, ARM.L1, 0.24, M.arm, 'arm_link_1', { fillet: 0.03 }); l1.position.y = ARM.L1 / 2; shoulder.add(l1);
+    const elbow = new THREE.Group(); elbow.name = 'arm_elbow'; elbow.position.y = ARM.L1; shoulder.add(elbow);
+    joint(elbow, 'arm_elbow_joint', 0.15, 0.34);
+    const l2 = bbox(0.17, ARM.L2, 0.2, M.arm, 'arm_link_2', { fillet: 0.03 }); l2.position.y = ARM.L2 / 2; elbow.add(l2);
+    const wrist = new THREE.Group(); wrist.name = 'arm_wrist'; wrist.position.y = ARM.L2; elbow.add(wrist);
+    joint(wrist, 'arm_wrist_joint', 0.11, 0.28);
+    const gripYaw = new THREE.Group(); gripYaw.name = 'arm_gripper'; wrist.add(gripYaw);
+    const palm = bbox(0.8, 0.07, 0.2, M.dark, 'gripper_palm', { fillet: 0.015 }); palm.position.y = -0.05; gripYaw.add(palm);
+    const fingers = [];
+    for (const sgn of [-1, 1]) {
+      const f = bbox(0.05, 0.32, 0.16, M.steel, 'gripper_finger_' + (sgn > 0 ? 'r' : 'l'), { fillet: 0.01 });
+      f.position.y = -0.2; f.userData.sign = sgn; gripYaw.add(f); fingers.push(f);
+    }
+    return { g, yawG, shoulder, elbow, wrist, gripYaw, fingers };
+  }
+
+  function binCrate() {
+    const g = new THREE.Group(); g.name = 'reject_bin';
+    const fl = bbox(BIN.w, BIN.floor, BIN.d, M.frame, 'bin_floor', { fillet: 0.01 });
+    fl.position.set(BIN.x, 0.14 + BIN.floor / 2, BIN.z); g.add(fl);
+    for (const sgn of [-1, 1]) {
+      const wz = bbox(BIN.w, BIN.h, 0.06, M.frame, 'bin_wall_' + (sgn > 0 ? 'front' : 'back'), { fillet: 0.015 });
+      wz.position.set(BIN.x, 0.14 + BIN.h / 2, BIN.z + sgn * (BIN.d / 2 - 0.03)); g.add(wz);
+      const wx = bbox(0.06, BIN.h, BIN.d, M.frame, 'bin_wall_' + (sgn > 0 ? 'right' : 'left'), { fillet: 0.015 });
+      wx.position.set(BIN.x + sgn * (BIN.w / 2 - 0.03), 0.14 + BIN.h / 2, BIN.z); g.add(wx);
+    }
+    const label = bbox(0.5, 0.16, 0.02, M.frameBad, 'bin_tag_x', { fillet: 0.01 });
+    label.position.set(BIN.x, 0.14 + BIN.h * 0.62, BIN.z + BIN.d / 2 + 0.005); g.add(label);   // 紅色 X 收納箱標記
+    return g;
+  }
+  /* 第 k 個進箱的瑕疵品在箱內的位置：2×2 一層，滿了疊第二層 */
+  const BIN_CAP = 8, BIN_SCALE = 0.8;
+  function binSlot(k) {
+    const i = k % 4, layer = Math.floor(k / 4) % 2;
+    return {
+      x: BIN.x + (i % 2 ? 0.38 : -0.38),
+      z: BIN.z + (i < 2 ? -0.36 : 0.36),
+      y: 0.14 + BIN.floor + (CHIP.h * BIN_SCALE) / 2 + layer * 0.1,
+      yaw: (hash01(k + 77) - 0.5) * 0.9
+    };
+  }
+
+  /* 取放循環的取件點（帶面）、待命點與過渡高度 */
+  const HOME = [PICK_X - 0.7, 1.55, -0.6];
+  const HOVER_Y = CHIP_Y + 0.6, HIGH_Y = 1.35;
+  const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  const ss = (a, b, x) => smooth(clamp01((x - a) / (b - a)));
+
+  /* Δ = 晶片相對取件點的位置（= 帶面位移）→ 夾爪中心點與夾合度；全程只取決於 Δ 與進箱序號 k */
+  function tipAt(d, k) {
+    const bin = binSlot(k);
+    const grasp = [PICK_X + T.closed, CHIP_Y, 0];
+    const lifted = [PICK_X + T.closed + 0.15, HIGH_Y, -0.15];
+    if (d <= T.start) return { pos: HOME, grip: 0 };
+    if (d < T.hover) return { pos: lerp3(HOME, [PICK_X + T.hover, HOVER_Y, 0], ss(T.start, T.hover, d)), grip: 0 };
+    if (d < T.grasp) return { pos: [PICK_X + d, HOVER_Y + (CHIP_Y - HOVER_Y) * ss(T.hover, T.grasp, d), 0], grip: 0 };
+    if (d < T.closed) return { pos: [PICK_X + d, CHIP_Y, 0], grip: ss(T.grasp, T.closed, d) };
+    if (d < T.lift) return { pos: lerp3(grasp, lifted, ss(T.closed, T.lift, d)), grip: 1 };
+    if (d < T.above) return { pos: lerp3(lifted, [bin.x, HIGH_Y, bin.z], ss(T.lift, T.above, d)), grip: 1 };
+    if (d < T.down) return { pos: lerp3([bin.x, HIGH_Y, bin.z], [bin.x, bin.y, bin.z], ss(T.above, T.down, d)), grip: 1 };
+    if (d < T.open) return { pos: [bin.x, bin.y, bin.z], grip: 1 - ss(T.down, T.open, d) };
+    if (d < T.up) return { pos: lerp3([bin.x, bin.y, bin.z], [bin.x, HIGH_Y, bin.z], ss(T.open, T.up, d)), grip: 0 };
+    if (d < T.home) return { pos: lerp3([bin.x, HIGH_Y, bin.z], HOME, ss(T.up, T.home, d)), grip: 0 };
+    return { pos: HOME, grip: 0 };
+  }
+
+  /* 二連桿解析解：夾爪中心點（世界座標）→ 底座迴轉、肩、肘角 */
+  function solveArm(tip) {
+    const dx = tip[0] - ARM.x, dz = tip[2] - ARM.z;
+    const yaw = Math.atan2(dx, dz), r = Math.hypot(dx, dz);
+    const ey = tip[1] + ARM.Lg - (ARM.baseY + ARM.H0);
+    const D = Math.min(ARM.L1 + ARM.L2 - 0.02, Math.max(Math.abs(ARM.L1 - ARM.L2) + 0.05, Math.hypot(r, ey)));
+    const c = Math.max(-1, Math.min(1, (D * D - ARM.L1 * ARM.L1 - ARM.L2 * ARM.L2) / (2 * ARM.L1 * ARM.L2)));
+    const th2 = Math.acos(c);
+    const th1 = Math.atan2(r, ey) - Math.atan2(ARM.L2 * Math.sin(th2), ARM.L1 + ARM.L2 * Math.cos(th2));
+    return { yaw, th1, th2 };
+  }
+
+  const DEFECTS = defectList(chipKind);
+
+  function binChips() {
+    const g = new THREE.Group(); g.name = 'bin_chips';
+    for (let k = 0; k < BIN_CAP; k++) {
+      const holder = new THREE.Group(); holder.name = 'bin_chip_' + pad(k + 1);
+      const v = { crack: chipCrack(), chip: chipChipped() };
+      for (const key in v) { v[key].visible = false; holder.add(v[key]); }
+      holder.visible = false; g.add(holder);
+      anim.bin.push({ holder, v, kind: null });
+    }
+    return g;
+  }
+
   /* 晶片池：每個槽位含三種外型、標示精靈與紅框，update(p) 只切換可見性 */
   function chipPool() {
     const g = new THREE.Group(); g.name = 'chips';
@@ -328,12 +481,13 @@ export function buildScene(THREE, opts = {}) {
       const sprite = new THREE.Sprite(labelMat('ok', 0)); sprite.name = 'chip_label_' + tag;
       sprite.position.y = 0.6; sprite.scale.set(0.44, 0.55, 1); sprite.visible = false; slot.add(sprite);
       g.add(slot);
-      anim.slots.push({ slot, variants, frame, sprite, kind: null, id: -1 });
+      anim.slots.push({ slot, variants, frame, sprite, kind: null, id: null });   // 流水號可為負，哨兵值不能用 -1
     }
     return g;
   }
 
-  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool());
+  anim.arm = pickArm();
+  group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, binCrate(), binChips());
 
   /* 取景用邊界（相機距離與光源範圍由此推導，不寫死數字） */
   const bb = new THREE.Box3().setFromObject(group);
@@ -346,7 +500,7 @@ export function buildScene(THREE, opts = {}) {
   /* ---------- 動態：全部只取決於 p ---------- */
   function update(p) {
     p = clamp01(p);
-    const travel = p * TRAVEL_PER_P;
+    const travel = travelAt(p);
     const markPitch = CYCLE / anim.marks.length;
     anim.marks.forEach((m, i) => {
       const d = (i * markPitch + travel) % CYCLE;
@@ -365,9 +519,13 @@ export function buildScene(THREE, opts = {}) {
         s.variants.chip.visible = kind === 'chip';
         s.sprite.material = labelMat(kind === 'ok' ? 'ok' : 'bad', id);
       }
+      /* 瑕疵品被夾爪夾起後，改由箱內晶片物件接手（同一位置、同一姿態） */
+      const picked = s.kind !== 'ok' && x - PICK_X >= T.grasp;
+      s.slot.visible = !picked;
+      if (picked) continue;
       /* 進出帶尾的兩端縮放淡入淡出，避免循環瞬移被看見 */
       const edge = smooth(clamp01(Math.min(x - BELT_X0, BELT_X0 + CYCLE - x) / 0.5));
-      s.slot.position.set(x, BELT_TOP + CHIP.h / 2, 0);
+      s.slot.position.set(x, CHIP_Y, 0);
       s.slot.scale.setScalar(Math.max(0.001, edge));
       /* 過了相機才有檢測結果 */
       const dx = x - CAM_X;
@@ -380,6 +538,37 @@ export function buildScene(THREE, opts = {}) {
     }
     M.beam.opacity = 0.08 + 0.32 * flash;
     M.ring.emissiveIntensity = 0.9 + 0.7 * flash;
+
+    /* 手臂：找出正在取放的那顆瑕疵品（間距保證同時最多一顆），否則回待命點 */
+    let tip = { pos: HOME, grip: 0 };
+    for (const df of DEFECTS) {
+      const d = chipX(df.n, p) - PICK_X;
+      if (d > T.start && d < T.home) { tip = tipAt(d, df.k); break; }
+    }
+    const A = anim.arm, ik = solveArm(tip.pos);
+    A.yawG.rotation.y = ik.yaw;
+    A.shoulder.rotation.x = ik.th1;
+    A.elbow.rotation.x = ik.th2;
+    A.wrist.rotation.x = -(ik.th1 + ik.th2);   // 抵消前兩節的傾角，夾爪始終朝下
+    A.gripYaw.rotation.y = -ik.yaw;            // 抵消底座迴轉，夾爪與帶向對齊
+    for (const f of A.fingers) f.position.x = f.userData.sign * (0.37 - 0.06 * tip.grip);
+
+    /* 箱內晶片：夾起後跟著夾爪走，放下後留在箱中 */
+    for (let k = 0; k < BIN_CAP; k++) {
+      const o = anim.bin[k], df = DEFECTS[k];
+      if (!df) { o.holder.visible = false; continue; }
+      const d = chipX(df.n, p) - PICK_X;
+      const on = d >= T.grasp;
+      o.holder.visible = on;
+      if (!on) continue;
+      if (o.kind !== df.kind) { o.kind = df.kind; o.v.crack.visible = df.kind === 'crack'; o.v.chip.visible = df.kind === 'chip'; }
+      const bin = binSlot(k);
+      const pos = tipAt(Math.min(d, T.down), k).pos;
+      const u = ss(T.closed, T.down, d);
+      o.holder.position.set(pos[0], pos[1], pos[2]);
+      o.holder.rotation.y = bin.yaw * u;
+      o.holder.scale.setScalar(1 + (BIN_SCALE - 1) * u);
+    }
   }
   update(0);
 
@@ -390,6 +579,10 @@ export function buildScene(THREE, opts = {}) {
       wide: {
         pos: mobile ? [4.0, 8.2, 15.5] : [3.4, 6.4, 12.6],
         tgt: tgtWide
+      },
+      pick: {
+        pos: mobile ? [PICK_X + 8.4, 4.9, 4.7] : [PICK_X + 3.6, 3.1, 4.8],
+        tgt: mobile ? [PICK_X + 0.9, 0.8, -1.05] : [PICK_X + 0.9, 0.9, -0.7]
       },
       detect: {
         pos: mobile ? [CAM_X - 4.4, 2.2, 1.9] : [CAM_X + 3.2, 1.9, 3.7],
@@ -405,5 +598,12 @@ export function buildScene(THREE, opts = {}) {
     Object.values(M).forEach(m => m.dispose());
   }
 
-  return { group, bounds, materials: M, update, shots, dispose, detail: low ? 'low' : 'high' };
+  /* 除錯用：目前每個槽位的狀態（預覽工具與測試使用） */
+  const inspect = () => anim.slots.map(s => ({
+    id: s.id, kind: s.kind, x: +s.slot.position.x.toFixed(3), slotVisible: s.slot.visible,
+    variant: Object.keys(s.variants).filter(k => s.variants[k].visible).join('+'),
+    labelIsOk: s.sprite.material === labelMats.ok, spriteVisible: s.sprite.visible, frameVisible: s.frame.visible
+  }));
+
+  return { group, bounds, materials: M, update, shots, inspect, dispose, detail: low ? 'low' : 'high' };
 }
