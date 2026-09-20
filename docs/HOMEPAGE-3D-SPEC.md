@@ -119,7 +119,7 @@
 - **可重現**：瑕疵序列使用固定亂數種子，同一個 p 永遠得到同一張畫面。
 - 鏡頭改為關鍵影格加樣條曲線，取代原本沿 U 形工站錨點移動的邏輯。
 - 對話框用畫布貼圖 Sprite，沿用現有 `signboard` 的 `draw()` 寫法。
-- 文字集中於單一 JSON，並合併原本 `STATIONS` 陣列與 `line-stations.json` 兩份來源。
+- 文字集中於單一資料檔 `story-data.js`（以 script 同步載入，首屏無需 fetch），取代原本 `STATIONS` 陣列與 `line-stations.json` 兩份來源。
 - 保留 `low`／`high` 兩級細節，並尊重 `prefers-reduced-motion`。
 
 ## 8. 驗收標準
@@ -137,7 +137,7 @@
 | 檔案 | 動作 |
 |---|---|
 | `assets/js/line-model.js` | 重寫為新場景（保留慣例） |
-| `assets/data/line-stations.json` | 改寫為六幕雙語資料，並成為單一來源 |
+| `assets/data/story-data.js` | 六幕雙語文案，唯一來源（取代 `line-stations.json`） |
 | `index.html` | 移除內嵌 `STATIONS`；鏡頭、捲動與版面改寫 |
 | `tools/production-line-3d.html` | 改為新場景預覽工具 |
 | 舊產線資料與舊預覽 | 移至 `archive/` |

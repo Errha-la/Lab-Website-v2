@@ -18,7 +18,7 @@
 - 根網址直接顯示網站，網址不含空白檔名或額外轉址。
 - 導覽、雙語切換、行動版選單與團隊學年篩選可操作。
 - `assets/images/` 的標頭、人像與輪播照片正常顯示。
-- `assets/data/line-stations.json` 可載入，六個工站資料正確。
+- `assets/data/story-data.js` 可載入，六幕文案資料正確。
 - 3D 產線可顯示；瀏覽器主控台沒有 404 或 module 載入錯誤。
 - `tools/production-line-3d.html` 可開啟開發檢視器。
 
@@ -32,7 +32,7 @@
 | --- | --- |
 | 正式網站 | `index.html` |
 | JavaScript | `assets/js/` |
-| 工站資料 | `assets/data/line-stations.json` |
+| 幕文案資料 | `assets/data/story-data.js` |
 | 圖片 | `assets/images/` |
 | 設計系統 | `assets/design-system/` |
 | 3D 開發工具 | `tools/production-line-3d.html` |

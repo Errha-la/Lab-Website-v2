@@ -31,7 +31,7 @@
 ├─ index.html                 # 正式網站入口與內容資料
 ├─ assets/
 │  ├─ data/
-│  │  └─ line-stations.json  # 六座工站的中英文資料
+│  │  └─ story-data.js  # 六幕的中英文文案與對話（唯一來源）
 │  ├─ design-system/         # 色彩、字體與元件設計系統
 │  ├─ images/                # 教授、成員、實驗室與活動照片
 │  └─ js/
@@ -59,7 +59,7 @@
 | 成員、照片與入學學年 | `index.html` 的 `MEMBERS`、`assets/images/` |
 | 實驗室照片輪播 | `index.html` 的 `LAB_PHOTOS` |
 | 交通方式與地圖 | `index.html` 的 `TRANSIT`、`TRANSIT_LINK`、`MAP_SRC` |
-| 工站名稱、設備與論文對應 | `assets/data/line-stations.json` |
+| 各幕標題、說明、技術標籤與對話 | `assets/data/story-data.js` |
 | 3D 設備造型與尺寸 | `assets/js/line-model.js` |
 | 色彩、字體與元件樣式 | `assets/design-system/` |
 

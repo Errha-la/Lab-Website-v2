@@ -8,6 +8,7 @@
 <link rel="icon" href="assets/images/head-banner.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="assets/data/story-data.js"></script>
 <script src="./assets/js/runtime.js"></script>
 </head>
 <body>
@@ -215,14 +216,14 @@ button,a,select{touch-action:manipulation}
           <div style="position:relative;min-height:330px">
             <sc-for list="{{ stations }}" as="s" hint-placeholder-count="5">
               <div data-panel="{{ s.i }}" style="position:absolute;left:0;right:0;top:0;opacity:0;transform:translateX(-28px);transition:opacity .45s ease,transform .45s ease">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--color-accent-700);margin-bottom:8px">STATION {{ s.num }}</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--color-accent-700);margin-bottom:8px">ACT {{ s.num }}</div>
                 <h3 style="font-size:38px;margin:0 0 6px"><span class="l-zh">{{ s.zh }}</span><span class="l-en">{{ s.en }}</span></h3>
                 <div class="l-zh" style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.14em;color:var(--color-accent-700);margin-bottom:16px">{{ s.en }}</div>
                 <div class="l-en" style="height:16px"></div>
                 <p class="l-zh" style="margin:0 0 18px;font-size:15.5px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descZh }}</p>
                 <p class="l-en" style="margin:0 0 18px;font-size:15px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descEn }}</p>
                 <div style="border-top:1px solid var(--color-divider);padding-top:14px">
-                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--color-neutral-600);margin-bottom:6px">RESEARCH AREA</div>
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--color-neutral-600);margin-bottom:6px">KEY TECHNOLOGIES</div>
                   <div style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:var(--color-accent-900)"><span class="l-zh">{{ s.areaZh }}</span><span class="l-en">{{ s.areaEn }}</span></div>
                 </div>
               </div>
@@ -751,13 +752,13 @@ const PAPERS=[
 {t:'Applying meta-heuristics algorithm to solve assembly line balancing problem with labor skill level in garment industry',a:['Chen, Gary Yu-Hsin','Ping-Shun Chen','Jr-Fong Dang','Sung-Lien Kang','Li-Jen Cheng'],y:2021,m:4,v:'International Journal of Computational Intelligence Systems',ty:'journal',f:false,doi:'https://www.atlantis-press.com/journals/ijcis/125955859',g:['smart-manufacturing','meta-heuristics','optimization','scheduling']},
 {t:'The equilibrium contract rent and reward money under incomplete information in reverse supply chains: A game theoretical approach and computational study',a:['Hong, I-Husan','Jr-Fong Dang','Kuan-Wen Lin'],y:2016,m:12,v:'Computers & Industrial Engineering',ty:'journal',f:false,doi:'https://www.sciencedirect.com/science/article/pii/S0360835216303710',g:['optimization']}];
 
-const STATIONS=[
-{num:'01',code:'SENSING',zh:'感測',en:'Sensing',descZh:'多感測器資訊融合，蒐集設備振動、溫度、電流與影像訊號，構成整條產線的第一手狀態。',descEn:'Multi-sensor information fusion gathers vibration, temperature, current and imaging signals — the line\u2019s first-hand state.',areaZh:'設備健康監測與預測性維修',areaEn:'Equipment Health Monitoring & Predictive Maintenance'},
-{num:'02',code:'DIAGNOSIS',zh:'診斷',en:'Diagnosis',descZh:'以注意力機制深度學習判讀晶圓圖樣與表面瑕疵，將原始訊號轉為可解釋的異常判斷。',descEn:'Attention-based deep learning reads wafer bin maps and surface defects, turning raw signals into explainable anomaly calls.',areaZh:'電腦視覺與晶圓影像識別',areaEn:'Computer Vision & Wafer Image Recognition'},
-{num:'03',code:'DECISION',zh:'決策',en:'Decision',descZh:'大型語言模型與知識圖譜構成 AI Agent，執行任務分解、工具調度、推理驗證與人機協作。',descEn:'LLMs and knowledge graphs form an AI agent that decomposes tasks, orchestrates tools, verifies reasoning and collaborates with operators.',areaZh:'生成式 AI 與 LLM 智慧製造應用',areaEn:'Generative AI & LLM Applications'},
-{num:'04',code:'CONTROL',zh:'控制',en:'Control',descZh:'啟發式演算法與佇列理論動態調度產線資源，讓決策落回設備的實際動作。',descEn:'Meta-heuristics and queueing theory dynamically schedule line resources, turning decisions back into machine motion.',areaZh:'系統最佳化與智慧排程',areaEn:'System Optimization & Smart Scheduling'},
-{num:'05',code:'FEEDBACK',zh:'回饋',en:'Feedback',descZh:'結果回寫知識庫並重新訓練模型，閉環持續收斂 —— 這是整條產線的核心命題。',descEn:'Outcomes are written back to the knowledge base and models retrain — the loop keeps converging.',areaZh:'先進控制與閉環智慧製造',areaEn:'Advanced Control & Closed-loop Manufacturing'},
-{num:'06',code:'IMPROVE',zh:'改善',en:'Improvement',descZh:'改善提案回到現場：以看板管理與標準化作業，把每一輪回饋落實成下一輪的作業基準。',descEn:'Improvement proposals return to the floor: kanban management and standardized work turn each round of feedback into the next baseline.',areaZh:'精實生產與持續改善',areaEn:'Lean Production & Continuous Improvement'}];
+const STATIONS=window.STORY_DATA.acts.map(a=>{
+  const steps=(a.stepsZh||[]).map((t,i)=>(i+1)+'. '+t).join(' ');
+  const stepsEn=(a.stepsEn||[]).map((t,i)=>(i+1)+'. '+t).join(' ');
+  return {num:a.num,code:a.code,zh:a.zh,en:a.en,
+    descZh:a.descZh||steps,descEn:a.descEn||stepsEn,
+    areaZh:(a.techZh||[]).join('、'),areaEn:(a.techEn||[]).join(', ')};
+});
 
 const TECH=[
 {n:'1',titleZh:'生成式 AI 與 LLM 智慧製造應用',titleEn:'Generative AI & LLM in Smart Manufacturing',
@@ -1072,7 +1073,7 @@ class Component extends DCLogic {
      · 相機距離由模型邊界球推導（不寫死數字）
      · tone mapping 只在 renderer 擁有一次；輸出為 sRGB
      · 手機載簡化版（低面數、關陰影、dpr 上限 1.5）
-     · 幾何與設備外型在 assets/js/line-model.js；工站文字在 assets/data/line-stations.json */
+     · 幾何與設備外型在 assets/js/line-model.js；文案在 assets/data/story-data.js */
   async initLine(){
     if(this._lineBusy||this._L)return;
     const cv=document.getElementById('lineCanvas');
@@ -1094,7 +1095,7 @@ class Component extends DCLogic {
       const scene=new THREE.Scene();
       scene.background=new THREE.Color(0xf2f2f3);
       const line=mod.buildLine(THREE,{accent:this.props.accent||'#5980a6',detail:low?'low':'high',shadows:shadows,
-        stations:STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.en}))});
+        stations:STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.code}))});
       scene.add(line.group);
 
       const li=this.props.lightIntensity==null?1:this.props.lightIntensity;
@@ -1139,18 +1140,10 @@ class Component extends DCLogic {
     L.camera.updateProjectionMatrix();
   }
 
-  /* 工站文字改由 3D 立牌承載；此處只把 assets/data/line-stations.json 覆寫進立牌貼圖 */
-  loadSignText(){
-    const L=this._L; if(!L||!L.line.setSignText)return;
-    fetch('assets/data/line-stations.json').then(r=>r.json()).then(j=>{
-      (j.stations||[]).forEach((st,i)=>{
-        const s=STATIONS[i]||{};
-        L.line.setSignText(i,{num:st.num||s.num,zh:st.zh||s.zh,device:st.deviceZh||st.device||s.en});
-      });
-    }).catch(()=>{});
-  }
+  /* 工站文字改由 3D 立牌承載；資料來自 assets/data/story-data.js（已於建構時帶入，此處無需再覆寫） */
+  loadSignText(){}
 
-  /* 工站標註（編號＋站名＋設備名）；資料優先讀 assets/data/line-stations.json */
+  /* 工站標註（編號＋站名＋設備名）；資料來自 assets/data/story-data.js */
   buildLabels(){
     const host=document.getElementById('lineLabels'); if(!host||host.__built)return;
     host.__built=true; this._labels=[];
@@ -1164,15 +1157,7 @@ class Component extends DCLogic {
       host.appendChild(el);
       this._labels[i]=el;
     };
-    const fallback=STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.en}));
-    STATIONS.forEach((s,i)=>make(i,fallback[i]));
-    fetch('assets/data/line-stations.json').then(r=>r.json()).then(j=>{
-      (j.stations||[]).forEach((st,i)=>{
-        const el=this._labels[i]; if(!el)return;
-        el.children[1].textContent=st.zh;
-        el.children[2].textContent=st.deviceZh;
-      });
-    }).catch(()=>{});
+    STATIONS.forEach((s,i)=>make(i,{num:s.num,zh:s.zh,device:s.code}));
   }
 
   updateLabels(activeIdx,show){
@@ -1262,7 +1247,7 @@ class Component extends DCLogic {
     L.camera.position.copy(L.cam.pos);
     L.camera.lookAt(L.cam.tgt);
     const vm=document.getElementById('viewmode');
-    if(vm)vm.textContent=shot.pv<0.02?'WIDE SHOT':'STATION '+STATIONS[shot.idx].num+' · '+Math.round(shot.pv*100)+'%';
+    if(vm)vm.textContent=shot.pv<0.02?'WIDE SHOT':'ACT '+STATIONS[shot.idx].num+' · '+Math.round(shot.pv*100)+'%';
     this.updateLabels(shot.idx,false);
     if(shot.idx!==this._idx||this._panelPv!==(shot.pv>0.02)){
       this._idx=shot.idx; this._panelPv=shot.pv>0.02;
