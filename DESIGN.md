@@ -50,7 +50,7 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 - **標籤（團隊、研究成果、教授頁一律相同）**：膠囊形 `cv-tag`——白底、主色 1px 外框、主色文字、圓角 999px。
 - **論文資訊膠囊**（`.pub-meta`）：`pill-date` 灰底年份、`pill-type` 淡青底類型（Journal／Conference）。不顯示 SCI／影響因子。
 - **視圖切換**（`.radio-inputs`，Uiverse 版型）：淡青底容器，選中項為白底青綠粗體。
-- **下拉選單**：`.input` 一律白底。
+- **下拉選單**：`.input` 白底、膠囊圓角；彈出層在支援 `appearance:base-select` 的瀏覽器（Chrome 135+）為白底圓角面板，選項膠囊形、選中為青綠底，其餘瀏覽器維持原生樣式。
 - **按鈕**：`.btn`、語言切換、分頁數字一律膠囊圓角；3D 幕次導覽鈕圓角 12px。
 - **連結**：連結主色深，hover 更深；焦點環 `2px solid var(--color-accent)`。
 - **教授頁 CV**：左側欄淡青底（主色 6%）＋右側內文；區塊標題間以金色 3px 上緣線分隔。

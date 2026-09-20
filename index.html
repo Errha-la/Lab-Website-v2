@@ -90,6 +90,18 @@ html[data-lang="en"] #boot .l-en{display:block}
 .blueprint.soft-card>.corner{display:none}
 .input,select.input{background:#fff}
 select.input{border-radius:999px;padding-left:14px !important}
+/* 下拉選單彈出層：支援 appearance:base-select 的瀏覽器（Chrome 135+）改用站內樣式，其餘維持原生 */
+@supports (appearance:base-select){
+select.input,select.input::picker(select){appearance:base-select}
+select.input{cursor:pointer;color:var(--color-text)}
+select.input::picker-icon{color:var(--color-accent);transition:transform .2s}
+select.input:open::picker-icon{transform:rotate(180deg)}
+select.input::picker(select){margin-top:6px;padding:6px;border:1px solid var(--card-line);border-radius:14px;background:#fff;box-shadow:var(--card-shadow)}
+select.input option{padding:8px 14px;border-radius:999px;font-size:13px;color:var(--color-text);cursor:pointer}
+select.input option:hover,select.input option:focus-visible{background:var(--color-accent-100);color:var(--color-accent-700);outline:0}
+select.input option:checked{background:var(--color-accent);color:#fff}
+select.input option::checkmark{display:none}
+}
 .btn,.btn.btn-secondary,.btn.btn-ghost{border-radius:999px}
 #g-pubs>article{display:flex;flex-direction:column}
 #g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
