@@ -15,7 +15,7 @@
  *   const THREE = await import('https://unpkg.com/three@0.184.0/build/three.module.js');
  *   const scene = buildScene(THREE, { detail:'high', shadows:true });
  *   root.add(scene.group); scene.update(p);   // p = 0..1
- *   scene.shots(mobile) → { wide, detect, pick, route }     // 鏡頭取景點（供時間軸關鍵影格）
+ *   scene.shots(mobile) → { wide, detect, pick, route, pad, console, monitor, monitor2, party }     // 鏡頭取景點（供時間軸關鍵影格）
  *   scene.bounds        → { center, radius, box, contentRadius }
  *   scene.dispose()
  *
@@ -33,6 +33,9 @@ export const SLOTS = 14;               // 同時在帶上的晶片數
 export const CYCLE = PITCH * SLOTS;    // 循環長度（= 可見帶長 18.2 m，帶尾 x = 10.2）
 export const TRAVEL_PER_P = 50;        // 輸送帶每單位進度的位移（公尺）
 export const P_FREEZE = 0.37;          // 過場結束後輸送帶停住（之後由 AGV 幕接手，見 ticket 05）
+export const P_RESUME = 0.775;         // 工程師核准新參數後，輸送帶恢復運轉
+export const RESUME_PER_P = 100;       // 恢復後每單位進度的位移（比先前快，第 05 幕的連續良品計數才看得出累積）
+export const N_FIX = 3;                // 序號 ≥ N_FIX 的晶片一律良品（第 01 幕之後沒有新的瑕疵，也是「調參後全是良品」）
 
 /* 手臂一次取放循環涵蓋的「帶面位移」（相對晶片抵達取件點的位置 Δ，公尺）；
    關鍵點之間用 smoothstep 插值。循環總長 3.7 m < 3 個晶片間距 3.9 m，所以兩顆瑕疵品不會同時占用手臂。 */
@@ -102,6 +105,111 @@ export function pathAtDist(meta, s) {
   return { x: a[0] + (b[0] - a[0]) * u, z: a[1] + (b[1] - a[1]) * u, tx: dx, tz: dz };
 }
 
+/* ---------- 第 03–06 幕：角色、控制室、數位孿生 ---------- */
+export const CONSOLE = { x: 6.4, z: 5.2 };       // 控制台螢幕牆（螢幕朝 +z）
+export const TWIN = { x: 10.0, z: 7.0 };         // 數位孿生桌（控制台右側，與分析站之間）
+/* 四句對話的出現區間（依 story-data.js 的 dialogue 順序：工程師、AI、AI、工程師） */
+export const LINES = [
+  { who: 'worker', from: 0.530, to: 0.575 },
+  { who: 'ai',     from: 0.575, to: 0.625 },
+  { who: 'ai',     from: 0.715, to: 0.755 },
+  { who: 'worker', from: 0.755, to: 0.790 }
+];
+export const EVIDENCE_WIN = [0.545, 0.640];       // 證據面板（瑕疵影像、感測曲線、SOP 引用）
+export const SIM = { appear: [0.655, 0.685], run: [0.700, 0.750] };   // 數位孿生：浮現、模擬跑完
+export const PRESS = [0.765, 0.775];              // 工程師按下核准鈕
+export const ANDON = { amber: 0.700, green: P_RESUME };   // 燈塔：紅 → 黃（模擬中）→ 綠（核准後）
+export const CELEBRATE = { clap: [0.925, 0.950], dance: [0.950, 1.0] };
+
+const lerpN = (a, b, t) => a + (b - a) * t;
+const ssp = (a, b, p) => { const t = Math.max(0, Math.min(1, (p - a) / (b - a))); return t * t * (3 - 2 * t); };
+const angDiff = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
+const GAIT = 7.4;   // 每走 1 m 的步態相位（rad）
+
+const CH = {
+  worker: { pad: [11.3, 4.6], yaw: Math.PI / 2,  desk: [5.3, 6.6], aside: [4.0, 6.5], dance: [5.3, 7.1],
+    seg: { turn1: [0.650, 0.658], walk1: [0.658, 0.700], turn2: [0.700, 0.712], aside: [0.780, 0.795], turn3: [0.795, 0.805], turnF: [0.885, 0.905], walkF: [0.905, 0.925] } },
+  ai:     { pad: [13.9, 4.6], yaw: -Math.PI / 2, desk: [7.7, 6.5], aside: [8.8, 6.5], dance: [7.5, 7.1],
+    seg: { turn1: [0.652, 0.662], walk1: [0.662, 0.702], turn2: [0.702, 0.714], aside: [0.782, 0.797], turn3: [0.797, 0.807], turnF: [0.887, 0.907], walkF: [0.907, 0.927] } }
+};
+
+/* 依序執行「轉向／走路」片段，回傳位置、朝向與步態；只取決於 p */
+function runSegments(start, segs, p) {
+  let x = start[0], z = start[1], yaw = start[2], gait = 0, amp = 0;
+  for (const sg of segs) {
+    if (p <= sg.p[0]) break;
+    const u = ssp(sg.p[0], sg.p[1], p);
+    if (sg.turn != null) yaw = yaw + angDiff(yaw, sg.turn) * u;
+    else {
+      const d = Math.hypot(sg.to[0] - x, sg.to[1] - z);
+      gait += u * d * GAIT;
+      amp = Math.max(amp, Math.max(0, Math.min(1, Math.min(u, 1 - u) * 12)));
+      x = lerpN(x, sg.to[0], u); z = lerpN(z, sg.to[1], u);
+    }
+    if (u < 1) break;
+    if (sg.turn != null) yaw = sg.turn; else { x = sg.to[0]; z = sg.to[1]; }
+  }
+  return { x, z, yaw, gait, amp };
+}
+
+/* 角色姿態（純函式）：kind = 'worker' | 'ai'。arm*f = 手臂向前舉、arm*s = 向外舉（rad） */
+export function charPose(kind, p) {
+  const c = CH[kind], S = c.seg, ai = kind === 'ai';
+  const y1 = Math.atan2(c.desk[0] - c.pad[0], c.desk[1] - c.pad[1]);
+  const yAside = Math.atan2(c.aside[0] - c.desk[0], c.aside[1] - c.desk[1]);
+  const segs = [
+    { p: S.turn1, turn: y1 }, { p: S.walk1, to: c.desk },
+    { p: S.turn2, turn: Math.PI },
+    { p: S.aside, to: c.aside },      // 走到一旁時朝向沿用「面向控制台」，側步不轉身
+    { p: S.turnF, turn: 0 }, { p: S.walkF, to: c.dance }
+  ];
+  /* 側步：把 aside 段的朝向暫時鎖為面向控制台，避免走路時身體突然轉向 */
+  const r = runSegments([c.pad[0], c.pad[1], c.yaw], segs, p);
+  const pose = { x: r.x, z: r.z, yaw: r.yaw, gait: r.gait, amp: r.amp * 0.6, armLf: 0, armLs: 0.06, armRf: 0, armRs: 0.06, head: 0, bob: 0, twist: 0 };
+
+  /* 說話：說話者手勢加點頭；另一人微微偏頭聆聽 */
+  for (const L of LINES) {
+    const on = ssp(L.from, L.from + 0.008, p) * (1 - ssp(L.to - 0.008, L.to, p));
+    if (on <= 0) continue;
+    if (L.who === kind) { pose.armRf += (0.9 + 0.22 * Math.sin(p * 900)) * on; pose.head += 0.12 * Math.sin(p * 700) * on; }
+    else pose.head += 0.14 * on;
+  }
+  /* 機器人（AI 化身）指向數位孿生 */
+  if (ai) { const t = ssp(0.715, 0.722, p) * (1 - ssp(0.748, 0.755, p)); pose.armRs += 1.25 * t; pose.armRf += 0.25 * t; }   // 面向控制台時，機器人的右手臂朝東 = 朝向孿生桌
+  /* 工程師按下核准鈕 */
+  if (!ai) { const pr = ssp(PRESS[0], PRESS[0] + 0.004, p) * (1 - ssp(PRESS[1] - 0.004, PRESS[1], p)); pose.armRf += 1.3 * pr; pose.twist += 0.1 * pr; }
+  /* 慶祝：拍手 → 跳舞 */
+  const cl = ssp(CELEBRATE.clap[0], CELEBRATE.clap[0] + 0.005, p) * (1 - ssp(CELEBRATE.clap[1] - 0.002, CELEBRATE.clap[1] + 0.003, p));
+  if (cl > 0) {
+    const ph = (p - CELEBRATE.clap[0]) * 2400;
+    pose.armLf += 1.15 * cl; pose.armRf += 1.15 * cl;
+    const spread = 0.05 + 0.2 * (0.5 + 0.5 * Math.sin(ph));
+    pose.armLs = spread * cl + pose.armLs * (1 - cl); pose.armRs = spread * cl + pose.armRs * (1 - cl);
+    pose.bob += 0.03 * Math.abs(Math.sin(ph / 2)) * cl;
+  }
+  const dn = ssp(CELEBRATE.dance[0] - 0.002, CELEBRATE.dance[0] + 0.006, p);
+  if (dn > 0) {
+    const ph = (p - CELEBRATE.dance[0]) * 1500, sw = Math.sin(ph);
+    pose.bob += (ai ? 0.13 : 0.09) * Math.abs(sw) * dn;
+    pose.armLf = pose.armLf * (1 - dn) + dn * (1.7 + 0.8 * sw);
+    pose.armRf = pose.armRf * (1 - dn) + dn * (1.7 - 0.8 * sw);
+    pose.armLs = 0.25 * dn + pose.armLs * (1 - dn); pose.armRs = 0.25 * dn + pose.armRs * (1 - dn);
+    pose.twist += 0.35 * Math.sin(ph * 0.5) * dn;
+    pose.gait = ph; pose.amp = 0.35 * dn;
+    if (ai) pose.yaw += 2 * Math.PI * ssp(0.972, 0.992, p);
+  }
+  return pose;
+}
+
+/* 第 05 幕螢幕：核准後輸送帶恢復，通過相機的連續良品件數（只取決於 p） */
+export function okCountAt(p) {
+  const t2 = RESUME_PER_P * Math.max(0, p - P_RESUME);
+  let best = -Infinity;
+  for (let n = -30; n <= 40; n++) { const x = BELT_X0 + TRAVEL_PER_P * P_FREEZE - n * PITCH; if (x < CAM_X && x > best) best = x; }
+  const d0 = CAM_X - best;
+  return t2 >= d0 ? Math.floor((t2 - d0) / PITCH) + 1 : 0;
+}
+
 /* ---------- 確定性瑕疵序列（不用 Math.random） ---------- */
 export function hash01(n) {
   let h = (n * 374761393 + 668265263) | 0;
@@ -126,7 +234,7 @@ export function makeKinds(seed) {
     return hash01(n + seed + 5555) < 0.5 ? 'crack' : 'chip';
   };
   const kind = n => {
-    if (n < N_MIN) return 'ok';
+    if (n < N_MIN || n >= N_FIX) return 'ok';
     if (cache.has(n)) return cache.get(n);
     const k = (raw(n) !== 'ok' && kind(n - 1) === 'ok' && kind(n - 2) === 'ok') ? raw(n) : 'ok';
     cache.set(n, k);
@@ -137,8 +245,11 @@ export function makeKinds(seed) {
 const KIND_SEED = 420;   // 種子搜尋條件：第 01 幕通過相機的晶片含裂痕與缺角；p≈0.224 與 0.302 各有一次完整取件；過場結束（凍結）時手臂不在半空
 export const chipKind = makeKinds(KIND_SEED);
 
-/* 輸送帶位移（進度 p → 公尺）：過場結束後停住 */
-export function travelAt(p) { return TRAVEL_PER_P * Math.min(Math.max(p, 0), P_FREEZE); }
+/* 輸送帶位移（進度 p → 公尺）：過場結束後停住；核准（P_RESUME）後以較快的速度恢復運轉 */
+export function travelAt(p) {
+  p = Math.max(p, 0);
+  return TRAVEL_PER_P * Math.min(p, P_FREEZE) + RESUME_PER_P * Math.max(0, p - P_RESUME);
+}
 /* 晶片 n 的 x 位置 */
 export const chipX = (n, p) => BELT_X0 + travelAt(p) - n * PITCH;
 /* 第 i 個槽位在進度 p 時的晶片流水號與 x 位置 */
@@ -186,6 +297,18 @@ export function buildScene(THREE, opts = {}) {
     chipMark: mk('chip_marker',    0xf28c28, 0.50, 0.10),
     fracture: mk('chip_fracture',  0xeef1f3, 0.55, 0.05, { emissive: new THREE.Color(0xffffff), emissiveIntensity: 0.25 }),
     arm:      mk('arm_orange',     0xf28c28, 0.45, 0.25),
+    skin:     mk('skin',           0xf0c8a0, 0.70, 0.00),
+    overall:  mk('overall_blue',   0x2f6fb2, 0.60, 0.05),
+    vest:     mk('vest_orange',    0xf28c28, 0.55, 0.05),
+    hat:      mk('hardhat_yellow', 0xf2c230, 0.45, 0.10),
+    robotW:   mk('robot_white',    0xe9eff3, 0.40, 0.25),
+    robotG:   mk('robot_grey',     0x7d8b97, 0.45, 0.45),
+    eye:      mk('robot_eye',      0x66e0ff, 0.30, 0.10, { emissive: new THREE.Color(0x66e0ff), emissiveIntensity: 1.0 }),
+    holo:     new THREE.MeshBasicMaterial({ name: 'holo_cyan', color: 0x66e0ff, transparent: true, opacity: 0.6, depthWrite: false }),
+    lampR:    mk('andon_red',      0xe5423b, 0.4, 0.1, { emissive: new THREE.Color(0xe5423b), emissiveIntensity: 0.08 }),
+    lampA:    mk('andon_amber',    0xffb020, 0.4, 0.1, { emissive: new THREE.Color(0xffa000), emissiveIntensity: 0.08 }),
+    lampG:    mk('andon_green',    0x2fa85a, 0.4, 0.1, { emissive: new THREE.Color(0x2fa85a), emissiveIntensity: 0.08 }),
+    button:   mk('approve_button', 0x2fa85a, 0.4, 0.1, { emissive: new THREE.Color(0x2fa85a), emissiveIntensity: 0.1 }),
     frameBad: mk('defect_frame',   0xe5423b, 0.50, 0.10, { emissive: new THREE.Color(0xe5423b), emissiveIntensity: 0.6 }),
     beam:     new THREE.MeshBasicMaterial({ name: 'scan_beam', color: 0x66e0ff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
   };
@@ -388,12 +511,12 @@ export function buildScene(THREE, opts = {}) {
     c.fillStyle = good ? '#2fa85a' : '#e5423b';
     c.beginPath(); c.arc(80, 82, 66, 0, Math.PI * 2); c.fill();
     c.lineWidth = 6; c.strokeStyle = '#ffffff'; c.stroke();
-    c.fillStyle = '#ffffff'; c.font = '700 84px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = '#ffffff'; c.font = '700 84px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
     c.fillText(good ? 'O' : 'X', 80, 86);
     if (!good) {
       c.fillStyle = 'rgba(29,45,61,.92)';
       c.beginPath(); c.roundRect ? c.roundRect(28, 156, 104, 36, 10) : c.rect(28, 156, 104, 36); c.fill();
-      c.fillStyle = '#ffffff'; c.font = '600 26px system-ui, sans-serif';
+      c.fillStyle = '#ffffff'; c.font = '600 26px system-ui, "Noto Sans TC", sans-serif';
       c.fillText(conf.toFixed(2), 80, 175);
     }
     const t = new THREE.CanvasTexture(cv);
@@ -568,11 +691,11 @@ export function buildScene(THREE, opts = {}) {
     if (blocked) {
       c.fillStyle = '#e5423b'; c.beginPath(); c.arc(96, 48, 40, 0, Math.PI * 2); c.fill();
       c.lineWidth = 5; c.strokeStyle = '#ffffff'; c.stroke();
-      c.fillStyle = '#ffffff'; c.font = '700 54px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('X', 96, 52);
+      c.fillStyle = '#ffffff'; c.font = '700 54px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('X', 96, 52);
     } else {
       c.fillStyle = '#ffffff'; c.strokeStyle = 'rgba(29,45,61,.35)'; c.lineWidth = 4;
       c.beginPath(); c.roundRect ? c.roundRect(8, 16, 176, 64, 22) : c.rect(8, 16, 176, 64); c.fill(); c.stroke();
-      c.fillStyle = '#1d2d3d'; c.font = '700 38px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, 96, 50);
+      c.fillStyle = '#1d2d3d'; c.font = '700 38px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, 96, 50);
     }
     const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; texs.push(t);
     const m = new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false });
@@ -609,6 +732,271 @@ export function buildScene(THREE, opts = {}) {
     return g;
   }
 
+  /* ================= 第 03–06 幕：角色、對話、證據、控制室、數位孿生、燈塔 ================= */
+  const rrect = (c, x, y, w, h, r) => { c.beginPath(); if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h); };
+  /* 斷行：含中文時逐字，否則逐字詞 */
+  function wrap(c, text, maxW) {
+    const toks = /[㐀-鿿]/.test(text) ? Array.from(text) : text.split(/(?<= )/);
+    const lines = []; let cur = '';
+    for (const t of toks) {
+      if (cur && c.measureText(cur + t).width > maxW) { lines.push(cur.trimEnd()); cur = t.trimStart(); } else cur += t;
+    }
+    if (cur) lines.push(cur.trimEnd());
+    return lines;
+  }
+  const canvasTex = (w, h) => {
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; texs.push(t);
+    return { cv, c: cv.getContext('2d'), t };
+  };
+  const spriteOf = (tex, name, w, h, opts2) => {
+    const m = new THREE.SpriteMaterial(Object.assign({ map: tex, transparent: true, depthWrite: false, toneMapped: false }, opts2 || {}));
+    mats.push(m);
+    const sp = new THREE.Sprite(m); sp.name = name; sp.scale.set(w, h, 1); sp.visible = false;
+    return sp;
+  };
+
+  /* ---------- 角色：工程師（藍色工作服、黃色安全帽）與 AI 機器人（白色機身、青色眼睛） ---------- */
+  function makeChar(kind) {
+    const ai = kind === 'ai';
+    const g = new THREE.Group(); g.name = 'char_' + kind;
+    const body = new THREE.Group(); body.name = kind + '_body'; g.add(body);
+    const K = ai ? 0.86 : 1;                       // 機器人略矮
+    const cap = (r, len, m, name) => mesh(new THREE.CapsuleGeometry(r, len, 4, seg(10, 6)), m, name);
+    /* 軀幹 */
+    const torso = new THREE.Group(); torso.name = kind + '_torso'; torso.position.y = 0.86 * K; body.add(torso);
+    if (ai) {
+      const t = bbox(0.5, 0.62, 0.34, M.robotW, 'ai_torso', { fillet: 0.08 }); t.position.y = 0.34; torso.add(t);
+      const core = mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, seg(20, 8)), M.eye, 'ai_core_light');
+      core.rotation.x = Math.PI / 2; core.position.set(0, 0.4, 0.18); torso.add(core);
+    } else {
+      const t = cap(0.21, 0.34, M.overall, 'worker_torso'); t.scale.z = 0.78; t.position.y = 0.34; torso.add(t);
+      const vest = bbox(0.46, 0.5, 0.02, M.vest, 'worker_vest', { fillet: 0.03 }); vest.position.set(0, 0.36, 0.17); torso.add(vest);
+    }
+    /* 頭 */
+    const head = new THREE.Group(); head.name = kind + '_head'; head.position.y = (ai ? 0.86 : 0.86) * K + 0.78; body.add(head);
+    if (ai) {
+      const h = bbox(0.44, 0.34, 0.36, M.robotW, 'ai_head', { fillet: 0.07 }); h.position.y = 0.02; head.add(h);
+      const visor = bbox(0.34, 0.16, 0.02, M.dark, 'ai_visor', { fillet: 0.04 }); visor.position.set(0, 0.03, 0.19); head.add(visor);
+      for (const sx of [-1, 1]) { const e = mesh(new THREE.SphereGeometry(0.035, 10, 8), M.eye, 'ai_eye_' + (sx > 0 ? 'r' : 'l')); e.position.set(sx * 0.08, 0.03, 0.205); head.add(e); }
+      const ant = mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.16, 6), M.robotG, 'ai_antenna'); ant.position.y = 0.26; head.add(ant);
+      const tip = mesh(new THREE.SphereGeometry(0.035, 10, 8), M.eye, 'ai_antenna_tip'); tip.position.y = 0.36; head.add(tip);
+    } else {
+      const h = mesh(new THREE.SphereGeometry(0.15, seg(16, 8), seg(12, 6)), M.skin, 'worker_head'); head.add(h);
+      const hat = mesh(new THREE.SphereGeometry(0.17, seg(16, 8), seg(8, 5), 0, Math.PI * 2, 0, Math.PI / 2), M.hat, 'worker_hardhat'); hat.position.y = 0.03; head.add(hat);
+      const brim = mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.02, seg(20, 8)), M.hat, 'worker_hat_brim'); brim.position.set(0, 0.03, 0.02); head.add(brim);
+    }
+    /* 手臂（肩軸在軀幹兩側，垂下為 -y） */
+    const arms = [];
+    for (const sx of [1, -1]) {
+      const sh = new THREE.Group(); sh.name = kind + '_arm_' + (sx > 0 ? 'l' : 'r'); sh.position.set(sx * (ai ? 0.33 : 0.29) * 1, (ai ? 0.6 : 0.64) * K + 0.86 * K - 0.02, 0); body.add(sh);
+      const a = cap(ai ? 0.05 : 0.06, ai ? 0.5 : 0.42, ai ? M.robotG : M.overall, sh.name + '_link'); a.position.y = -0.3 * K - 0.02; sh.add(a);
+      const hand = mesh(new THREE.SphereGeometry(ai ? 0.06 : 0.065, 10, 8), ai ? M.robotW : M.skin, sh.name + '_hand'); hand.position.y = -0.64 * K; sh.add(hand);
+      arms.push(sh);
+    }
+    /* 腿（髖軸在軀幹底） */
+    const legs = [];
+    for (const sx of [1, -1]) {
+      const hp = new THREE.Group(); hp.name = kind + '_leg_' + (sx > 0 ? 'l' : 'r'); hp.position.set(sx * 0.11, 0.86 * K, 0); body.add(hp);
+      const l = cap(ai ? 0.075 : 0.085, ai ? 0.5 : 0.56, ai ? M.robotG : M.overall, hp.name + '_link'); l.position.y = -0.42 * K; hp.add(l);
+      const foot = bbox(0.14, 0.07, 0.26, M.dark, hp.name + '_foot', { fillet: 0.02 }); foot.position.set(0, -0.82 * K, 0.05); hp.add(foot);
+      legs.push(hp);
+    }
+    return { g, body, torso, head, armL: arms[0], armR: arms[1], legL: legs[0], legR: legs[1], K };
+  }
+  function poseChar(ch, P) {
+    ch.g.position.set(P.x, 0.14, P.z); ch.g.rotation.y = P.yaw;
+    ch.body.position.y = P.bob;
+    const sw = Math.sin(P.gait) * 0.6 * P.amp;
+    ch.legL.rotation.x = sw; ch.legR.rotation.x = -sw;
+    ch.armL.rotation.x = -(P.armLf - sw * 0.7); ch.armR.rotation.x = -(P.armRf + sw * 0.7);
+    ch.armL.rotation.z = P.armLs; ch.armR.rotation.z = -P.armRs;
+    ch.head.rotation.x = P.head; ch.torso.rotation.y = P.twist;
+  }
+
+  /* ---------- 對話框：中英同時呈現（模型只需一版） ---------- */
+  function bubbleSprite(entry, who, idx) {
+    const { cv, c, t } = canvasTex(640, 300);
+    const col = who === 'ai' ? '#1aa6c9' : '#2f6fb2';
+    rrect(c, 12, 30, 616, 214, 30); c.fillStyle = '#ffffff'; c.fill(); c.lineWidth = 6; c.strokeStyle = col; c.stroke();
+    c.beginPath(); c.moveTo(70, 242); c.lineTo(118, 242); c.lineTo(84, 288); c.closePath(); c.fillStyle = '#ffffff'; c.fill();
+    c.beginPath(); c.moveTo(66, 243); c.lineTo(84, 288); c.lineTo(122, 243); c.lineWidth = 6; c.strokeStyle = col; c.stroke();
+    c.fillStyle = '#ffffff'; c.fillRect(74, 238, 44, 12);
+    rrect(c, 34, 10, who === 'ai' ? 168 : 170, 38, 19); c.fillStyle = col; c.fill();
+    c.fillStyle = '#fff'; c.font = '700 22px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left';
+    c.fillText(who === 'ai' ? 'AI Agent' : '工程師 Engineer', 50, 30);
+    c.fillStyle = '#1d2d3d'; c.font = '700 31px system-ui, "Noto Sans TC", sans-serif';
+    let y = 84;
+    for (const ln of wrap(c, entry.zh, 570).slice(0, 2)) { c.fillText(ln, 34, y); y += 38; }
+    c.fillStyle = '#4a5a68'; c.font = '500 25px system-ui, "Noto Sans TC", sans-serif'; y += 6;
+    for (const ln of wrap(c, entry.en, 570).slice(0, 3)) { c.fillText(ln, 34, y); y += 30; }
+    const sp = spriteOf(t, 'dialogue_bubble_' + pad(idx + 1), 3.3, 1.55);
+    sp.center.set(0.16, 0.06);
+    return sp;
+  }
+  /* ---------- 證據面板：瑕疵影像、感測曲線、SOP 引用（示意） ---------- */
+  function evidenceSprite() {
+    const { c, t } = canvasTex(1024, 420);
+    rrect(c, 8, 8, 1008, 404, 28); c.fillStyle = 'rgba(255,255,255,.96)'; c.fill(); c.lineWidth = 5; c.strokeStyle = '#1aa6c9'; c.stroke();
+    c.fillStyle = '#1d2d3d'; c.font = '700 30px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left';
+    c.fillText('證據 EVIDENCE', 36, 44);
+    c.fillStyle = '#e5423b'; c.font = '600 22px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'right'; c.fillText('示意 ILLUSTRATIVE', 990, 44); c.textAlign = 'left';
+    const card = (x, title) => { rrect(c, x, 78, 300, 300, 18); c.fillStyle = '#f2f5f8'; c.fill(); c.strokeStyle = '#c9d3dc'; c.lineWidth = 3; c.stroke();
+      c.fillStyle = '#4a5a68'; c.font = '600 21px system-ui, "Noto Sans TC", sans-serif'; c.fillText(title, x + 18, 106); };
+    /* 1) 瑕疵影像 */
+    card(34, '瑕疵影像 IMAGE');
+    c.fillStyle = '#20272e'; rrect(c, 84, 150, 200, 190, 12); c.fill();
+    c.strokeStyle = '#eef1f3'; c.lineWidth = 6; c.beginPath(); c.moveTo(184, 150); c.lineTo(168, 210); c.lineTo(198, 260); c.lineTo(180, 340); c.stroke();
+    c.strokeStyle = '#e5423b'; c.lineWidth = 5; c.strokeRect(70, 138, 228, 214);
+    c.fillStyle = '#e5423b'; c.font = '700 20px system-ui, "Noto Sans TC", sans-serif'; c.fillText('crack 0.98', 78, 128);
+    /* 2) 感測曲線 */
+    card(362, '感測曲線 SENSOR');
+    c.fillStyle = 'rgba(47,168,90,.16)'; c.fillRect(392, 230, 240, 70);
+    c.strokeStyle = '#2f6fb2'; c.lineWidth = 4; c.beginPath();
+    const pts = [[392, 270], [430, 262], [468, 274], [506, 258], [544, 266], [566, 200], [590, 160], [632, 150]];
+    pts.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.stroke();
+    c.fillStyle = '#f28c28'; c.beginPath(); c.arc(590, 160, 9, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#4a5a68'; c.font = '500 19px system-ui, "Noto Sans TC", sans-serif'; c.fillText('feed rate ↑', 470, 340);
+    /* 3) SOP 引用 */
+    card(690, 'SOP 引用 CITATION');
+    c.fillStyle = '#ffffff'; rrect(c, 738, 140, 200, 200, 10); c.fill(); c.strokeStyle = '#c9d3dc'; c.lineWidth = 3; c.stroke();
+    c.fillStyle = '#1d2d3d'; c.font = '700 30px system-ui, "Noto Sans TC", sans-serif'; c.fillText('SOP 4.2', 754, 172);
+    c.fillStyle = '#c9d3dc'; for (let i = 0; i < 4; i++) c.fillRect(754, 200 + i * 28, i === 3 ? 90 : 160, 10);
+    c.strokeStyle = '#2fa85a'; c.lineWidth = 9; c.beginPath(); c.moveTo(838, 300); c.lineTo(860, 322); c.lineTo(906, 268); c.stroke();
+    return spriteOf(t, 'evidence_panel', 3.9, 1.6);
+  }
+
+  /* ---------- 控制台：三面螢幕（參數／產線攝影機／SPC 與知識庫）、核准鈕 ---------- */
+  const SCR_W = 512, SCR_H = 320;
+  const screens = {};
+  function makeScreen(key) { const o = canvasTex(SCR_W, SCR_H); o.key = null; screens[key] = o; return o; }
+  function monitorUnit(name, w, h, mat) {
+    const g = new THREE.Group(); g.name = name;
+    const shell = bbox(w + 0.1, h + 0.1, 0.08, M.dark, name + '_shell', { fillet: 0.03 }); g.add(shell);
+    const face = new THREE.Mesh(keep(new THREE.PlaneGeometry(w, h)), mat); face.name = name + '_screen'; face.position.z = 0.045; g.add(face);
+    const stand = bbox(0.12, 0.2, 0.1, M.steel, name + '_stand', { fillet: 0.01 }); stand.position.set(0, -h / 2 - 0.1, -0.02); g.add(stand);
+    return g;
+  }
+  const screenMat = t => { const m = new THREE.MeshBasicMaterial({ map: t, toneMapped: false }); mats.push(m); return m; };
+  let feedMat = null, feedRT = null, feedLive = false;
+  const feedCam = new THREE.PerspectiveCamera(42, SCR_W / SCR_H, 0.1, 60);
+  feedCam.position.set(CAM_X - 2.6, 1.9, 2.7); feedCam.lookAt(CAM_X + 1.1, 0.75, 0);
+
+  const btn = { mesh: null };
+  function controlRoom() {
+    const g = new THREE.Group(); g.name = 'control_room';
+    const DESK = { w: 4.6, d: 0.8, top: 0.95 };
+    const top = bbox(DESK.w, 0.08, DESK.d, M.steel, 'desk_top', { fillet: 0.02 }); top.position.set(CONSOLE.x, DESK.top, CONSOLE.z + 0.5); g.add(top);
+    for (const sx of [-1, 1]) {
+      const leg = bbox(0.1, DESK.top - 0.14, DESK.d - 0.1, M.frame, 'desk_leg_' + (sx > 0 ? 'e' : 'w'), { fillet: 0.015 });
+      leg.position.set(CONSOLE.x + sx * (DESK.w / 2 - 0.1), 0.14 + (DESK.top - 0.14) / 2, CONSOLE.z + 0.5); g.add(leg);
+    }
+    const kb = bbox(0.9, 0.03, 0.3, M.dark, 'keyboard', { fillet: 0.01 }); kb.position.set(CONSOLE.x - 0.4, DESK.top + 0.055, CONSOLE.z + 0.72); g.add(kb);
+    /* 核准鈕 */
+    const base = mesh(new THREE.CylinderGeometry(0.13, 0.14, 0.04, seg(20, 8)), M.dark, 'approve_base'); base.position.set(CONSOLE.x - 1.3, DESK.top + 0.06, CONSOLE.z + 0.62); g.add(base);
+    const b = mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.05, seg(20, 8)), M.button, 'approve_button'); b.position.set(CONSOLE.x - 1.3, DESK.top + 0.1, CONSOLE.z + 0.62); g.add(b); btn.mesh = b;
+    /* 螢幕 */
+    const sp = makeScreen('param'), ss2 = makeScreen('stat'), sf = makeScreen('feed');
+    feedMat = screenMat(sf.t);
+    const mid = monitorUnit('monitor_feed', 1.6, 1.0, feedMat); mid.position.set(CONSOLE.x, 1.62, CONSOLE.z + 0.25); g.add(mid);
+    const left = monitorUnit('monitor_param', 1.28, 0.8, screenMat(sp.t)); left.position.set(CONSOLE.x - 1.55, 1.55, CONSOLE.z + 0.33); left.rotation.y = 0.28; g.add(left);
+    const right = monitorUnit('monitor_stat', 1.28, 0.8, screenMat(ss2.t)); right.position.set(CONSOLE.x + 1.55, 1.55, CONSOLE.z + 0.33); right.rotation.y = -0.28; g.add(right);
+    return g;
+  }
+
+  /* 螢幕內容：只在量化後的狀態改變時重畫 */
+  function drawParam(st) {
+    const o = screens.param, c = o.c;
+    c.fillStyle = '#0f1a24'; c.fillRect(0, 0, SCR_W, SCR_H);
+    c.fillStyle = '#66e0ff'; c.font = '700 26px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText('PARAMETERS  參數', 24, 34);
+    c.fillStyle = '#9fb2c2'; c.font = '500 22px system-ui, "Noto Sans TC", sans-serif'; c.fillText('進給速度 Feed rate', 24, 96);
+    rrect(c, 24, 120, 464, 16, 8); c.fillStyle = '#26384a'; c.fill();
+    const x = 24 + 464 * (0.92 - 0.35 * st.slide + 0.0), kx = 24 + 464 * (0.9 - 0.32 * st.slide);
+    rrect(c, 24, 120, kx - 24, 16, 8); c.fillStyle = '#2f6fb2'; c.fill();
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(kx, 128, 16, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#9fb2c2'; c.font = '500 18px system-ui, "Noto Sans TC", sans-serif'; c.fillText('▼ 調降  lower', 24, 168);
+    const label = st.stage >= 2 ? '已套用 APPLIED ✓' : st.stage === 1 ? '核准 APPROVE' : '模擬中 SIMULATING…';
+    const col = st.stage >= 2 ? '#2fa85a' : st.stage === 1 ? '#f2b233' : '#4a5a68';
+    rrect(c, 24, 214, 464, 66, 14); c.fillStyle = col; c.fill();
+    c.fillStyle = '#ffffff'; c.font = '700 30px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.fillText(label, 256, 248); c.textAlign = 'left';
+    c.fillStyle = '#e5423b'; c.font = '600 16px system-ui, "Noto Sans TC", sans-serif'; c.fillText('示意 ILLUSTRATIVE', 24, 300);
+    o.t.needsUpdate = true;
+  }
+  function drawStat(st) {
+    const o = screens.stat, c = o.c;
+    c.fillStyle = '#0f1a24'; c.fillRect(0, 0, SCR_W, SCR_H);
+    c.fillStyle = '#66e0ff'; c.font = '700 24px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText('SPC  連續良品 CONSECUTIVE OK', 24, 34);
+    c.fillStyle = st.n > 0 ? '#2fa85a' : '#4a5a68'; c.font = '700 120px system-ui, "Noto Sans TC", sans-serif'; c.fillText(st.n > 0 ? String(st.n) : '—', 24, 128);
+    c.fillStyle = '#9fb2c2'; c.font = '500 22px system-ui, "Noto Sans TC", sans-serif'; c.fillText('瑕疵 DEFECTS  0', 250, 100);
+    /* 知識庫：案例卡片滑入資料庫圖示 */
+    rrect(c, 24, 196, 464, 92, 14); c.fillStyle = '#16283a'; c.fill();
+    c.fillStyle = '#9fb2c2'; c.font = '600 20px system-ui, "Noto Sans TC", sans-serif'; c.fillText('知識庫 KNOWLEDGE BASE', 40, 220);
+    c.fillStyle = '#2f6fb2'; c.beginPath(); c.ellipse(430, 250, 30, 10, 0, 0, Math.PI * 2); c.fill(); c.fillRect(400, 250, 60, 20);
+    c.beginPath(); c.ellipse(430, 270, 30, 10, 0, 0, Math.PI); c.fill(); c.fillStyle = '#4c8fd6'; c.beginPath(); c.ellipse(430, 250, 30, 10, 0, 0, Math.PI * 2); c.fill();
+    if (st.card < 1) { const cx = 60 + 320 * st.card; c.globalAlpha = 1 - Math.max(0, st.card - 0.85) / 0.15; rrect(c, cx, 232, 64, 42, 6); c.fillStyle = '#f2f5f8'; c.fill(); c.fillStyle = '#e5423b'; c.fillRect(cx + 8, 242, 30, 5); c.fillStyle = '#9fb2c2'; c.fillRect(cx + 8, 254, 46, 5); c.globalAlpha = 1; }
+    if (st.saved) { c.fillStyle = '#2fa85a'; c.font = '700 22px system-ui, "Noto Sans TC", sans-serif'; c.fillText('已寫入 SAVED ✓', 40, 262); }
+    o.t.needsUpdate = true;
+  }
+  /* 產線攝影機畫面：桌機為即時渲染；低階裝置與尚未啟用時用這張示意畫面（帶面、晶片、O） */
+  function drawFeed(st) {
+    const o = screens.feed, c = o.c;
+    c.fillStyle = '#0f1a24'; c.fillRect(0, 0, SCR_W, SCR_H);
+    c.fillStyle = '#66e0ff'; c.font = '700 22px system-ui, "Noto Sans TC", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText(st.live ? 'LINE CAM 01 · LIVE' : 'LINE CAM 01 · STANDBY', 20, 28);
+    c.fillStyle = '#26323e'; c.fillRect(0, 130, SCR_W, 110);
+    const off = (st.t * 0.9) % 1;
+    for (let i = -1; i < 6; i++) {
+      const x = ((i + off) * 96) + 20, ok = st.live;
+      c.fillStyle = '#20272e'; c.fillRect(x, 160, 56, 50); c.fillStyle = '#c9d3dc'; for (let k = 0; k < 4; k++) { c.fillRect(x - 6, 166 + k * 11, 6, 5); c.fillRect(x + 56, 166 + k * 11, 6, 5); }
+      if (ok && x > 190) { c.fillStyle = '#2fa85a'; c.beginPath(); c.arc(x + 28, 120, 20, 0, Math.PI * 2); c.fill(); c.fillStyle = '#fff'; c.font = '700 26px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.fillText('O', x + 28, 122); c.textAlign = 'left'; }
+    }
+    c.strokeStyle = '#66e0ff'; c.lineWidth = 3; c.setLineDash([8, 8]); c.beginPath(); c.moveTo(190, 100); c.lineTo(190, 250); c.stroke(); c.setLineDash([]);
+    o.t.needsUpdate = true;
+  }
+
+  /* ---------- 數位孿生：桌上的半透明縮小產線，模擬跑完變綠 ---------- */
+  const twinParts = { g: null, chips: [], bar: null, pass: null };
+  function twinTable() {
+    const g = new THREE.Group(); g.name = 'twin_table';
+    const top = bbox(2.6, 0.06, 1.2, M.steel, 'twin_table_top', { fillet: 0.02 }); top.position.set(TWIN.x, 0.9, TWIN.z); g.add(top);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const l = bbox(0.08, 0.76, 0.08, M.frame, 'twin_table_leg', { fillet: 0.01 }); l.position.set(TWIN.x + sx * 1.15, 0.52, TWIN.z + sz * 0.5); g.add(l);
+    }
+    const holo = new THREE.Group(); holo.name = 'digital_twin'; holo.position.set(TWIN.x, 0.94, TWIN.z); g.add(holo); twinParts.g = holo;
+    const hm = (geo, name) => { const o = new THREE.Mesh(keep(geo), M.holo); o.name = name; return o; };
+    const belt = hm(new THREE.BoxGeometry(2.0, 0.05, 0.16), 'twin_belt'); belt.position.y = 0.04; holo.add(belt);
+    for (const sz of [-1, 1]) { const post = hm(new THREE.BoxGeometry(0.04, 0.3, 0.04), 'twin_gantry_post'); post.position.set(-0.3, 0.19, sz * 0.14); holo.add(post); }
+    const beam = hm(new THREE.BoxGeometry(0.05, 0.04, 0.32), 'twin_gantry_beam'); beam.position.set(-0.3, 0.34, 0); holo.add(beam);
+    const arm = hm(new THREE.CylinderGeometry(0.05, 0.06, 0.2, 10), 'twin_arm_base'); arm.position.set(0.45, 0.14, -0.28); holo.add(arm);
+    const armUp = hm(new THREE.BoxGeometry(0.05, 0.3, 0.05), 'twin_arm_link'); armUp.position.set(0.45, 0.34, -0.28); armUp.rotation.z = -0.5; holo.add(armUp);
+    const bin = hm(new THREE.BoxGeometry(0.24, 0.12, 0.2), 'twin_bin'); bin.position.set(0.75, 0.08, -0.3); holo.add(bin);
+    for (let i = 0; i < 8; i++) { const ch = hm(new THREE.BoxGeometry(0.075, 0.03, 0.075), 'twin_chip_' + pad(i + 1)); ch.position.y = 0.09; holo.add(ch); twinParts.chips.push(ch); }
+    const bar = new THREE.Mesh(keep(new THREE.BoxGeometry(1, 0.03, 0.05)), M.holo); bar.name = 'twin_progress'; bar.position.set(TWIN.x - 1.0, 0.95, TWIN.z + 0.5); g.add(bar); twinParts.bar = bar;
+    const { c, t } = canvasTex(256, 110);
+    rrect(c, 6, 6, 244, 98, 24); c.fillStyle = '#2fa85a'; c.fill(); c.fillStyle = '#fff'; c.font = '700 44px system-ui, "Noto Sans TC", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('PASS ✓', 128, 58);
+    const pass = spriteOf(t, 'twin_pass', 0.9, 0.39); pass.position.set(TWIN.x, 1.5, TWIN.z); g.add(pass); twinParts.pass = pass;
+    return g;
+  }
+
+  /* ---------- 燈塔：紅 → 黃 → 綠 ---------- */
+  const towers = [];
+  function andonTower(x, z, tag) {
+    const g = new THREE.Group(); g.name = 'andon_' + tag;
+    const pole = mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 8), M.steel, 'andon_pole'); pole.position.set(x, 0.14 + 0.55, z); g.add(pole);
+    const lamps = [M.lampR, M.lampA, M.lampG].map((m, i) => {
+      const l = mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.13, seg(14, 8)), m, 'andon_lamp_' + i); l.position.set(x, 0.14 + 1.16 + i * 0.14, z); g.add(l); return l;
+    });
+    towers.push(lamps); return g;
+  }
+
+  /* ---------- 角色與對話的組裝 ---------- */
+  const chars = { worker: makeChar('worker'), ai: makeChar('ai') };
+  const dlg = (opts.dialogue || []).slice(0, LINES.length);
+  const bubbles = dlg.map((e, i) => { const sp = bubbleSprite(e, LINES[i].who, i); return sp; });
+  const evidence = evidenceSprite(); evidence.position.set(STATION_POS.x, 4.7, STATION_POS.z);
+  const BSC = low ? 1.4 : 1;   // 手機鏡頭較遠，對話框放大一些才讀得到
+  evidence.renderOrder = 10; bubbles.forEach(b => { b.renderOrder = 20; });
+  evidence.scale.multiplyScalar(low ? 1.25 : 1);
+
   /* 晶片池：每個槽位含三種外型、標示精靈與紅框，update(p) 只切換可見性 */
   function chipPool() {
     const g = new THREE.Group(); g.name = 'chips';
@@ -633,6 +1021,8 @@ export function buildScene(THREE, opts = {}) {
   anim.agv = agv('01'); anim.agv.g.position.set(AGV_PARK.x, 0, AGV_PARK.z);
   anim.agv2 = agv('02'); anim.agv2.g.position.set(AGV_PARK.x + 0.2, 0, BIN_POS.z - 1.5); anim.agv2.g.rotation.y = Math.PI / 2;   // 待命中的第二台，示意車隊
   group.add(floorPlate(), conveyor(), inspectionGantry(), chipPool(), anim.arm.g, anim.rig, analysisPad(), routes(), anim.agv.g, anim.agv2.g);
+  group.add(controlRoom(), twinTable(), andonTower(CAM_X - 1.1, -1.3, 'gantry'), andonTower(PICK_X - 1.4, -2.9, 'arm'));
+  group.add(chars.worker.g, chars.ai.g, evidence, ...bubbles);
 
   /* 取景用邊界（相機距離與光源範圍由此推導，不寫死數字） */
   const bb = new THREE.Box3().setFromObject(group);
@@ -641,6 +1031,67 @@ export function buildScene(THREE, opts = {}) {
     center: sph.center.clone(), radius: sph.radius, box: bb,
     contentRadius: 0.5 * Math.hypot(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * 0.86
   };
+
+  /* ---------- 角色、對話、證據、控制室、孿生、燈塔：全部只取決於 p ---------- */
+  let lastP = 0;
+  const FEED_ON = 0.68;   // 控制台進入畫面之前不必渲染產線攝影機
+  function updateActors(p) {
+    lastP = p;
+    const poses = { worker: charPose('worker', p), ai: charPose('ai', p) };
+    poseChar(chars.worker, poses.worker); poseChar(chars.ai, poses.ai);
+
+    bubbles.forEach((sp, i) => {
+      const L = LINES[i], a = ssp(L.from, L.from + 0.008, p) * (1 - ssp(L.to - 0.008, L.to, p));
+      sp.visible = a > 0.01;
+      if (!sp.visible) return;
+      const P = poses[L.who];
+      sp.position.set(P.x - 0.1, L.who === 'ai' ? 2.25 : 2.15, P.z);
+      sp.material.opacity = a;
+      const k = (0.9 + 0.1 * a) * BSC; sp.scale.set(3.3 * k, 1.55 * k, 1);
+    });
+    const ev = ssp(EVIDENCE_WIN[0], EVIDENCE_WIN[0] + 0.01, p) * (1 - ssp(EVIDENCE_WIN[1] - 0.01, EVIDENCE_WIN[1], p));
+    evidence.visible = ev > 0.01; evidence.material.opacity = ev;
+
+    /* 數位孿生：浮現 → 模擬（晶片在縮小產線上流動、進度條前進）→ 通過變綠 */
+    const ap = ssp(SIM.appear[0], SIM.appear[1], p), run = ssp(SIM.run[0], SIM.run[1], p), pass = ssp(SIM.run[1] - 0.006, SIM.run[1], p);
+    twinParts.g.visible = ap > 0.01; twinParts.g.scale.setScalar(Math.max(0.001, ap));
+    M.holo.color.setRGB(0.4 * (1 - pass) + 0.18 * pass, 0.88 * (1 - pass) + 0.66 * pass, 1 - 0.65 * pass);
+    twinParts.chips.forEach((ch, i) => { ch.position.x = -1.0 + (i * 0.25 + run * 2.4) % 2.0; });
+    twinParts.bar.visible = ap > 0.5; twinParts.bar.scale.x = Math.max(0.001, run * 2.0); twinParts.bar.position.x = TWIN.x - 1.0 + run;
+    twinParts.pass.visible = pass > 0.5 && ap > 0.5;
+
+    /* 燈塔：紅 → 黃（模擬中）→ 綠（核准後） */
+    const toAmber = ssp(ANDON.amber - 0.004, ANDON.amber, p), toGreen = ssp(ANDON.green - 0.004, ANDON.green, p);
+    M.lampR.emissiveIntensity = 0.08 + 1.3 * (1 - toAmber);
+    M.lampA.emissiveIntensity = 0.08 + 1.2 * toAmber * (1 - toGreen);
+    M.lampG.emissiveIntensity = 0.08 + 1.3 * toGreen;
+
+    /* 核准鈕：模擬通過後亮起，按下時下沉 */
+    const ready = ssp(SIM.run[1] - 0.004, SIM.run[1] + 0.004, p);
+    const press = ssp(PRESS[0], PRESS[0] + 0.004, p) * (1 - ssp(PRESS[1] - 0.004, PRESS[1], p));
+    M.button.emissiveIntensity = 0.1 + 0.6 * ready + 0.6 * ssp(PRESS[0], PRESS[1], p);
+    btn.mesh.position.y = 0.95 + 0.1 - 0.03 * press;
+
+    /* 螢幕：狀態量化後才重畫 */
+    const stage = p >= PRESS[1] ? 2 : p >= SIM.run[1] ? 1 : 0, slide = Math.round(ssp(0.735, 0.76, p) * 20) / 20;
+    const kp = stage + '|' + slide;
+    if (screens.param.key !== kp) { screens.param.key = kp; drawParam({ stage, slide }); }
+    const n = okCountAt(p), card = Math.round(ssp(0.83, 0.86, p) * 12) / 12, saved = p >= 0.86;
+    const ks = n + '|' + card + '|' + saved;
+    if (screens.stat.key !== ks) { screens.stat.key = ks; drawStat({ n, card, saved }); }
+    const live = p >= FEED_ON, tq = Math.round(Math.max(0, p - P_RESUME) * RESUME_PER_P * 20) / 20;
+    if (feedLive && !live) { feedLive = false; feedMat.map = screens.feed.t; feedMat.needsUpdate = true; }
+    const kf = live + '|' + tq;
+    if (!feedLive && screens.feed.key !== kf) { screens.feed.key = kf; drawFeed({ live: p >= P_RESUME, t: tq / 1.3 }); }
+  }
+  /* 產線攝影機即時畫面：桌機把場景再渲染到小張貼圖；低階裝置維持示意畫面 */
+  function renderFeed(renderer, threeScene) {
+    if (low || lastP < FEED_ON) return;
+    if (!feedRT) feedRT = new THREE.WebGLRenderTarget(768, 480);
+    const prev = renderer.getRenderTarget();
+    renderer.setRenderTarget(feedRT); renderer.clear(); renderer.render(threeScene, feedCam); renderer.setRenderTarget(prev);
+    if (!feedLive) { feedLive = true; feedMat.map = feedRT.texture; feedMat.needsUpdate = true; }
+  }
 
   /* ---------- AGV 與候選路線：全部只取決於 p ---------- */
   const bestMeta = routeVis[0].meta;
@@ -745,6 +1196,7 @@ export function buildScene(THREE, opts = {}) {
     for (const f of A.fingers) f.position.x = f.userData.sign * (0.37 - 0.06 * tip.grip);
 
     updateAgv(p);
+    updateActors(p);
 
     /* 箱內晶片：夾起後跟著夾爪走，放下後留在箱中 */
     for (let k = 0; k < BIN_CAP; k++) {
@@ -773,6 +1225,26 @@ export function buildScene(THREE, opts = {}) {
         pos: mobile ? [4.0, 8.2, 15.5] : [3.4, 6.4, 12.6],
         tgt: tgtWide
       },
+      pad: {
+        pos: mobile ? [12.6, 5.4, 19.5] : [7.2, 5.0, 14.6],
+        tgt: mobile ? [12.6, 2.6, 4.6] : [12.4, 2.6, 4.6]
+      },
+      console: {
+        pos: mobile ? [8.0, 5.4, 20.5] : [8.4, 5.4, 18.2],
+        tgt: mobile ? [8.0, 1.1, 5.8] : [8.4, 1.0, 5.9]
+      },
+      monitor: {
+        pos: mobile ? [6.4, 1.9, 11.4] : [6.9, 1.9, 11.2],
+        tgt: mobile ? [6.4, 1.62, 5.5] : [6.9, 1.6, 5.5]
+      },
+      monitor2: {
+        pos: mobile ? [6.4, 1.85, 10.6] : [6.8, 1.85, 10.5],
+        tgt: mobile ? [6.4, 1.62, 5.5] : [6.8, 1.6, 5.5]
+      },
+      party: {
+        pos: mobile ? [6.4, 2.8, 16.5] : [6.4, 2.4, 13.8],
+        tgt: mobile ? [6.4, 1.3, 6.8] : [6.4, 1.2, 6.7]
+      },
       route: {
         pos: mobile ? [11.4, 33, 0.8] : [8.6, 14.6, 12.6],
         tgt: mobile ? [9.2, 0, 0.8] : [10.0, 0, 0.7]
@@ -792,6 +1264,7 @@ export function buildScene(THREE, opts = {}) {
     group.traverse(o => { if (o.isMesh && o.geometry) o.geometry.dispose(); });
     geos.forEach(g => g.dispose()); geos.length = 0;
     texs.forEach(t => t.dispose()); mats.forEach(m => m.dispose());
+    if (feedRT) feedRT.dispose();
     Object.values(M).forEach(m => m.dispose());
   }
 
@@ -802,5 +1275,5 @@ export function buildScene(THREE, opts = {}) {
     labelIsOk: s.sprite.material === labelMats.ok, spriteVisible: s.sprite.visible, frameVisible: s.frame.visible
   }));
 
-  return { group, bounds, materials: M, update, shots, inspect, dispose, detail: low ? 'low' : 'high' };
+  return { group, bounds, materials: M, update, shots, inspect, renderFeed, dispose, detail: low ? 'low' : 'high' };
 }

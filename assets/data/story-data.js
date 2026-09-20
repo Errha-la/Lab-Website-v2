@@ -63,8 +63,8 @@ window.STORY_DATA = {
       zh: '閉環智慧製造', en: 'Closed-Loop Manufacturing',
       descZh: '從檢測、分析、決策到學習，AI 負責快速計算，人負責判斷與把關，兩者形成一個持續改善的閉環。',
       descEn: 'From detection to learning, AI handles fast computation and people handle judgment and oversight, forming a loop of continuous improvement.',
-      techZh: [],
-      techEn: []
+      techZh: ['閉環控制', '人機協作', '持續改善'],
+      techEn: ['Closed-loop control', 'Human–AI collaboration', 'Continuous improvement']
     }
   ],
 

@@ -82,6 +82,7 @@
     <span class="key" style="margin-left:auto">單位：公尺 · y 軸向上 · 輸送帶沿 +x</span>
   </footer>
 
+  <script src="../assets/data/story-data.js"></script>
   <script src="../assets/js/three-d-stage.js"></script>
   <script type="module">
     import { buildScene, slotAt, chipKind, CAM_X, SLOTS } from '../assets/js/factory-scene.js';
@@ -93,7 +94,7 @@
 
     function build() {
       if (scene) scene.dispose();
-      scene = buildScene(THREE, { detail: low ? 'low' : 'high', shadows: !low });
+      scene = buildScene(THREE, { detail: low ? 'low' : 'high', shadows: !low, dialogue: (window.STORY_DATA && window.STORY_DATA.dialogue) || [] });
       scene.update(p);
       applyDebug();
       stage.setObject(scene.group);
