@@ -10,14 +10,14 @@
 /* 首屏（尚未執行 JS 時就能看到）：隱藏原始樣板、顯示與 3D 開場一致的靜態畫面，App 掛載後再淡出 */
 x-dc{display:none!important}
 html,body{margin:0;background:#f2f2f3}
-#boot{position:fixed;inset:0;z-index:100;background:#f2f2f3;color:#1d1f20;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;transition:opacity .35s ease}
+#boot{position:fixed;inset:0;z-index:100;background:#f2f2f3;color:#1f2d3d;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;transition:opacity .35s ease}
 #boot.bye{opacity:0;pointer-events:none}
 #boot .bh{position:absolute;left:0;right:0;top:0;height:66px;border-bottom:1px solid #d9d9dc;display:flex;align-items:center;padding:0 24px 0 max(24px,calc((100vw - 1320px)/2 + 32px));box-sizing:border-box}
 #boot .bh img{height:44px;width:auto;display:block}
 #boot .bt{position:absolute;left:0;right:0;top:66px;height:44vh;display:grid;align-content:center;justify-items:center;text-align:center;padding:0 28px;box-sizing:border-box}
-#boot .bk{display:flex;align-items:center;justify-content:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#416180;margin-bottom:20px}
-#boot .bk i{display:block;width:40px;height:1px;background:#5980a6}
-#boot .bc{margin-top:26px;font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:11px;letter-spacing:.24em;color:#416180}
+#boot .bk{display:flex;align-items:center;justify-content:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#096a7e;margin-bottom:20px}
+#boot .bk i{display:block;width:40px;height:1px;background:#0b7f97}
+#boot .bc{margin-top:26px;font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:11px;letter-spacing:.24em;color:#096a7e}
 #boot h2{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif;font-weight:800;margin:0 0 16px;letter-spacing:-.02em;line-height:1.04;font-size:clamp(38px,5vw,76px)}
 #boot .bs{margin:0;font-size:clamp(13px,1.35vw,17px);line-height:1.7;color:#424244}
 #boot .bp{position:absolute;left:0;right:0;top:66px;height:100vh;clip-path:inset(44% 0 0 0)}
@@ -69,6 +69,14 @@ html[data-lang="en"] #boot .l-en{display:block}
 <x-dc>
 <helmet>
 <style>
+/* 色彩與教授頁（.cv-page）對齊：墨藍文字、青綠主色、金色點綴 */
+:root{--color-text:#1f2d3d;--color-accent:#0b7f97;--color-accent-2:#f2c230;--color-gold:#f2c230;
+--color-accent-100:#e7f4f7;--color-accent-200:#c9e6ed;--color-accent-300:#9fd0db;--color-accent-400:#5db3c5;--color-accent-500:#2596ad;--color-accent-600:#0b7f97;--color-accent-700:#096a7e;--color-accent-800:#075263;--color-accent-900:#1f2d3d;
+--color-accent-2-100:#fdf6dc;--color-accent-2-200:#fbecb0;--color-accent-2-300:#f7dd7a;--color-accent-2-400:#f2c230;--color-accent-2-500:#d9a80f;--color-accent-2-600:#b58a0a;--color-accent-2-700:#8f6c08;--color-accent-2-800:#6b5106;--color-accent-2-900:#4a3804;
+--card-line:color-mix(in srgb,#1f2d3d 16%,#fff);--card-shadow:0 8px 24px rgba(29,45,61,.08)}
+/* 柔和圓角卡片（團隊、核心技術、研究成果）：取代藍圖角標方框 */
+.blueprint.soft-card{border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--card-shadow)}
+.blueprint.soft-card>.corner{display:none}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif}
 a{color:var(--color-accent-700);text-decoration:none}
@@ -78,24 +86,6 @@ html[data-lang="en"] .l-zh{display:none !important}
 *:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
 @keyframes beltflow{to{stroke-dashoffset:-48}}
 @keyframes clawbob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-@keyframes legwalk{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-14deg)}}
-@keyframes legwalk2{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
-@keyframes armwave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-62deg)}}
-#stick [data-leg-a]{transform-origin:20px 26px;animation:legwalk .5s ease-in-out infinite}
-#stick [data-leg-b]{transform-origin:20px 26px;animation:legwalk2 .5s ease-in-out infinite}
-#stick [data-arm]{transform-origin:20px 18px}
-#stick [data-arm-b]{transform-origin:20px 18px}
-#stick[data-wave="1"] [data-arm]{animation:armwave .45s ease-in-out infinite}
-#stick[data-wave="1"] [data-leg-a],#stick[data-wave="1"] [data-leg-b]{animation-play-state:paused}
-#stick[data-mode="dive"] [data-arm],#stick[data-mode="dive"] [data-arm-b]{animation:none;transform:rotate(150deg)}
-#stick[data-mode="dive"] [data-leg-a]{animation:none;transform:rotate(6deg)}
-#stick[data-mode="dive"] [data-leg-b]{animation:none;transform:rotate(-6deg)}
-#stick[data-mode="jump"] [data-leg-a]{animation:none;transform:rotate(-30deg)}
-#stick[data-mode="jump"] [data-leg-b]{animation:none;transform:rotate(24deg)}
-#stick[data-mode="jump"] [data-arm]{transform:rotate(-72deg)}
-#stick[data-mode="roll"] [data-leg-a],#stick[data-mode="roll"] [data-leg-b]{animation:none;transform:rotate(46deg)}
-#stick[data-mode="roll"] [data-arm]{transform:rotate(38deg)}
-#stick[data-mode="roll"] [data-arm-b]{transform:rotate(-38deg)}
 [data-reveal]{transition:opacity .55s ease,transform .55s ease}
 html.rev-on [data-reveal]{opacity:0;transform:translateY(20px)}
 html.rev-on [data-reveal].shown{opacity:1;transform:none}
@@ -212,8 +202,7 @@ button,a,select{touch-action:manipulation}
   .about-photo{height:auto !important;aspect-ratio:4/3}
   .page-gutter{padding-left:16px !important;padding-right:16px !important}
   .touch-target{min-width:44px !important;min-height:44px !important}
-  #stick{display:none !important}
-}
+  }
 @media (max-width:420px){
   .site-brand{max-width:calc(100vw - 104px)}
   .site-brand img{max-height:36px}
@@ -393,7 +382,7 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ techCards }}" as="c" hint-placeholder-count="4">
         <div data-card="" style="position:relative;height:474px;perspective:1400px">
           <div data-inner="" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1)">
-            <div class="blueprint" style="position:absolute;inset:0;backface-visibility:hidden;transform:translateZ(2px);padding:22px 20px;background:transparent;display:flex;flex-direction:column;overflow:hidden">
+            <div class="blueprint soft-card" style="position:absolute;inset:0;backface-visibility:hidden;transform:translateZ(2px);padding:22px 20px;background:#fff;display:flex;flex-direction:column;overflow:hidden">
               <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--color-accent);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;flex:none">{{ c.n }}</span>
               <h4 style="font-size:20px;line-height:1.22;margin:16px 0 4px"><span class="l-zh">{{ c.titleZh }}</span><span class="l-en">{{ c.titleEn }}</span></h4>
               <p class="l-zh" style="margin:0 0 16px;font-size:12px;line-height:1.45;color:var(--color-accent-700)">{{ c.titleEn }}</p>
@@ -406,7 +395,7 @@ button,a,select{touch-action:manipulation}
               <div style="margin-top:auto;padding-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--color-accent-700)">↻ <span class="l-zh">翻面看應用</span><span class="l-en">FLIP FOR APPLICATIONS</span></div>
               <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             </div>
-            <div class="blueprint" style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);padding:22px 20px;background:var(--color-accent-900);color:#f2f2f3;display:flex;flex-direction:column;overflow:hidden">
+            <div class="blueprint soft-card" style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);padding:22px 20px;background:var(--color-accent-900);color:#f2f2f3;display:flex;flex-direction:column;overflow:hidden">
               <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid rgba(242,242,243,.45);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;flex:none">{{ c.n }}</span>
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.16em;opacity:.65;margin:16px 0 12px">KEY APPLICATIONS</div>
               <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px">
@@ -468,7 +457,7 @@ button,a,select{touch-action:manipulation}
         </div>
         <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:start">
           <sc-for list="{{ pagePapers }}" as="p" hint-placeholder-count="10">
-            <article class="blueprint" data-reveal="" style="position:relative;padding:20px 22px;background:var(--color-bg)">
+            <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:20px 22px;background:#fff">
               <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
                 <span class="tag tag-outline">{{ p.typeLabel }}</span>
                 <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
@@ -627,18 +616,6 @@ button,a,select{touch-action:manipulation}
 <sc-if value="{{ atTeam }}" hint-placeholder-val="{{ false }}">
 <section>
   <div id="teamWrap" style="position:relative;max-width:1320px;margin:0 auto;padding:74px 28px 90px">
-    <div id="stick" data-wave="0" data-mode="walk" style="position:absolute;left:0;top:0;width:40px;height:40px;z-index:8;pointer-events:none;opacity:0;transition:opacity .4s">
-      <div id="stickInner" style="width:40px;height:40px">
-        <svg viewBox="0 0 40 40" style="width:40px;height:40px;color:var(--color-accent-700)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="20" cy="8" r="5"></circle>
-          <path d="M20 13v13"></path>
-          <path data-arm="" d="M20 18l-9 5"></path>
-          <path data-arm-b="" d="M20 18l9 4"></path>
-          <path data-leg-a="" d="M20 26l-6 12"></path>
-          <path data-leg-b="" d="M20 26l6 12"></path>
-        </svg>
-      </div>
-    </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
       <span style="width:34px;height:1px;background:var(--color-accent)"></span>
       <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Team</span>
@@ -666,7 +643,7 @@ button,a,select{touch-action:manipulation}
         </sc-if>
         <div class="member-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(286px,1fr));gap:18px;align-items:stretch">
           <sc-for list="{{ g.list }}" as="m" hint-placeholder-count="4">
-            <article class="blueprint" data-reveal="" style="position:relative;height:280px;padding:20px;background:transparent;display:flex;flex-direction:column">
+            <article class="blueprint soft-card" data-reveal="" style="position:relative;height:280px;padding:20px;background:#fff;display:flex;flex-direction:column">
               <div style="display:flex;gap:16px;align-items:center">
                 <div style="flex:none;width:106px;height:142px;border:1px solid var(--color-accent-300);background:var(--color-accent-100);overflow:hidden">
                   <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-member-photo="{{ m.photo }}" alt="{{ m.name }}" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ m.photoPosition }};display:block">
@@ -783,7 +760,7 @@ button,a,select{touch-action:manipulation}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;camTilt&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.6,&quot;min&quot;:0.25,&quot;max&quot;:1.1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;,&quot;unit&quot;:&quot;rad&quot;},&quot;camYaw&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-180,&quot;max&quot;:180,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;,&quot;unit&quot;:&quot;°&quot;},&quot;dolly&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.6,&quot;max&quot;:1.8,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5980a6&quot;,&quot;options&quot;:[&quot;#5980a6&quot;,&quot;#2c455d&quot;,&quot;#7a8a99&quot;,&quot;#436b8f&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;lightIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:1.8,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;shadows&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;3D 產線&quot;}}">
 const TAGS={'smart-manufacturing':['智慧製造','Smart Manufacturing','domain'],'defect-detection':['瑕疵檢測','Defect Detection','domain'],'equipment-health-monitoring':['設備健康監測','Equipment Health Monitoring','domain'],'plant-biology':['植物生物學','Plant Biology','domain'],'deep-learning':['深度學習','Deep Learning','method'],'machine-learning':['機器學習','Machine Learning','method'],'predictive-maintenance':['預測性維修','Predictive Maintenance','domain'],'digital-twin':['數位雙生','Digital Twin','domain'],'web-development':['網頁設計','Web Development','tech'],'database-management':['資料庫管理','Database Management','tech'],'multi-agent-system':['多代理系統','Multi-Agent System','tech'],'optimization':['最佳化','Optimization','method'],'attention-mechanism':['注意力機制','Attention Mechanism','method'],'knowledge-distillation':['知識蒸餾','Knowledge Distillation','method'],'meta-heuristics':['啟發式演算法','Meta-heuristics','method'],'single-cell-genomics':['單細胞基因體學','Single-Cell Genomics','method'],'ai-agent':['AI Agent','AI Agent','topic'],'scheduling':['排程','Scheduling','topic'],'anomaly-detection':['異常偵測','Anomaly Detection','topic'],'llm':['大型語言模型','LLM','topic'],'rag':['檢索增強生成','RAG','topic'],'generative-ai':['生成式 AI','Generative AI','topic'],'yolo':['YOLO','YOLO','tech'],'knowledge-graph':['知識圖譜','Knowledge Graph','tech'],'gan':['生成對抗網路','GAN','tech'],'image-recognition':['影像識別','Image Recognition','tech'],'spatial-transcriptomics':['空間轉錄體學','Spatial Transcriptomics','tech']};
-const CAT={domain:{zh:'研究領域',en:'Domain',color:'#2c455d'},method:{zh:'研究方法',en:'Method',color:'#5980a6'},topic:{zh:'主題',en:'Topic',color:'#94bce3'},tech:{zh:'技術',en:'Tech',color:'#7a7a7d'}};
+const CAT={domain:{zh:'研究領域',en:'Domain',color:'#075263'},method:{zh:'研究方法',en:'Method',color:'#0b7f97'},topic:{zh:'主題',en:'Topic',color:'#f2c230'},tech:{zh:'技術',en:'Tech',color:'#7a7a7d'}};
 const CAT_ORDER=['domain','method','topic','tech'];
 
 const PAPERS=[
@@ -1035,7 +1012,6 @@ class Component extends DCLogic {
   };
   go=p=>()=>{
     const ol=document.getElementById('exp'); if(ol)ol.__wired=false;
-    this._sd=null; this._sdFor=null;
     this.setState({page:p,mobileMenuOpen:false}); window.scrollTo(0,0);
   };
   goHome=this.go('home'); goContact=this.go('contact'); goPubs=this.go('publications');
@@ -1344,8 +1320,6 @@ class Component extends DCLogic {
       if(stamp-lastUi<40)return;
       lastUi=stamp;
       this.releaseReveals();
-      if(window.innerWidth>760&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)this.walkStick();
-      else { const stick=document.getElementById('stick'); if(stick)stick.style.opacity='0'; }
       const graphSvg=document.getElementById('graphsvg');
       const graphRect=graphSvg&&graphSvg.getBoundingClientRect();
       const graphVisible=!!(graphRect&&graphRect.bottom>0&&graphRect.top<(window.innerHeight||800));
@@ -1406,143 +1380,6 @@ class Component extends DCLogic {
       const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       window.scrollTo({top:top,behavior:reduced?'auto':'smooth'});
     });
-  }
-
-  /* boustrophedon walk: left→right along row 1, right→left along row 2, … */
-  stickPath(){
-    const wrap=document.getElementById('teamWrap');
-    if(!wrap)return null;
-    const cards=Array.from(wrap.querySelectorAll('article[data-reveal]'));
-    if(!cards.length)return null;
-    const wb=wrap.getBoundingClientRect();
-    const rows=[];
-    cards.forEach(c=>{
-      const r=c.getBoundingClientRect();
-      const top=Math.round(r.top-wb.top);
-      let row=rows.find(x=>Math.abs(x.top-top)<24);
-      if(!row){ row={top:top,left:1e9,right:-1e9}; rows.push(row); }
-      row.left=Math.min(row.left,r.left-wb.left);
-      row.right=Math.max(row.right,r.right-wb.left);
-    });
-    rows.sort((a,b)=>a.top-b.top);
-    const headEls=Array.from(wrap.querySelectorAll('h3'));
-    const heads=headEls.map(h=>Math.round(h.getBoundingClientRect().top-wb.top));
-    /* keep the walker clear of any heading text on its line */
-    const clearOf=(y,x)=>{
-      let nx=x;
-      headEls.forEach(h=>{
-        const r=h.getBoundingClientRect();
-        const ht=r.top-wb.top, hb=r.bottom-wb.top;
-        if(y+40>ht-6&&y<hb+6){
-          const hr=r.right-wb.left;
-          if(nx<hr+16)nx=hr+16;
-        }
-      });
-      return nx;
-    };
-    const wb2=wb;
-    rows.forEach(row=>{
-      row.stops=cards.filter(c=>{
-        const r=c.getBoundingClientRect();
-        return Math.abs(Math.round(r.top-wb2.top)-row.top)<24;
-      }).map(c=>{
-        const r=c.getBoundingClientRect();
-        return {l:r.left-wb2.left, r:r.right-wb2.left};
-      }).sort((a,b)=>a.l-b.l);
-    });
-    /* the dive shaft: the gutter between two cards on the destination row
-       (falls back to that row's outer edge when it has a single card) */
-    const diveX=row=>{
-      const s=row.stops;
-      if(s.length>1){
-        let best=null;
-        for(let k=0;k<s.length-1;k++){
-          const gap=s[k+1].l-s[k].r;
-          const mid=(s[k].r+s[k+1].l)/2-20;
-          if(!best||gap>best.gap)best={gap:gap,x:mid};
-        }
-        return best.x;
-      }
-      return s[0].l+6;
-    };
-    const pts=[];
-    rows.forEach((row,i)=>{
-      const y=row.top-42;
-      const near=heads.some(h=>Math.abs(h-row.top)<130);
-      const fwd=i%2===0;
-      const ordered=fwd?row.stops:row.stops.slice().reverse();
-      /* walk one card fewer than the row holds, then head down */
-      const stops=ordered.length>1?ordered.slice(0,ordered.length-1):ordered;
-      const dir=fwd?1:-1;
-      stops.forEach((s,k)=>{
-        const enter=clearOf(y,fwd?s.l+6:s.r-46);
-        const exit=clearOf(y,fwd?s.r-46:s.l+6);
-        /* hop the gutter onto this card, then walk along its top edge */
-        pts.push({x:enter,y:y,dir:dir,wave:k===0&&near,mode:k===0?'walk':'jump'});
-        pts.push({x:exit,y:y,dir:dir,wave:false,mode:(i+k)%3===2?'roll':'walk'});
-      });
-      /* walk back along THIS row to the next row's gutter, then dive down it */
-      const next=rows[i+1];
-      if(next){
-        const nx=diveX(next);
-        const last=pts[pts.length-1];
-        if(Math.abs(nx-last.x)>2)pts.push({x:nx,y:y,dir:nx>last.x?1:-1,wave:false,mode:'walk'});
-        pts.push({x:nx,y:next.top-42,dir:dir,wave:false,mode:'dive'});
-      }
-    });
-    let len=0;
-    for(let i=1;i<pts.length;i++){
-      len+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);
-      pts[i].acc=len;
-    }
-    pts[0].acc=0;
-    return {pts:pts,len:len||1,wrap:wrap};
-  }
-
-  walkStick(){
-    const el=document.getElementById('stick');
-    if(!el)return;
-    const p=this.stickPath();
-    if(!p){ el.style.opacity='0'; return; }
-    const wb=p.wrap.getBoundingClientRect();
-    const vh=window.innerHeight||800;
-    const sy=window.scrollY||document.documentElement.scrollTop||0;
-    /* map the section's actually reachable scroll travel onto the path */
-    const topAbs=wb.top+sy, botAbs=wb.bottom+sy;
-    const start=Math.max(0,topAbs-vh*0.62);
-    const end=Math.max(start+1,botAbs-vh*0.9);
-    const prog=Math.max(0,Math.min(1,(sy-start)/(end-start)));
-    el.style.opacity=wb.bottom<40||wb.top>vh?'0':'1';
-    const target=prog*p.len;
-    if(this._sd==null||this._sdFor!==p.wrap){ this._sd=target; this._sdFor=p.wrap; }
-    else this._sd+=(target-this._sd)*0.18;
-    const d=this._sd;
-    let i=1;
-    while(i<p.pts.length-1&&p.pts[i].acc<d)i++;
-    const a=p.pts[i-1],b=p.pts[i];
-    const t=Math.max(0,Math.min(1,(d-a.acc)/Math.max(1,b.acc-a.acc)));
-    const mode=b.mode||'walk';
-    const x=a.x+(b.x-a.x)*t, y=a.y+(b.y-a.y)*t;
-    const hop=mode==='jump'?-Math.sin(Math.PI*t)*30:0;
-    el.style.transform='translate('+x.toFixed(1)+'px,'+(y+hop).toFixed(1)+'px) scaleX('+(a.dir<0?-1:1)+')';
-    const inner=document.getElementById('stickInner');
-    if(inner){
-      const spin=mode==='roll'?t*360:mode==='jump'?Math.sin(Math.PI*t)*-16
-        :mode==='dive'?Math.min(1,t*2.4)*180:0;
-      inner.style.transform='rotate('+spin.toFixed(1)+'deg)';
-    }
-    const waving=a.wave&&t<0.28;
-    el.dataset.wave=waving?'1':'0';
-    el.dataset.mode=waving?'wave':mode;
-    /* the walker must never reach a card that has not appeared yet */
-    if(this._rev&&this._rev.length){
-      const reach=wb.top+y+120;
-      this._rev=this._rev.filter(e=>{
-        if(!e.isConnected)return false;
-        if(e.getBoundingClientRect().top<reach){ e.classList.add('shown'); return false; }
-        return true;
-      });
-    }
   }
 
   wireGantry(){
