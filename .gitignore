@@ -6,3 +6,6 @@ Thumbs.db
 
 # Claude Code local config/skills
 .claude/
+
+# Local planning tickets
+.scratch/
