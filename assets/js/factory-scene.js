@@ -1392,8 +1392,8 @@ export function buildScene(THREE, opts = {}) {
         tgt: mobile ? [PICK_X + 0.9, 0.8, -1.05] : [PICK_X + 0.7, 0.9, -0.8]
       },
       detect: {
-        pos: mobile ? [CAM_X - 4.4, 2.2, 1.9] : [CAM_X + 3.2, 1.9, 3.7],
-        tgt: mobile ? [CAM_X + 1.6, 0.8, -0.1] : [CAM_X + 1.3, 0.8, 0]
+        pos: mobile ? [CAM_X - 4.4, 2.2, 1.9] : [CAM_X + 1.9, 1.9, 3.7],   // 鏡頭左移，讓檢測相機不被文字欄遮住
+        tgt: mobile ? [CAM_X + 1.6, 0.8, -0.1] : [CAM_X + 0.0, 0.8, 0]
       }
     };
   }

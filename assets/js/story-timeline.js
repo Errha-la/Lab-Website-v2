@@ -42,10 +42,19 @@ export function stateAt(p) {
   };
 }
 
-/* 跳到第 act 幕時要捲到的進度（略進入區間內，避免落在邊界） */
+/* 導覽鈕跳幕時每一幕要落在幕內的哪個位置（0..1）。
+   落在幕頭會碰到文字欄緩入與鏡頭仍在運鏡中的半成品畫面，所以：
+   01、02 落在鏡頭取景點（幕的中點，畫面已定格）；03 落在對話框與證據面板都已出現的時刻。
+   未列出的幕落在幕頭稍後。 */
+const JUMP_LOCAL = { 0: 0.5, 1: 0.5, 2: 0.7 };
+
+/* 跳到第 act 幕時要捲到的進度 */
 export function actStart(act) {
   const s = SEGMENTS.find(x => x.id === 'act' && x.act === act);
-  return s ? Math.min(s.to - 1e-4, s.from + 0.004) : 0;
+  if (!s) return 0;
+  const u = JUMP_LOCAL[act];
+  if (u != null) return s.from + (s.to - s.from) * u;
+  return Math.min(s.to - 1e-4, s.from + 0.004);
 }
 
 /* 文字欄存在度 0..1：導覽幕之間為 1，與 intro／過場相鄰的邊緣以 PANEL_RAMP 緩入緩出 */

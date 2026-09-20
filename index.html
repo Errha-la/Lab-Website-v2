@@ -74,6 +74,7 @@ html[data-lang="en"] #boot .l-en{display:block}
 --color-accent-100:#e7f4f7;--color-accent-200:#c9e6ed;--color-accent-300:#9fd0db;--color-accent-400:#5db3c5;--color-accent-500:#2596ad;--color-accent-600:#0b7f97;--color-accent-700:#096a7e;--color-accent-800:#075263;--color-accent-900:#1f2d3d;
 --color-accent-2-100:#fdf6dc;--color-accent-2-200:#fbecb0;--color-accent-2-300:#f7dd7a;--color-accent-2-400:#f2c230;--color-accent-2-500:#d9a80f;--color-accent-2-600:#b58a0a;--color-accent-2-700:#8f6c08;--color-accent-2-800:#6b5106;--color-accent-2-900:#4a3804;
 --card-line:color-mix(in srgb,#1f2d3d 16%,#fff);--card-shadow:0 8px 24px rgba(29,45,61,.08)}
+@media (min-width:761px){.act-inset{padding-right:3em}}
 /* 論文資訊膠囊：日期（灰）、類型（淡青） */
 .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12.5px;line-height:1.4;white-space:nowrap}
 .pill-date{background:#eceff1;color:#4a5866}
@@ -324,11 +325,11 @@ button,a,select{touch-action:manipulation}
                 <h3 style="font-size:38px;margin:0 0 6px"><span class="l-zh">{{ s.zh }}</span><span class="l-en">{{ s.en }}</span></h3>
                 <div class="l-zh" style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.14em;color:var(--color-accent-700);margin-bottom:16px">{{ s.en }}</div>
                 <div class="l-en" style="height:16px"></div>
-                <p class="l-zh" style="margin:0 0 18px;font-size:15.5px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descZh }}</p>
-                <p class="l-en" style="margin:0 0 18px;font-size:15px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descEn }}</p>
+                <p class="l-zh act-inset" style="margin:0 0 18px;font-size:15.5px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descZh }}</p>
+                <p class="l-en act-inset" style="margin:0 0 18px;font-size:15px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descEn }}</p>
                 <div style="border-top:1px solid var(--color-divider);padding-top:14px">
                   <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--color-neutral-600);margin-bottom:6px">KEY TECHNOLOGIES</div>
-                  <div style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:var(--color-accent-900)"><span class="l-zh">{{ s.areaZh }}</span><span class="l-en">{{ s.areaEn }}</span></div>
+                  <div class="act-inset" style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:var(--color-accent-900)"><span class="l-zh">{{ s.areaZh }}</span><span class="l-en">{{ s.areaEn }}</span></div>
                 </div>
               </div>
             </sc-for>
