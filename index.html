@@ -12,7 +12,7 @@ x-dc{display:none!important}
 html,body{margin:0;background:#f2f2f3}
 #boot{position:fixed;inset:0;z-index:100;background:#f2f2f3;color:#1f2d3d;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;transition:opacity .35s ease}
 #boot.bye{opacity:0;pointer-events:none}
-#boot .bh{position:absolute;left:0;right:0;top:0;height:66px;border-bottom:1px solid #d9d9dc;display:flex;align-items:center;padding:0 24px 0 max(24px,calc((100vw - 1320px)/2 + 32px));box-sizing:border-box}
+#boot .bh{position:absolute;left:0;right:0;top:0;height:66px;border-bottom:1px solid #d9d9dc;display:flex;align-items:center;padding:0 28px;box-sizing:border-box}
 #boot .bh img{height:44px;width:auto;display:block}
 #boot .bt{position:absolute;left:0;right:0;top:66px;height:44vh;display:grid;align-content:center;justify-items:center;text-align:center;padding:0 28px;box-sizing:border-box}
 #boot .bk{display:flex;align-items:center;justify-content:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#096a7e;margin-bottom:20px}
@@ -248,7 +248,7 @@ button,a,select{touch-action:manipulation}
 <div style="min-height:100vh">
 
 <header style="position:sticky;top:0;z-index:60;background:rgba(242,242,243,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider)">
-  <div class="site-header-inner" style="max-width:1320px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;gap:20px">
+  <div class="site-header-inner" style="margin:0;padding:0 28px;height:66px;display:flex;align-items:center;gap:20px">
     <button type="button" class="site-brand" onClick="{{ goHome }}" aria-label="先進製程與設備智能輔助實驗室 Advanced Process Control and Intelligent Equipment Laboratory" style="display:flex;align-items:center;background:transparent;border:0;padding:0;cursor:pointer;color:var(--color-text)">
       <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" width="176" height="44" style="height:44px;width:auto;display:block">
     </button>
