@@ -90,7 +90,7 @@ html[data-lang="en"] #boot .l-en{display:block}
 .blueprint.soft-card>.corner{display:none}
 .input,select.input{background:#fff}
 select.input{border-radius:999px;padding-left:14px !important}
-.btn.btn-secondary,.btn.btn-ghost{border-radius:999px}
+.btn,.btn.btn-secondary,.btn.btn-ghost{border-radius:999px}
 #g-pubs>article{display:flex;flex-direction:column}
 #g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -242,7 +242,7 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="margin-left:12px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="margin-left:12px;border-radius:999px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
     <button type="button" class="mobile-menu-button" onClick="{{ toggleMobileMenu }}" aria-controls="mobileNavPanel" aria-expanded="{{ mobileMenuExpanded }}" aria-label="{{ mobileMenuLabel }}">{{ mobileMenuIcon }}</button>
   </div>
@@ -251,7 +251,7 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="border-radius:999px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
   </div>
 </header>
@@ -295,7 +295,7 @@ button,a,select{touch-action:manipulation}
 
       <nav id="actNav" aria-label="故事章節 Story chapters" style="position:absolute;left:32px;top:84px;z-index:7;opacity:0;pointer-events:none;display:flex;gap:6px">
         <sc-for list="{{ stations }}" as="s" hint-placeholder-count="6">
-          <button type="button" data-actjump="{{ s.i }}" aria-label="{{ s.num }} {{ s.en }}" title="{{ s.en }}" style="min-width:44px;height:44px;padding:0 6px;border:1px solid var(--color-divider);background:rgba(242,242,243,.92);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--color-neutral-700);transition:background .3s,color .3s,border-color .3s">{{ s.num }}</button>
+          <button type="button" data-actjump="{{ s.i }}" aria-label="{{ s.num }} {{ s.en }}" title="{{ s.en }}" style="min-width:44px;height:44px;padding:0 6px;border-radius:12px;border:1px solid var(--color-divider);background:rgba(242,242,243,.92);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--color-neutral-700);transition:background .3s,color .3s,border-color .3s">{{ s.num }}</button>
         </sc-for>
       </nav>
       <div id="stationUI" style="position:absolute;inset:0;z-index:6;opacity:0;pointer-events:none">
@@ -303,7 +303,7 @@ button,a,select{touch-action:manipulation}
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01</span>
           <h2 style="margin:0;font-size:20px"><span class="l-zh">閉環智慧製造產線</span><span class="l-en">Closed-loop Smart Production Line</span></h2>
         </div>
-        <div id="viewmode" class="station-mode" style="position:absolute;right:28px;top:62px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--color-accent-700);border:1px solid var(--color-divider);padding:4px 9px">ORBIT 0°</div>
+        <div id="viewmode" class="station-mode" style="position:absolute;right:28px;top:62px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--color-accent-700);border:1px solid var(--color-divider);border-radius:999px;padding:4px 12px">ORBIT 0°</div>
         <div id="actPanel" class="station-panel" style="position:absolute;left:0;top:0;bottom:0;width:clamp(320px,36vw,560px);pointer-events:auto;display:flex;flex-direction:column;justify-content:center;padding:64px 40px 0 32px;background:linear-gradient(to right,var(--color-neutral-100) 0%,var(--color-neutral-100) 90%,rgba(242,242,243,0) 100%);will-change:transform,opacity">
           <div style="position:relative;min-height:330px">
             <sc-for list="{{ stations }}" as="s" hint-placeholder-count="5">
@@ -333,7 +333,7 @@ button,a,select{touch-action:manipulation}
     </div>
     <div id="g-feat" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
       <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
-        <article class="blueprint" data-reveal="" style="position:relative;padding:22px 24px;background:transparent">
+        <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:22px 24px;background:#fff">
           <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
           <h3 style="font-size:19px;line-height:1.28;margin:0 0 8px">{{ p.title }}</h3>
           <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
@@ -492,7 +492,7 @@ button,a,select{touch-action:manipulation}
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:34px">
           <button type="button" class="btn btn-secondary" onClick="{{ prevPage }}" style="font-size:13px">←</button>
           <sc-for list="{{ pageBtns }}" as="b" hint-placeholder-count="2">
-            <button type="button" onClick="{{ b.onClick }}" style="cursor:pointer;min-width:34px;padding:7px 9px;border:1px solid var(--color-accent-300);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;background: {{ b.bg }};color: {{ b.fg }}">{{ b.n }}</button>
+            <button type="button" onClick="{{ b.onClick }}" style="cursor:pointer;min-width:34px;padding:7px 9px;border-radius:999px;border:1px solid var(--color-accent-300);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;background: {{ b.bg }};color: {{ b.fg }}">{{ b.n }}</button>
           </sc-for>
           <button type="button" class="btn btn-secondary" onClick="{{ nextPage }}" style="font-size:13px">→</button>
         </div>

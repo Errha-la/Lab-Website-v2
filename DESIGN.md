@@ -35,7 +35,7 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 - 小標籤（kicker）：11px、字距 `.16em`、大寫、主色深。
 - 頁面大標 44px；區塊標題 26–32px；卡片標題 17–23px；內文 14–16px，行高 1.7 以上。
 
-## 4. 卡片（團隊、核心技術與應用、研究成果、聯絡我們、教授頁）
+## 4. 卡片（全站：首頁精選論文、關於我們、團隊、研究成果、聯絡我們、教授頁）
 以 `class="blueprint soft-card"` 實作（定義於 `index.html`）：
 - 研究成果頁的篩選列、關係圖與側欄同樣使用此樣式。
 - 白底 `#fff`；`1px solid var(--card-line)`；圓角 16px（教授頁大卡 18px、論文小卡 10px）。
@@ -51,7 +51,8 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 - **論文資訊膠囊**（`.pub-meta`）：`pill-date` 灰底年份、`pill-type` 淡青底類型（Journal／Conference）。不顯示 SCI／影響因子。
 - **視圖切換**（`.radio-inputs`，Uiverse 版型）：淡青底容器，選中項為白底青綠粗體。
 - **下拉選單**：`.input` 一律白底。
-- **按鈕 / 連結**：連結主色深，hover 更深；焦點環 `2px solid var(--color-accent)`。
+- **按鈕**：`.btn`、語言切換、分頁數字一律膠囊圓角；3D 幕次導覽鈕圓角 12px。
+- **連結**：連結主色深，hover 更深；焦點環 `2px solid var(--color-accent)`。
 - **教授頁 CV**：左側欄淡青底（主色 6%）＋右側內文；區塊標題間以金色 3px 上緣線分隔。
 - **進場動畫**：`data-reveal` 卡片捲動進入時淡入上移，同一列由左到右依序（每張延遲 90ms）。團隊頁不再有火柴人動畫。
 
