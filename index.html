@@ -432,7 +432,7 @@ button,a,select{touch-action:manipulation}
 
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
       <div>
-        <div class="blueprint" style="position:relative;margin-top:20px;padding:18px 20px;background:transparent">
+        <div class="blueprint soft-card" style="position:relative;margin-top:20px;padding:18px 20px;background:#fff">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:18px">
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600)">Type
               <select class="input" onChange="{{ onType }}" style="width:auto;padding:6px 10px;font-size:13px">
@@ -487,7 +487,7 @@ button,a,select{touch-action:manipulation}
 
     <sc-if value="{{ isGraph }}" hint-placeholder-val="{{ false }}">
       <div id="g-graph" style="display:flex;gap:18px;margin-top:22px;align-items:flex-start">
-        <div class="blueprint" style="position:relative;flex:1;min-width:0;background:var(--color-bg);overflow:hidden">
+        <div class="blueprint soft-card" style="position:relative;flex:1;min-width:0;background:#fff;overflow:hidden">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--color-divider);flex-wrap:wrap">
             <button type="button" class="btn btn-secondary" onClick="{{ zoomOut }}" style="font-size:14px;min-width:34px">−</button>
             <button type="button" class="btn btn-secondary" onClick="{{ zoomIn }}" style="font-size:14px;min-width:34px">＋</button>
@@ -515,7 +515,7 @@ button,a,select{touch-action:manipulation}
           <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         </div>
 
-        <aside class="blueprint" style="position:relative;width:336px;flex:none;background:var(--color-bg);display:flex;flex-direction:column;height:790px;overflow:hidden">
+        <aside class="blueprint soft-card" style="position:relative;width:336px;flex:none;background:#fff;display:flex;flex-direction:column;height:790px;overflow:hidden">
           <div style="flex:none;padding:20px 20px 14px">
             <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:10px">SELECTED FIELD</div>
             <h4 style="font-size:24px;margin:0 0 2px">{{ selTitle }}</h4>

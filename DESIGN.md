@@ -37,6 +37,7 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 
 ## 4. 卡片（團隊、核心技術與應用、研究成果、教授頁）
 以 `class="blueprint soft-card"` 實作（定義於 `index.html`）：
+- 研究成果頁的篩選列、關係圖與側欄同樣使用此樣式。
 - 白底 `#fff`；`1px solid var(--card-line)`；圓角 16px（教授頁大卡 18px、論文小卡 10px）。
 - 陰影 `--card-shadow`：`0 8px 24px rgba(29,45,61,.08)`。
 - `.corner` 角標元素隱藏（`display:none`），新卡片不需再加。
