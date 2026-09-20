@@ -74,9 +74,17 @@ html[data-lang="en"] #boot .l-en{display:block}
 --color-accent-100:#e7f4f7;--color-accent-200:#c9e6ed;--color-accent-300:#9fd0db;--color-accent-400:#5db3c5;--color-accent-500:#2596ad;--color-accent-600:#0b7f97;--color-accent-700:#096a7e;--color-accent-800:#075263;--color-accent-900:#1f2d3d;
 --color-accent-2-100:#fdf6dc;--color-accent-2-200:#fbecb0;--color-accent-2-300:#f7dd7a;--color-accent-2-400:#f2c230;--color-accent-2-500:#d9a80f;--color-accent-2-600:#b58a0a;--color-accent-2-700:#8f6c08;--color-accent-2-800:#6b5106;--color-accent-2-900:#4a3804;
 --card-line:color-mix(in srgb,#1f2d3d 16%,#fff);--card-shadow:0 8px 24px rgba(29,45,61,.08)}
+/* 論文資訊膠囊：日期（灰）、類型（淡青）、SCI／影響因子（金） */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12.5px;line-height:1.4;white-space:nowrap}
+.pill-date{background:#eceff1;color:#4a5866}
+.pill-type{background:var(--color-accent-100);color:var(--color-accent);border:1px solid var(--color-accent-200)}
+.pill-sci{background:#fdf1cf;color:#8f6c08;border:1px solid #f7dd7a}
+.pub-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 /* 柔和圓角卡片（團隊、核心技術、研究成果）：取代藍圖角標方框 */
 .blueprint.soft-card{border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--card-shadow)}
 .blueprint.soft-card>.corner{display:none}
+#g-pubs>article{display:flex;flex-direction:column}
+#g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif}
 a{color:var(--color-accent-700);text-decoration:none}
@@ -127,7 +135,7 @@ button,a,select{touch-action:manipulation}
 .cv-main .cv-title:first-child{padding-top:0}
 .cv-text{margin:0 0 12px;font-size:15.5px;line-height:1.85;color:var(--cv-ink);text-align:justify;text-wrap:pretty}
 .cv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.cv-tag{display:inline-block;padding:3px 10px;border:1px solid var(--cv-teal);color:var(--cv-teal);font-size:12.5px;border-radius:999px;background:#fff}
+.cv-tag{display:inline-block;padding:3px 10px;border:1px solid var(--color-accent);color:var(--color-accent);font-size:12.5px;border-radius:999px;background:#fff}
 .cv-fig{margin:26px 0 0;text-align:center}
 .cv-fig img{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
 .cv-fig figcaption{font-size:12.5px;color:var(--cv-mute);margin-top:6px}
@@ -183,9 +191,7 @@ button,a,select{touch-action:manipulation}
   #stationUI .station-panel p{font-size:14px !important}
   #stationUI .station-panel ol{margin-bottom:18px !important}
   #g-feat,#g-tech,#g-pubs{grid-template-columns:1fr !important}
-  #g-pubs{grid-auto-rows:auto !important;row-gap:18px !important}
-  #g-pubs > *{grid-row-end:auto !important;margin-bottom:0 !important}
-  #g-graph{gap:12px !important}
+    #g-graph{gap:12px !important}
   #g-graph > div:first-child{width:100% !important;min-width:0 !important}
   #g-graph > div:first-child svg{height:min(92vw,520px) !important}
   #g-graph > aside{width:100% !important;height:auto !important;max-height:440px !important}
@@ -320,10 +326,7 @@ button,a,select{touch-action:manipulation}
     <div id="g-feat" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
       <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
         <article class="blueprint" data-reveal="" style="position:relative;padding:22px 24px;background:transparent">
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-            <span class="tag tag-outline">{{ p.typeLabel }}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-          </div>
+          <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
           <h3 style="font-size:19px;line-height:1.28;margin:0 0 8px">{{ p.title }}</h3>
           <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
           <p style="margin:0;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
@@ -455,18 +458,15 @@ button,a,select{touch-action:manipulation}
           </div>
           <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         </div>
-        <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:start">
+        <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:stretch">
           <sc-for list="{{ pagePapers }}" as="p" hint-placeholder-count="10">
             <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:20px 22px;background:#fff">
-              <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-                <span class="tag tag-outline">{{ p.typeLabel }}</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-              </div>
+              <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
               <h3 style="font-size:17px;line-height:1.32;margin:0 0 8px">{{ p.title }}</h3>
               <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
               <p style="margin:0 0 12px;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
               <div style="display:flex;flex-wrap:wrap;gap:6px">
-                <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-neutral">{{ t.label }}</span></sc-for>
+                <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="cv-tag">{{ t.label }}</span></sc-for>
               </div>
               <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
                 <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:14px"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
@@ -598,7 +598,7 @@ button,a,select{touch-action:manipulation}
       <div class="cv-pubs">
         <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
           <article class="cv-pub" data-reveal="">
-            <div class="cv-pub-meta"><span class="cv-tag">{{ p.typeLabel }}</span><span>{{ p.date }}</span></div>
+            <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span><sc-if value="{{ p.hasSci }}" hint-placeholder-val="{{ false }}"><span class="pill pill-sci">★ {{ p.sciLabel }}</span></sc-if></div>
             <h4>{{ p.title }}</h4>
             <p>{{ p.authorLine }}</p>
             <p class="cv-venue">{{ p.venue }}</p>
@@ -656,7 +656,7 @@ button,a,select{touch-action:manipulation}
                 </div>
               </div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-top:18px;padding-top:16px;border-top:1px solid var(--color-divider);flex:1;overflow:hidden">
-                <sc-for list="{{ m.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-outline" style="font-size:11.5px">{{ t.label }}</span></sc-for>
+                <sc-for list="{{ m.tagList }}" as="t" hint-placeholder-count="3"><span class="cv-tag" style="font-size:12px">{{ t.label }}</span></sc-for>
               </div>
               <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             </article>
@@ -917,11 +917,13 @@ const MAP_SRC='https://www.google.com/maps?q=24.981617,121.507716&hl=zh-TW&z=17&
 const R_ORBIT=396;
 const pad=n=>String(n).padStart(2,'0');
 
+/* 期刊 SCI 影響因子（JCR 2023，僅列已知者；沒有列出的期刊不顯示徽章） */
+const JOURNAL_IF={'Genome Biology':10.1,'Developmental Cell':10.7,'Advanced Engineering Informatics':8.0,'International Journal of Production Research':7.0,'Computers & Industrial Engineering':6.7,'Journal of Intelligent Manufacturing':5.9,'International Journal of Computer Integrated Manufacturing':3.7,'International Journal of Advanced Manufacturing Technology':2.9};
 function fmt(p){
   const shown=p.a.length>5?p.a.slice(0,3):p.a;
   const extra=p.a.length-shown.length;
   const en=document.documentElement.dataset.lang==='en';
-  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),typeLabel:TYPE_LABEL[p.ty]||p.ty,
+  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),year:String(p.y),hasSci:p.ty==='journal'&&JOURNAL_IF[p.v]!=null,sciLabel:'(SCI, IF='+(JOURNAL_IF[p.v]||0).toFixed(1)+')',typeLabel:TYPE_LABEL[p.ty]||p.ty,
     authorLine:shown.join(en?', ':'、')+(extra>0?' et al. (+'+extra+')':''),
     doi:p.doi||'', hasDoi:!!p.doi, noDoi:!p.doi,
     tagList:p.g.map(s=>({label:(TAGS[s]||[s,s,'tech'])[en?1:0]}))};
@@ -954,38 +956,8 @@ class Component extends DCLogic {
     this.wireReveal();
     this.wireGantry();
     this.__photoTimer=setInterval(()=>{ if(this.state.page==='about')this.nextPhoto(); },6000);
-    setTimeout(()=>this.wireMasonry(),0);
-    setTimeout(()=>this.wireMasonry(),600);
   }
-  componentDidUpdate(){ this.wireReveal(); this.wireGantry(); this.wireGraphInput(); this.wireExp(); this.wireMasonry(); }
-
-  /* 論文卡片自動上移：以 grid 列跨距做 masonry，上下排間距固定 */
-  wireMasonry(){
-    const gap=18;
-    ['g-pubs'].forEach(id=>{
-      const grid=document.getElementById(id); if(!grid)return;
-      if(window.innerWidth<=760){
-        grid.style.gridAutoRows='auto';
-        grid.style.rowGap=gap+'px';
-        grid.style.alignItems='stretch';
-        Array.from(grid.children).forEach(el=>{el.style.gridRowEnd='auto';el.style.marginBottom='0';});
-        return;
-      }
-      grid.style.gridAutoRows='1px';
-      grid.style.rowGap='0px';
-      grid.style.alignItems='start';
-      const kids=Array.from(grid.children);
-      kids.forEach(el=>{ el.style.gridRowEnd='span 4000'; el.style.marginBottom=gap+'px'; });
-      kids.forEach(el=>{
-        const h=el.getBoundingClientRect().height;
-        el.style.gridRowEnd='span '+Math.max(1,Math.ceil(h+gap));
-      });
-    });
-    if(!this.__mre){
-      this.__mre=true;
-      window.addEventListener('resize',()=>{ clearTimeout(this.__mrt); this.__mrt=setTimeout(()=>this.wireMasonry(),120); });
-    }
-  }
+  componentDidUpdate(){ this.wireReveal(); this.wireGantry(); this.wireGraphInput(); this.wireExp(); }
 
   /* experience timeline: line draws, then rows slide in one by one */
   wireExp(){

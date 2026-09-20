@@ -47,13 +47,15 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 
 ## 5. 元件
 - **導覽列**：sticky、`rgba(242,242,243,.94)` 毛玻璃；當前頁以主色底線標示。手機（≤760px）改為漢堡選單，觸控目標 ≥44px。
-- **標籤**：`tag-outline`（主色外框）、`tag-neutral`（中性淡底）；教授頁使用膠囊形 `cv-tag`。
+- **標籤（團隊、研究成果、教授頁一律相同）**：膠囊形 `cv-tag`——白底、主色 1px 外框、主色文字、圓角 999px。
+- **論文資訊膠囊**（`.pub-meta`）：`pill-date` 灰底年份、`pill-type` 淡青底類型（Journal／Conference）、`pill-sci` 金底 `★ (SCI, IF=x.x)`。影響因子資料放在 `index.html` 的 `JOURNAL_IF`（以期刊名對應，JCR 2023）；未列入的期刊不顯示徽章。
 - **按鈕 / 連結**：連結主色深，hover 更深；焦點環 `2px solid var(--color-accent)`。
 - **教授頁 CV**：左側欄淡青底（主色 6%）＋右側內文；區塊標題間以金色 3px 上緣線分隔。
 - **進場動畫**：`data-reveal` 卡片捲動進入時淡入上移。團隊頁不再有火柴人動畫。
 
 ## 6. 版面與響應式
 - 內容最大寬 1320px，左右內距 28px（手機 16px）。
+- 研究成果頁論文網格採等高列（不再使用 masonry），「查看論文」固定在卡片底部。
 - 成員網格 `repeat(auto-fill,minmax(286px,1fr))`；論文網格 `minmax(330px,1fr)`；核心技術 4 欄（≤1120px 兩欄、≤760px 單欄）。
 - 斷點：1120px、1000px（教授頁單欄）、760px（手機）、420px。
 
