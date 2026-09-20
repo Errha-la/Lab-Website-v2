@@ -65,6 +65,8 @@ Token 定義於 `index.html` helmet 的 `:root` 覆寫（覆蓋設計系統預�
 
 ## 7. 動態與效能
 - 首屏 `#boot` 靜態海報，App 掛載後淡出；React／Three.js 已本地化於 `assets/vendor/`。
+- 網頁字型（Barlow、Noto Sans TC）在 `load` 後 0.8s 才載入，避免 1MB+ 的中文字型段落與 LCP 海報搶頻寬；Logo 用 WebP；教授照片 `loading="lazy"`（`<x-dc>` 內的 img 即使隱藏也會被瀏覽器抓取）。
+- PageSpeed 驗收（Lighthouse 11，2026-09-20）：手機 99／100／100／100，桌機 100／100／100／100。
 - 3D 於使用者互動後才載入；分頁隱藏或離開視窗時暫停迴圈。
 - 減少動態偏好：動畫縮至近乎 0 時長。
 
