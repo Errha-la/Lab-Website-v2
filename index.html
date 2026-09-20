@@ -6,21 +6,106 @@
 <title>先進製程與設備智能輔助實驗室</title>
 <meta name="description" content="國立臺灣科技大學先進製程與設備智能輔助實驗室官方網站。">
 <link rel="icon" href="assets/images/head-banner.png" type="image/png">
-<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-<script src="./assets/js/runtime.js"></script>
+<style>
+/* 首屏（尚未執行 JS 時就能看到）：隱藏原始樣板、顯示與 3D 開場一致的靜態畫面，App 掛載後再淡出 */
+x-dc{display:none!important}
+html,body{margin:0;background:#f2f2f3}
+#boot{position:fixed;inset:0;z-index:100;background:#f2f2f3;color:#1f2d3d;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;transition:opacity .35s ease}
+#boot.bye{opacity:0;pointer-events:none}
+#boot .bh{position:absolute;left:0;right:0;top:0;height:66px;border-bottom:1px solid #d9d9dc;display:flex;align-items:center;padding:0 24px 0 max(24px,calc((100vw - 1320px)/2 + 32px));box-sizing:border-box}
+#boot .bh img{height:44px;width:auto;display:block}
+#boot .bt{position:absolute;left:0;right:0;top:66px;height:44vh;display:grid;align-content:center;justify-items:center;text-align:center;padding:0 28px;box-sizing:border-box}
+#boot .bk{display:flex;align-items:center;justify-content:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#096a7e;margin-bottom:20px}
+#boot .bk i{display:block;width:40px;height:1px;background:#0b7f97}
+#boot .bc{margin-top:26px;font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:11px;letter-spacing:.24em;color:#096a7e}
+#boot h2{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif;font-weight:800;margin:0 0 16px;letter-spacing:-.02em;line-height:1.04;font-size:clamp(38px,5vw,76px)}
+#boot .bs{margin:0;font-size:clamp(13px,1.35vw,17px);line-height:1.7;color:#424244}
+#boot .bp{position:absolute;left:0;right:0;top:66px;height:100vh;clip-path:inset(44% 0 0 0)}
+#boot .bp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#boot .l-en{display:none}
+html[data-lang="en"] #boot .l-zh{display:none}
+html[data-lang="en"] #boot .l-en{display:block}
+@media (max-width:760px){
+  #boot .bh{height:64px;padding:0 16px}
+  #boot .bh img{max-height:42px}
+  #boot .bt{top:64px;height:42vh;padding:0 18px}
+  #boot .bp{top:64px;clip-path:inset(42% 0 0 0)}
+  #boot h2{font-size:clamp(31px,9vw,52px);line-height:1.08}
+  #boot .bs{font-size:13px;max-width:34ch}
+  #boot .bk{font-size:9px;letter-spacing:.13em;margin-bottom:14px;gap:7px}
+  #boot .bk i{width:22px}
+}
+</style>
+<link rel="preload" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css"></noscript>
+<link rel="preload" as="image" href="assets/images/hero-desktop.webp" type="image/webp" media="(min-width:761px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/images/hero-mobile.webp" type="image/webp" media="(max-width:760px)" fetchpriority="high">
+<script defer src="assets/vendor/react.production.min.js"></script>
+<script defer src="assets/vendor/react-dom.production.min.js"></script>
+<script defer src="assets/data/story-data.js"></script>
+<script defer src="./assets/js/runtime.js"></script>
 </head>
 <body>
+<div id="boot" aria-hidden="true">
+  <div class="bh"><img src="assets/images/head-banner.png" width="176" height="44" alt=""></div>
+  <div class="bp"><picture>
+    <source media="(max-width:760px)" srcset="assets/images/hero-mobile.webp" type="image/webp">
+    <img src="assets/images/hero-desktop.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async">
+  </picture></div>
+  <div class="bt">
+    <div class="bk"><i></i><span>National Taiwan University of Science and Technology</span><i></i></div>
+    <h2 class="l-zh">先進製程與設備智能輔助實驗室</h2>
+    <h2 class="l-en">Advanced Process Control &amp; Intelligent Equipment Lab</h2>
+    <p class="bs l-zh">以 AI Agent 與數位雙生為核心，打造自主決策與人機協作的閉環智慧製造。</p>
+    <p class="bs l-en">Closed-loop smart manufacturing built on AI agents and digital twins, for autonomous decisions and human–AI collaboration.</p>
+    <div class="bc l-zh">↓ 向下捲動展開產線</div>
+    <div class="bc l-en">↓ SCROLL TO EXPAND THE LINE</div>
+  </div>
+</div>
+<script>setTimeout(function(){var b=document.getElementById('boot');if(b)b.remove()},8000)</script>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css">
-<script src="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/_ds_bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;family=Noto+Sans+TC:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
+/* 色彩與教授頁（.cv-page）對齊：墨藍文字、青綠主色、金色點綴 */
+:root{--color-text:#1f2d3d;--color-accent:#0b7f97;--color-accent-2:#f2c230;--color-gold:#f2c230;
+--color-accent-100:#e7f4f7;--color-accent-200:#c9e6ed;--color-accent-300:#9fd0db;--color-accent-400:#5db3c5;--color-accent-500:#2596ad;--color-accent-600:#0b7f97;--color-accent-700:#096a7e;--color-accent-800:#075263;--color-accent-900:#1f2d3d;
+--color-accent-2-100:#fdf6dc;--color-accent-2-200:#fbecb0;--color-accent-2-300:#f7dd7a;--color-accent-2-400:#f2c230;--color-accent-2-500:#d9a80f;--color-accent-2-600:#b58a0a;--color-accent-2-700:#8f6c08;--color-accent-2-800:#6b5106;--color-accent-2-900:#4a3804;
+--card-line:color-mix(in srgb,#1f2d3d 16%,#fff);--card-shadow:0 8px 24px rgba(29,45,61,.08)}
+@media (min-width:761px){.act-inset{padding-right:3em}}
+/* 論文資訊膠囊：日期（灰）、類型（淡青） */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12.5px;line-height:1.4;white-space:nowrap}
+.pill-date{background:#eceff1;color:#4a5866}
+.pill-type{background:var(--color-accent-100);color:var(--color-accent);border:1px solid var(--color-accent-200)}
+/* 視圖切換（Uiverse radio-inputs 版型，配色為站內青綠） */
+.radio-inputs{position:relative;display:flex;flex-wrap:wrap;width:300px;max-width:100%;box-sizing:border-box;padding:.25rem;border-radius:.5rem;background:var(--color-accent-100);box-shadow:0 0 0 1px rgba(31,45,61,.06);font-size:14px}
+.radio-inputs .radio{display:block;flex:1 1 0;min-width:0;gap:0;text-align:center}
+.radio-inputs .radio input{display:none}
+.radio-inputs .radio .name{display:flex;align-items:center;justify-content:center;padding:.5rem 0;border-radius:.5rem;border:0;cursor:pointer;color:var(--color-neutral-700);transition:all .15s ease-in-out}
+.radio-inputs .radio:hover .name{box-shadow:inset 0 0 0 999px rgba(255,255,255,.5)}
+.pub-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+/* 柔和圓角卡片（團隊、核心技術、研究成果）：取代藍圖角標方框 */
+.blueprint.soft-card{border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--card-shadow)}
+.blueprint.soft-card>.corner{display:none}
+.input,select.input{background:#fff}
+select.input{border-radius:999px;padding-left:14px !important}
+/* 下拉選單彈出層：支援 appearance:base-select 的瀏覽器（Chrome 135+）改用站內樣式，其餘維持原生 */
+@supports (appearance:base-select){
+select.input,select.input::picker(select){appearance:base-select}
+select.input{cursor:pointer;color:var(--color-text)}
+select.input::picker-icon{color:var(--color-accent);transition:transform .2s}
+select.input:open::picker-icon{transform:rotate(180deg)}
+select.input::picker(select){margin-top:6px;padding:6px;border:1px solid var(--card-line);border-radius:14px;background:#fff;box-shadow:var(--card-shadow)}
+select.input option{padding:8px 14px;border-radius:999px;font-size:13px;color:var(--color-text);cursor:pointer}
+select.input option:hover,select.input option:focus-visible{background:var(--color-accent-100);color:var(--color-accent-700);outline:0}
+select.input option:checked{background:var(--color-accent);color:#fff}
+select.input option::checkmark{display:none}
+}
+.btn,.btn.btn-secondary,.btn.btn-ghost{border-radius:999px}
+#g-pubs>article{display:flex;flex-direction:column}
+#g-pubs>article>a{margin-top:auto !important;padding-top:14px;align-self:flex-start}
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif}
 a{color:var(--color-accent-700);text-decoration:none}
@@ -30,28 +115,10 @@ html[data-lang="en"] .l-zh{display:none !important}
 *:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
 @keyframes beltflow{to{stroke-dashoffset:-48}}
 @keyframes clawbob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-@keyframes legwalk{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-14deg)}}
-@keyframes legwalk2{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
-@keyframes armwave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-62deg)}}
-#stick [data-leg-a]{transform-origin:20px 26px;animation:legwalk .5s ease-in-out infinite}
-#stick [data-leg-b]{transform-origin:20px 26px;animation:legwalk2 .5s ease-in-out infinite}
-#stick [data-arm]{transform-origin:20px 18px}
-#stick [data-arm-b]{transform-origin:20px 18px}
-#stick[data-wave="1"] [data-arm]{animation:armwave .45s ease-in-out infinite}
-#stick[data-wave="1"] [data-leg-a],#stick[data-wave="1"] [data-leg-b]{animation-play-state:paused}
-#stick[data-mode="dive"] [data-arm],#stick[data-mode="dive"] [data-arm-b]{animation:none;transform:rotate(150deg)}
-#stick[data-mode="dive"] [data-leg-a]{animation:none;transform:rotate(6deg)}
-#stick[data-mode="dive"] [data-leg-b]{animation:none;transform:rotate(-6deg)}
-#stick[data-mode="jump"] [data-leg-a]{animation:none;transform:rotate(-30deg)}
-#stick[data-mode="jump"] [data-leg-b]{animation:none;transform:rotate(24deg)}
-#stick[data-mode="jump"] [data-arm]{transform:rotate(-72deg)}
-#stick[data-mode="roll"] [data-leg-a],#stick[data-mode="roll"] [data-leg-b]{animation:none;transform:rotate(46deg)}
-#stick[data-mode="roll"] [data-arm]{transform:rotate(38deg)}
-#stick[data-mode="roll"] [data-arm-b]{transform:rotate(-38deg)}
 [data-reveal]{transition:opacity .55s ease,transform .55s ease}
 html.rev-on [data-reveal]{opacity:0;transform:translateY(20px)}
 html.rev-on [data-reveal].shown{opacity:1;transform:none}
-.navlink{display:inline-flex;align-items:center;padding:8px 12px;font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:transparent;border:0;cursor:pointer;color:var(--color-neutral-600)}
+.navlink{display:inline-flex;align-items:center;padding:8px 12px;font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:transparent;border:0;cursor:pointer;color:var(--color-neutral-700)}
 .navlink:hover{background:var(--color-accent-100);color:var(--color-text)}
 .navlink[data-on="1"]{color:var(--color-accent-900);box-shadow:inset 0 -2px 0 var(--color-accent)}
 .cta{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;position:relative}
@@ -63,7 +130,52 @@ html,body{max-width:100%;overflow-x:clip}
 button,a,select{touch-action:manipulation}
 #worldBox{touch-action:pan-y;overscroll-behavior-x:none}
 #lineCanvas{touch-action:pan-y}
+#actNav button[aria-current="true"]{background:var(--color-accent) !important;border-color:var(--color-accent) !important;color:#fff !important}
+#actNav button:hover{border-color:var(--color-accent)}
+#actPanel{transition:none}
 #graphsvg{max-width:100%;overscroll-behavior:contain}
+.cv-page{--cv-ink:#1f2d3d;--cv-teal:#0b7f97;--cv-gold:#f2c230;--cv-side:color-mix(in srgb,var(--cv-teal) 6%,#fff);--cv-line:color-mix(in srgb,var(--cv-ink) 16%,#fff);--cv-mute:color-mix(in srgb,var(--cv-ink) 78%,#fff);padding:40px 28px 90px;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;color:var(--cv-ink)}
+.cv-page h2,.cv-page h3,.cv-page h4,.cv-page button{font-family:inherit}
+.cv{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;background:#fff;border:1px solid var(--cv-line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(29,45,61,.08)}
+.cv-side{background:var(--cv-side);padding:40px 32px 36px;border-right:1px solid var(--cv-line)}
+.cv-photo{display:block;width:176px;height:176px;margin:0 auto 20px;border-radius:50%;object-fit:cover;object-position:center 22%;border:4px solid #fff;box-shadow:0 0 0 1px var(--cv-line),0 6px 16px rgba(29,45,61,.16)}
+.cv-name{margin:0;text-align:center;font-size:28px;font-weight:700;color:var(--cv-ink)}
+.cv-name-alt{margin:2px 0 14px;text-align:center;font-size:16px;color:var(--cv-mute)}
+.cv-role{margin:0;text-align:center;font-size:14px;line-height:1.55;color:var(--cv-ink)}
+.cv-role-org{color:var(--cv-mute);margin-bottom:12px}
+.cv-mail{display:block;text-align:center;font-size:14px;color:var(--cv-teal);word-break:break-all}
+.cv-loc{margin:8px 0 28px;text-align:center;font-size:12.5px;line-height:1.6;color:var(--cv-mute)}
+.cv-loc span{display:block}
+.cv-h{margin:26px 0 12px;padding-bottom:6px;font-size:20px;font-weight:700;color:var(--cv-teal);border-bottom:2px solid var(--cv-line)}
+.cv-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.cv-list li{font-size:13.5px;line-height:1.5;color:var(--cv-mute)}
+.cv-list b{display:block;font-size:14px;font-weight:600;color:var(--cv-ink)}
+.cv-main{padding:40px 48px 44px;min-width:0}
+.cv-title{margin:0 0 12px;font-size:26px;font-weight:700;color:var(--cv-ink)}
+.cv-main .cv-title:not(:first-child){margin-top:36px;padding-top:24px;border-top:3px solid var(--cv-gold)}
+.cv-main .cv-title:first-child{padding-top:0}
+.cv-text{margin:0 0 12px;font-size:15.5px;line-height:1.85;color:var(--cv-ink);text-align:justify;text-wrap:pretty}
+.cv-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cv-tag{display:inline-block;padding:3px 10px;border:1px solid var(--color-accent);color:var(--color-accent);font-size:12.5px;border-radius:999px;background:#fff}
+.cv-fig{margin:26px 0 0;text-align:center}
+.cv-fig img{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
+.cv-fig figcaption{font-size:12.5px;color:var(--cv-mute);margin-top:6px}
+.cv-proj{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.cv-proj li{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--cv-line);font-size:14.5px;line-height:1.55;color:var(--cv-ink)}
+.cv-proj b{font-size:16px;font-weight:700;color:var(--cv-teal)}
+.cv-proj i{display:block;margin-top:2px;font-style:normal;font-size:12.5px;color:var(--cv-mute)}
+.cv-pubhead{margin-top:36px;padding-top:24px;border-top:3px solid var(--cv-gold);display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cv-pubhead .cv-title{flex:1 1 auto;margin:0 !important;padding:0 !important;border:0 !important}
+.cv-more{background:transparent;border:0;cursor:pointer;font-weight:600;font-size:15px;color:var(--cv-teal)}
+.cv-pubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+.cv-pub{padding:18px 20px;border:1px solid var(--cv-line);border-radius:10px;background:#fff}
+.cv-pub-meta{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:13px;color:var(--cv-mute)}
+.cv-pub h4{margin:0 0 8px;font-size:16.5px;line-height:1.35;font-weight:700;color:var(--cv-ink)}
+.cv-pub p{margin:0 0 4px;font-size:13px;color:var(--cv-mute)}
+.cv-venue{font-style:italic}
+.cv-pub a{display:inline-block;margin-top:10px;font-weight:600;font-size:14px;color:var(--cv-teal)}
+@media (max-width:1000px){.cv{grid-template-columns:1fr}.cv-side{border-right:0;border-bottom:1px solid var(--cv-line)}.cv-main{padding:32px 24px 36px}}
+@media (max-width:760px){.cv-page{padding:20px 12px 64px}.cv{border-radius:12px}.cv-side{padding:28px 20px}.cv-text{text-align:left}.cv-pubs{grid-template-columns:1fr}.cv-proj li{grid-template-columns:44px 1fr}}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
 }
@@ -76,7 +188,9 @@ button,a,select{touch-action:manipulation}
   .desktop-nav{display:none !important}
   .mobile-menu-button{display:inline-grid;place-items:center;flex:none;width:44px;height:44px;margin-left:auto;border:1px solid var(--color-divider);background:transparent;color:var(--color-accent-900);cursor:pointer;font-size:20px;line-height:1}
   .mobile-nav-panel{z-index:70}
-  #scrollwrap{height:560vh !important;min-height:100dvh}
+  #scrollwrap{height:900vh !important;min-height:100dvh}
+  #actNav{left:16px !important;top:76px !important;gap:4px !important}
+  #actNav button{min-width:44px}
   #heroTitle{height:42% !important;padding:0 18px !important}
   #heroTitle h1{font-size:clamp(31px,9vw,52px) !important;line-height:1.08 !important}
   #heroTitle .hero-kicker{gap:7px !important;margin-bottom:14px !important}
@@ -88,8 +202,7 @@ button,a,select{touch-action:manipulation}
   #heroFrame > span:first-child{left:16px !important}
   #heroFrame > span:last-child{right:16px !important;text-align:right}
   #worldBox{clip-path:inset(42% 0 0 0);}
-  #lineLabels{display:none !important}
-  #stationUI{inset:auto 0 0 0 !important;top:auto !important;height:min(58dvh,460px) !important;min-height:270px;opacity:0;pointer-events:none;overflow:visible !important}
+  #stationUI{inset:auto 0 0 0 !important;top:auto !important;height:min(52dvh,440px) !important;min-height:270px;opacity:0;pointer-events:none;overflow:visible !important}
   #stationUI .station-title{top:12px !important;left:16px !important;right:16px !important;justify-content:space-between;gap:8px !important}
   #stationUI .station-title h2{font-size:16px !important;text-align:right}
   #stationUI .station-mode{top:42px !important;right:16px !important;font-size:10px !important}
@@ -98,22 +211,14 @@ button,a,select{touch-action:manipulation}
   #stationUI .station-panel h3{font-size:30px !important}
   #stationUI .station-panel p{font-size:14px !important}
   #stationUI .station-panel ol{margin-bottom:18px !important}
-  #g-feat,#g-tech,#g-pubs,#g-recent{grid-template-columns:1fr !important}
-  #g-pubs,#g-recent{grid-auto-rows:auto !important;row-gap:18px !important}
-  #g-pubs > *,#g-recent > *{grid-row-end:auto !important;margin-bottom:0 !important}
-  #g-graph{gap:12px !important}
+  #g-feat,#g-tech,#g-pubs{grid-template-columns:1fr !important}
+    #g-graph{gap:12px !important}
   #g-graph > div:first-child{width:100% !important;min-width:0 !important}
   #g-graph > div:first-child svg{height:min(92vw,520px) !important}
   #g-graph > aside{width:100% !important;height:auto !important;max-height:440px !important}
   #g-contact{grid-template-columns:1fr !important}
   #g-contact figure,#g-contact > .blueprint{min-height:420px !important}
   #g-contact figure iframe{min-height:320px}
-  .prof-intro{grid-template-columns:1fr !important;gap:24px !important}
-  .prof-intro figure{order:0 !important;max-width:320px;width:100%;margin:0 auto !important}
-  .prof-intro figure img{aspect-ratio:3/4}
-  .prof-education{grid-template-columns:1fr !important}
-  .exp-list{padding-left:26px !important}
-  .exp-list > #expLine{left:5px !important}
   #teamWrap{padding:56px 16px 72px !important}
   #teamWrap > sc-for > div > div:first-child{align-items:flex-start !important;flex-wrap:wrap}
   #teamWrap select{min-height:44px !important;max-width:100%}
@@ -124,8 +229,7 @@ button,a,select{touch-action:manipulation}
   .about-photo{height:auto !important;aspect-ratio:4/3}
   .page-gutter{padding-left:16px !important;padding-right:16px !important}
   .touch-target{min-width:44px !important;min-height:44px !important}
-  #stick{display:none !important}
-}
+  }
 @media (max-width:420px){
   .site-brand{max-width:calc(100vw - 104px)}
   .site-brand img{max-height:36px}
@@ -145,13 +249,13 @@ button,a,select{touch-action:manipulation}
 <header style="position:sticky;top:0;z-index:60;background:rgba(242,242,243,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider)">
   <div class="site-header-inner" style="max-width:1320px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;gap:20px">
     <button type="button" class="site-brand" onClick="{{ goHome }}" aria-label="先進製程與設備智能輔助實驗室 Advanced Process Control and Intelligent Equipment Laboratory" style="display:flex;align-items:center;background:transparent;border:0;padding:0;cursor:pointer;color:var(--color-text)">
-      <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" style="height:44px;width:auto;display:block">
+      <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" width="176" height="44" style="height:44px;width:auto;display:block">
     </button>
     <nav class="desktop-nav" aria-label="主導覽" style="display:flex;align-items:center;gap:2px;margin-left:auto">
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" onClick="{{ toggleLang }}" aria-label="切換語言 Switch language" style="margin-left:12px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="margin-left:12px;border-radius:999px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
     <button type="button" class="mobile-menu-button" onClick="{{ toggleMobileMenu }}" aria-controls="mobileNavPanel" aria-expanded="{{ mobileMenuExpanded }}" aria-label="{{ mobileMenuLabel }}">{{ mobileMenuIcon }}</button>
   </div>
@@ -160,23 +264,27 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="切換語言 Switch language" style="border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="border-radius:999px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
   </div>
 </header>
 
 <sc-if value="{{ atHome }}" hint-placeholder-val="{{ true }}">
 <section>
-  <div id="scrollwrap" style="position:relative;height:560vh;background:var(--color-neutral-100);border-bottom:1px solid var(--color-divider)">
+  <div id="scrollwrap" style="position:relative;height:900vh;background:var(--color-neutral-100);border-bottom:1px solid var(--color-divider)">
     <div style="position:sticky;top:0;height:100vh;overflow:hidden">
 
-      <div id="worldBox" style="position:absolute;inset:0;clip-path:inset(44% 0% 0% 0%);will-change:clip-path;cursor:grab">
+      <div id="worldBox" style="position:absolute;inset:0;clip-path:inset(44% 0% 0% 0%);will-change:clip-path">
         <canvas id="lineCanvas" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
-        <div id="lineLabels" style="position:absolute;inset:0;pointer-events:none"></div>
-        <div id="lineFallback" style="position:absolute;inset:0;display:grid;place-items:center;background:var(--color-neutral-100)">
-          <span style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:11px;letter-spacing:.2em;color:var(--color-accent-700)">LOADING 3D MODEL…</span>
+        <div id="lineFallback" aria-hidden="true" style="position:absolute;inset:0;background-color:var(--color-neutral-100);transition:opacity .4s ease">
+          <picture>
+            <source media="(max-width:760px)" srcset="assets/images/hero-mobile.webp" type="image/webp">
+            <img src="assets/images/hero-desktop.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          </picture>
         </div>
       </div>
+
+      <div id="bleedFrame" aria-hidden="true" style="position:absolute;inset:0;z-index:3;pointer-events:none;box-sizing:border-box;border:12px solid var(--color-neutral-100);box-shadow:inset 0 0 0 1px var(--color-accent-500);opacity:0"></div>
 
       <div id="heroFrame" style="position:absolute;left:0;right:0;top:44%;bottom:0;z-index:4;pointer-events:none;border-top:1px solid var(--color-accent-500)">
         <span style="position:absolute;left:28px;top:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01 — CLOSED LOOP LINE</span>
@@ -198,32 +306,29 @@ button,a,select{touch-action:manipulation}
         </div>
       </div>
 
+      <nav id="actNav" aria-label="故事章節 Story chapters" style="position:absolute;left:32px;top:84px;z-index:7;opacity:0;pointer-events:none;display:flex;gap:6px">
+        <sc-for list="{{ stations }}" as="s" hint-placeholder-count="6">
+          <button type="button" data-actjump="{{ s.i }}" aria-label="{{ s.num }} {{ s.en }}" title="{{ s.en }}" style="min-width:44px;height:44px;padding:0 6px;border-radius:12px;border:1px solid var(--color-divider);background:rgba(242,242,243,.92);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--color-neutral-700);transition:background .3s,color .3s,border-color .3s">{{ s.num }}</button>
+        </sc-for>
+      </nav>
       <div id="stationUI" style="position:absolute;inset:0;z-index:6;opacity:0;pointer-events:none">
         <div class="station-title" style="position:absolute;right:28px;top:26px;display:flex;align-items:baseline;gap:12px">
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01</span>
           <h2 style="margin:0;font-size:20px"><span class="l-zh">閉環智慧製造產線</span><span class="l-en">Closed-loop Smart Production Line</span></h2>
         </div>
-        <div id="viewmode" class="station-mode" style="position:absolute;right:28px;top:62px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--color-accent-700);border:1px solid var(--color-divider);padding:4px 9px">ORBIT 0°</div>
-        <div class="station-hint" style="position:absolute;right:28px;bottom:28px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.14em;color:var(--color-neutral-600)"><span class="l-zh">拖曳畫面可自由旋轉檢視</span><span class="l-en">DRAG TO ORBIT FREELY</span></div>
-
-        <div class="station-panel" style="position:absolute;left:0;top:0;bottom:0;width:min(700px,58vw);pointer-events:auto;display:flex;flex-direction:column;justify-content:center;padding:0 240px 0 32px;background:linear-gradient(to right,var(--color-neutral-100) 0%,var(--color-neutral-100) 52%,rgba(245,245,248,.94) 68%,rgba(245,245,248,.62) 84%,rgba(245,245,248,0) 100%)">
-          <ol id="rail" style="margin:0 0 26px;padding:0;list-style:none;display:flex;gap:8px">
-            <sc-for list="{{ stations }}" as="s" hint-placeholder-count="5">
-              <li data-dot="{{ s.i }}" style="flex:1;height:3px;background:var(--color-accent-200);transition:background .35s"></li>
-            </sc-for>
-          </ol>
+        <div id="actPanel" class="station-panel" style="position:absolute;left:0;top:0;bottom:0;width:clamp(320px,36vw,560px);pointer-events:auto;display:flex;flex-direction:column;justify-content:center;padding:64px 40px 0 32px;background:linear-gradient(to right,var(--color-neutral-100) 0%,var(--color-neutral-100) 90%,rgba(242,242,243,0) 100%);will-change:transform,opacity">
           <div style="position:relative;min-height:330px">
             <sc-for list="{{ stations }}" as="s" hint-placeholder-count="5">
               <div data-panel="{{ s.i }}" style="position:absolute;left:0;right:0;top:0;opacity:0;transform:translateX(-28px);transition:opacity .45s ease,transform .45s ease">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--color-accent-700);margin-bottom:8px">STATION {{ s.num }}</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--color-accent-700);margin-bottom:8px">ACT {{ s.num }}</div>
                 <h3 style="font-size:38px;margin:0 0 6px"><span class="l-zh">{{ s.zh }}</span><span class="l-en">{{ s.en }}</span></h3>
                 <div class="l-zh" style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.14em;color:var(--color-accent-700);margin-bottom:16px">{{ s.en }}</div>
                 <div class="l-en" style="height:16px"></div>
-                <p class="l-zh" style="margin:0 0 18px;font-size:15.5px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descZh }}</p>
-                <p class="l-en" style="margin:0 0 18px;font-size:15px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descEn }}</p>
+                <p class="l-zh act-inset" style="margin:0 0 18px;font-size:15.5px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descZh }}</p>
+                <p class="l-en act-inset" style="margin:0 0 18px;font-size:15px;line-height:1.7;color:var(--color-neutral-800)">{{ s.descEn }}</p>
                 <div style="border-top:1px solid var(--color-divider);padding-top:14px">
-                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--color-neutral-600);margin-bottom:6px">RESEARCH AREA</div>
-                  <div style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:var(--color-accent-900)"><span class="l-zh">{{ s.areaZh }}</span><span class="l-en">{{ s.areaEn }}</span></div>
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--color-neutral-600);margin-bottom:6px">KEY TECHNOLOGIES</div>
+                  <div class="act-inset" style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:17px;color:var(--color-accent-900)"><span class="l-zh">{{ s.areaZh }}</span><span class="l-en">{{ s.areaEn }}</span></div>
                 </div>
               </div>
             </sc-for>
@@ -240,11 +345,8 @@ button,a,select{touch-action:manipulation}
     </div>
     <div id="g-feat" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
       <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
-        <article class="blueprint" data-reveal="" style="position:relative;padding:22px 24px;background:transparent">
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-            <span class="tag tag-outline">{{ p.typeLabel }}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-          </div>
+        <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:22px 24px;background:#fff">
+          <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
           <h3 style="font-size:19px;line-height:1.28;margin:0 0 8px">{{ p.title }}</h3>
           <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
           <p style="margin:0;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
@@ -271,7 +373,7 @@ button,a,select{touch-action:manipulation}
     <p class="l-en" style="font-size:16px;line-height:1.8;color:var(--color-neutral-800);margin:0">Our laboratory focuses on developing AI agent applications that integrate large language models, optimization methods, and industrial information systems to enable autonomous decision-making and collaborative problem solving. Our research encompasses agent architectures, multi-agent coordination, task planning, tool integration, and human–AI collaboration, with applications in intelligent scheduling, defect detection, predictive maintenance, and knowledge-based management using real-time data from MES, ERP, PLM, and IoT platforms.</p>
     </div>
 
-    <figure class="blueprint about-photo" style="position:relative;margin:0;height:294px;background:transparent;display:flex;flex-direction:column">
+    <figure class="blueprint soft-card about-photo" style="position:relative;margin:0;height:294px;background:#fff;overflow:hidden;display:flex;flex-direction:column">
       <div style="position:relative;flex:1;min-height:0;border-bottom:1px solid var(--color-divider);overflow:hidden;background:var(--color-neutral-200)">
         <sc-for list="{{ labPhotos }}" as="ph" hint-placeholder-count="4">
           <img src="{{ ph.src }}" alt="{{ ph.alt }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:opacity .6s ease;opacity: {{ ph.op }}">
@@ -303,7 +405,7 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ techCards }}" as="c" hint-placeholder-count="4">
         <div data-card="" style="position:relative;height:474px;perspective:1400px">
           <div data-inner="" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1)">
-            <div class="blueprint" style="position:absolute;inset:0;backface-visibility:hidden;transform:translateZ(2px);padding:22px 20px;background:transparent;display:flex;flex-direction:column;overflow:hidden">
+            <div class="blueprint soft-card" style="position:absolute;inset:0;backface-visibility:hidden;transform:translateZ(2px);padding:22px 20px;background:#fff;display:flex;flex-direction:column;overflow:hidden">
               <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--color-accent);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;flex:none">{{ c.n }}</span>
               <h4 style="font-size:20px;line-height:1.22;margin:16px 0 4px"><span class="l-zh">{{ c.titleZh }}</span><span class="l-en">{{ c.titleEn }}</span></h4>
               <p class="l-zh" style="margin:0 0 16px;font-size:12px;line-height:1.45;color:var(--color-accent-700)">{{ c.titleEn }}</p>
@@ -316,7 +418,7 @@ button,a,select{touch-action:manipulation}
               <div style="margin-top:auto;padding-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--color-accent-700)">↻ <span class="l-zh">翻面看應用</span><span class="l-en">FLIP FOR APPLICATIONS</span></div>
               <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             </div>
-            <div class="blueprint" style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);padding:22px 20px;background:var(--color-accent-900);color:#f2f2f3;display:flex;flex-direction:column;overflow:hidden">
+            <div class="blueprint soft-card" style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);padding:22px 20px;background:var(--color-accent-900);color:#f2f2f3;display:flex;flex-direction:column;overflow:hidden">
               <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid rgba(242,242,243,.45);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;flex:none">{{ c.n }}</span>
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.16em;opacity:.65;margin:16px 0 12px">KEY APPLICATIONS</div>
               <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px">
@@ -346,14 +448,20 @@ button,a,select{touch-action:manipulation}
     <p class="l-zh" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">實驗室歷年發表之期刊與研討會論文，可切換「清單模式」瀏覽完整內容，或透過「關聯圖」探索論文之間共享的研究方法、主題與技術。</p>
     <p class="l-en" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">Journal and conference publications from our lab. Switch to List Mode for the full view, or Graph View to explore how research fields co-occur across papers.</p>
 
-    <div class="seg" style="margin-top:26px">
-      <button type="button" class="seg-opt" onClick="{{ setList }}" style="cursor:pointer;background: {{ listBg }};color: {{ listFg }}"><span class="l-zh">清單模式</span><span class="l-en">List</span></button>
-      <button type="button" class="seg-opt" onClick="{{ setGraph }}" style="cursor:pointer;background: {{ graphBg }};color: {{ graphFg }}"><span class="l-zh">關聯圖</span><span class="l-en">Graph</span></button>
+    <div class="radio-inputs" style="margin-top:26px">
+      <label class="radio">
+        <input type="radio" name="pubview" onChange="{{ setList }}">
+        <span class="name" style="background: {{ listBg }};color: {{ listFg }};font-weight: {{ listFw }}"><span class="l-zh">清單模式</span><span class="l-en">List</span></span>
+      </label>
+      <label class="radio">
+        <input type="radio" name="pubview" onChange="{{ setGraph }}">
+        <span class="name" style="background: {{ graphBg }};color: {{ graphFg }};font-weight: {{ graphFw }}"><span class="l-zh">關聯圖</span><span class="l-en">Graph</span></span>
+      </label>
     </div>
 
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
       <div>
-        <div class="blueprint" style="position:relative;margin-top:20px;padding:18px 20px;background:transparent">
+        <div class="blueprint soft-card" style="position:relative;margin-top:20px;padding:18px 20px;background:#fff">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:18px">
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600)">Type
               <select class="input" onChange="{{ onType }}" style="width:auto;padding:6px 10px;font-size:13px">
@@ -371,23 +479,20 @@ button,a,select{touch-action:manipulation}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
             <sc-for list="{{ chips }}" as="c" hint-placeholder-count="12">
-              <button type="button" onClick="{{ c.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);padding:4px 11px;font-size:12px;background: {{ c.bg }};color: {{ c.fg }}">{{ c.label }}</button>
+              <button type="button" onClick="{{ c.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);border-radius:999px;padding:4px 12px;font-size:12px;background: {{ c.bg }};color: {{ c.fg }}">{{ c.label }}</button>
             </sc-for>
           </div>
           <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         </div>
-        <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:start">
+        <div id="g-pubs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px;align-items:stretch">
           <sc-for list="{{ pagePapers }}" as="p" hint-placeholder-count="10">
-            <article class="blueprint" data-reveal="" style="position:relative;padding:20px 22px;background:var(--color-bg)">
-              <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-                <span class="tag tag-outline">{{ p.typeLabel }}</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-              </div>
+            <article class="blueprint soft-card" data-reveal="" style="position:relative;padding:20px 22px;background:#fff">
+              <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
               <h3 style="font-size:17px;line-height:1.32;margin:0 0 8px">{{ p.title }}</h3>
               <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
               <p style="margin:0 0 12px;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
               <div style="display:flex;flex-wrap:wrap;gap:6px">
-                <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-neutral">{{ t.label }}</span></sc-for>
+                <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="cv-tag">{{ t.label }}</span></sc-for>
               </div>
               <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
                 <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:14px"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
@@ -399,7 +504,7 @@ button,a,select{touch-action:manipulation}
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:34px">
           <button type="button" class="btn btn-secondary" onClick="{{ prevPage }}" style="font-size:13px">←</button>
           <sc-for list="{{ pageBtns }}" as="b" hint-placeholder-count="2">
-            <button type="button" onClick="{{ b.onClick }}" style="cursor:pointer;min-width:34px;padding:7px 9px;border:1px solid var(--color-accent-300);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;background: {{ b.bg }};color: {{ b.fg }}">{{ b.n }}</button>
+            <button type="button" onClick="{{ b.onClick }}" style="cursor:pointer;min-width:34px;padding:7px 9px;border-radius:999px;border:1px solid var(--color-accent-300);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;background: {{ b.bg }};color: {{ b.fg }}">{{ b.n }}</button>
           </sc-for>
           <button type="button" class="btn btn-secondary" onClick="{{ nextPage }}" style="font-size:13px">→</button>
         </div>
@@ -408,7 +513,7 @@ button,a,select{touch-action:manipulation}
 
     <sc-if value="{{ isGraph }}" hint-placeholder-val="{{ false }}">
       <div id="g-graph" style="display:flex;gap:18px;margin-top:22px;align-items:flex-start">
-        <div class="blueprint" style="position:relative;flex:1;min-width:0;background:var(--color-bg);overflow:hidden">
+        <div class="blueprint soft-card" style="position:relative;flex:1;min-width:0;background:#fff;overflow:hidden">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--color-divider);flex-wrap:wrap">
             <button type="button" class="btn btn-secondary" onClick="{{ zoomOut }}" style="font-size:14px;min-width:34px">−</button>
             <button type="button" class="btn btn-secondary" onClick="{{ zoomIn }}" style="font-size:14px;min-width:34px">＋</button>
@@ -436,7 +541,7 @@ button,a,select{touch-action:manipulation}
           <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         </div>
 
-        <aside class="blueprint" style="position:relative;width:336px;flex:none;background:var(--color-bg);display:flex;flex-direction:column;height:790px;overflow:hidden">
+        <aside class="blueprint soft-card" style="position:relative;width:336px;flex:none;background:#fff;display:flex;flex-direction:column;height:790px;overflow:hidden">
           <div style="flex:none;padding:20px 20px 14px">
             <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:10px">SELECTED FIELD</div>
             <h4 style="font-size:24px;margin:0 0 2px">{{ selTitle }}</h4>
@@ -462,110 +567,73 @@ button,a,select{touch-action:manipulation}
 </sc-if>
 
 <sc-if value="{{ atProf }}" hint-placeholder-val="{{ false }}">
-<section>
-  <div style="max-width:1320px;margin:0 auto;padding:74px 28px 40px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <span style="width:34px;height:1px;background:var(--color-accent)"></span>
-      <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Professor</span>
-    </div>
-    <div class="prof-intro" style="display:grid;grid-template-columns:1fr 268px;gap:34px;align-items:start">
-      <figure class="blueprint" style="position:relative;order:2;margin:0;background:transparent;display:flex;flex-direction:column">
-        <div style="flex:1;aspect-ratio:3/4;border-bottom:1px solid var(--color-divider);overflow:hidden">
-          <img src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" style="width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block">
-        </div>
-        <figcaption style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--color-accent-700)">FIG. 01 — PORTRAIT</span>
-          <span style="display:flex;gap:5px">
-            <span style="width:18px;height:3px;background:var(--color-accent)"></span>
-            <span style="width:18px;height:3px;background:var(--color-accent-200)"></span>
-            <span style="width:18px;height:3px;background:var(--color-accent-200)"></span>
-          </span>
-        </figcaption>
-        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-      </figure>
-      <div>
-        <h2 style="font-size:48px;margin:0 0 4px"><span class="l-zh">鄧志峰</span><span class="l-en">Jr-Fong Dang</span></h2>
-        <p style="margin:0 0 18px;font-family:'Barlow Condensed',sans-serif;font-size:19px;letter-spacing:.02em;color:var(--color-accent-700)"><span class="l-zh">Jr-Fong Dang</span><span class="l-en">鄧志峰</span></p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-          <span class="tag tag-accent"><span class="l-zh">副教授 Associate Professor</span><span class="l-en">Associate Professor</span></span>
-          <span class="tag tag-outline">NTUST</span>
-        </div>
-        <p class="l-zh" style="margin:0;font-size:15.5px;line-height:1.8;text-wrap:pretty;color:var(--color-neutral-800)">研究橫跨智慧製造、設備健康監測與 AI Agent 應用，並具半導體與製造業界資訊系統實務經歷，長期將工業知識與先進控制結合為可落地的決策系統。</p>
-        <p class="l-en" style="margin:0;font-size:15px;line-height:1.75;max-width:68ch;color:var(--color-neutral-800)">Research spanning smart manufacturing, equipment health monitoring and AI agent applications, backed by industry experience in semiconductor and manufacturing information systems.</p>
-        <div style="display:flex;gap:10px;margin-top:24px">
-          <a href="mailto:jfdang@mail.ntust.edu.tw" class="btn btn-primary blueprint" style="position:relative;font-size:15px">jfdang@mail.ntust.edu.tw<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></a>
-          <button type="button" class="btn btn-secondary" onClick="{{ goPubs }}" style="font-size:15px"><span class="l-zh">代表著作</span><span class="l-en">Publications</span> →</button>
-        </div>
+<section class="cv-page">
+  <div class="cv">
+    <aside class="cv-side">
+      <img class="cv-photo" src="assets/images/prof.jpg" alt="鄧志峰 Jr-Fong Dang" width="176" height="176">
+      <h2 class="cv-name"><span class="l-zh">鄧志峰 博士</span><span class="l-en">Jr-Fong Dang, Ph.D.</span></h2>
+      <p class="cv-name-alt"><span class="l-zh">Jr-Fong Dang, Ph.D.</span><span class="l-en">鄧志峰 博士</span></p>
+      <p class="cv-role"><span class="l-zh">副教授・智慧製造科技研究所</span><span class="l-en">Associate Professor, Institute of Intelligent Manufacturing Technology</span></p>
+      <p class="cv-role cv-role-org"><span class="l-zh">國立臺灣科技大學</span><span class="l-en">National Taiwan University of Science and Technology</span></p>
+      <a class="cv-mail" href="mailto:jfdang@mail.ntust.edu.tw">jfdang@mail.ntust.edu.tw</a>
+      <p class="cv-loc"><span class="l-zh">研究室 C209-1</span><span class="l-zh">實驗室 C219</span><span class="l-en">Office C209-1</span><span class="l-en">Lab C219</span></p>
+
+      <h3 class="cv-h"><span class="l-zh">學歷</span><span class="l-en">Education</span></h3>
+      <ul class="cv-list">
+        <sc-for list="{{ education }}" as="e" hint-placeholder-count="3">
+          <li><b>{{ e.y }}</b><span class="l-zh">{{ e.zh }}</span><span class="l-en">{{ e.en }}</span></li>
+        </sc-for>
+      </ul>
+
+      <h3 class="cv-h"><span class="l-zh">經歷</span><span class="l-en">Professional Experience</span></h3>
+      <ul class="cv-list">
+        <sc-for list="{{ experience }}" as="x" hint-placeholder-count="6">
+          <li><b>{{ x.p }}</b><span class="l-zh">{{ x.orgZh }}・{{ x.zh }}</span><span class="l-en">{{ x.orgEn }}, {{ x.en }}</span></li>
+        </sc-for>
+      </ul>
+    </aside>
+
+    <div class="cv-main">
+      <h3 class="cv-title"><span class="l-zh">關於</span><span class="l-en">About</span></h3>
+      <p class="cv-text l-zh">鄧志峰博士現任國立臺灣科技大學智慧製造科技研究所副教授，並獲國立交通大學工業工程與管理學博士學位。研究聚焦於整合大型語言模型、最佳化方法與工業資訊系統之 AI Agent 應用，涵蓋機器學習、深度學習、異常與缺陷偵測、設備健康監測與智慧排程。曾任職於台灣積體電路製造與戴樂格半導體，具備半導體製造資訊系統與巨量資料分析之產業實務經驗，致力於將工業領域知識轉化為可落地的自主決策系統。</p>
+      <p class="cv-text l-en">Dr. Jr-Fong Dang is an Associate Professor at the Institute of Intelligent Manufacturing Technology, National Taiwan University of Science and Technology, and holds a Ph.D. in Industrial Engineering and Management from National Chiao Tung University. His research focuses on AI agent applications that integrate large language models, optimization methods and industrial information systems, spanning machine learning, deep learning, anomaly and defect detection, equipment health monitoring and intelligent scheduling. With prior industry experience at TSMC and Dialog Semiconductor in manufacturing information systems and big-data analytics, he translates domain knowledge into deployable autonomous decision-making systems.</p>
+
+      <h3 class="cv-title"><span class="l-zh">研究領域</span><span class="l-en">Research Field</span></h3>
+      <p class="cv-text l-zh">本實驗室致力於發展結合大型語言模型（LLM）、最佳化方法與工業資訊系統之 AI Agent 應用，以實現自主決策與協作式問題求解。研究涵蓋 Agent 架構、多 Agent 協作、任務規劃、工具整合與人機協作，並運用 MES、ERP、PLM 與 IoT 平台之即時資料，應用於智慧排程、缺陷偵測、預測性維護與知識管理。</p>
+      <p class="cv-text l-en">Our laboratory focuses on developing AI agent applications that integrate large language models (LLMs), optimization methods, and industrial information systems to enable autonomous decision-making and collaborative problem solving. Our research encompasses agent architectures, multi-agent coordination, task planning, tool integration, and human–AI collaboration, with applications in intelligent scheduling, defect detection, predictive maintenance, and knowledge-based management using real-time data from MES, ERP, PLM, and IoT platforms.</p>
+      <div class="cv-tags">
+        <sc-for list="{{ profTags }}" as="t" hint-placeholder-count="6"><span class="cv-tag">{{ t.label }}</span></sc-for>
       </div>
-    </div>
-  </div>
 
-  <div style="max-width:1320px;margin:0 auto;padding:36px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 8px"><span class="l-zh">學歷</span><span class="l-en">Education</span></h3>
-    <div class="prof-education" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px">
-      <sc-for list="{{ education }}" as="e" hint-placeholder-count="3">
-        <div class="blueprint" data-reveal="" style="position:relative;padding:20px;background:transparent">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;letter-spacing:.04em;color:var(--color-accent);margin-bottom:10px">{{ e.y }}</div>
-          <p style="margin:0;font-size:14.5px;line-height:1.55"><span class="l-zh">{{ e.zh }}</span><span class="l-en">{{ e.en }}</span></p>
-          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-        </div>
-      </sc-for>
-    </div>
-  </div>
+      <figure class="cv-fig">
+        <img src="assets/images/agent-architecture.jpg" alt="Multi-agent architecture: a query is routed by an orchestrator to Quality, Scheduling, EHM and Knowledge agents, backed by an LLM, a database and a feedback loop." loading="lazy" decoding="async">
+        <figcaption><span class="l-zh">圖：本實驗室之多 Agent 決策架構示意</span><span class="l-en">Fig. Multi-agent decision architecture of the laboratory</span></figcaption>
+      </figure>
 
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 6px"><span class="l-zh">經歷</span><span class="l-en">Experience</span></h3>
-    <div style="height:26px"></div>
-    <ol id="exp" class="exp-list" style="position:relative;margin:0;padding:0 0 0 34px;list-style:none;display:flex;flex-direction:column;gap:18px">
-      <span id="expLine" style="position:absolute;left:6px;top:6px;width:1px;background:var(--color-accent-400);height:0;transition:height .8s cubic-bezier(.4,0,.2,1)"></span>
-      <sc-for list="{{ experience }}" as="x" hint-placeholder-count="5">
-        <li data-exp="" style="position:relative;opacity:0;transform:translateX(26px);transition:opacity .55s ease,transform .55s ease">
-          <span style="position:absolute;left:-34px;top:16px;width:13px;height:13px;background:var(--color-bg);border:1.5px solid var(--color-accent);"></span>
-          <div class="blueprint" style="position:relative;padding:18px 20px;background:transparent">
-            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px">
-              <h4 style="font-size:21px;margin:0"><span class="l-zh">{{ x.zh }}</span><span class="l-en">{{ x.en }}</span></h4>
-              <span style="font-size:14px;color:var(--color-accent-700)"><span class="l-zh">{{ x.orgZh }}</span><span class="l-en">{{ x.orgEn }}</span></span>
-            </div>
-            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-          </div>
-        </li>
-      </sc-for>
-    </ol>
-  </div>
+      <h3 class="cv-title"><span class="l-zh">研究計畫</span><span class="l-en">Research Projects</span></h3>
+      <ul class="cv-proj">
+        <sc-for list="{{ projects }}" as="j" hint-placeholder-count="6">
+          <li><b>{{ j.y }}</b><span class="l-zh">{{ j.zh }}<i>{{ j.typeZh }}</i></span><span class="l-en">{{ j.en }}<i>{{ j.typeEn }}</i></span></li>
+        </sc-for>
+      </ul>
 
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 0">
-    <h3 style="font-size:30px;margin:0 0 18px"><span class="l-zh">研究領域</span><span class="l-en">Research Areas</span></h3>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      <sc-for list="{{ profTags }}" as="t" hint-placeholder-count="6">
-        <span class="tag tag-outline" style="font-size:13px">{{ t.label }}</span>
-      </sc-for>
-    </div>
-  </div>
-
-  <div style="max-width:1320px;margin:0 auto;padding:56px 28px 90px">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px">
-      <h3 style="font-size:30px;margin:0"><span class="l-zh">代表著作</span><span class="l-en">Representative Publications</span></h3>
-      <button type="button" onClick="{{ goPubs }}" style="background:transparent;border:0;cursor:pointer;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:15px;color:var(--color-accent-700)"><span class="l-zh">查看完整論文列表</span><span class="l-en">All publications</span> →</button>
-    </div>
-    <div id="g-recent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;align-items:start">
-      <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
-        <article class="blueprint" data-reveal="" style="position:relative;padding:20px 22px;background:transparent">
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-            <span class="tag tag-outline">{{ p.typeLabel }}</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--color-neutral-600)">{{ p.date }}</span>
-          </div>
-          <h4 style="font-size:17px;line-height:1.32;margin:0 0 8px">{{ p.title }}</h4>
-          <p style="margin:0 0 4px;font-size:13px;color:var(--color-neutral-700)">{{ p.authorLine }}</p>
-          <p style="margin:0 0 12px;font-size:12.5px;color:var(--color-neutral-600);font-style:italic">{{ p.venue }}</p>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <sc-for list="{{ p.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-neutral">{{ t.label }}</span></sc-for>
-          </div>
-          <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
-            <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:14px"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
-          </sc-if>
-          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-        </article>
-      </sc-for>
+      <div class="cv-pubhead">
+        <h3 class="cv-title"><span class="l-zh">代表著作</span><span class="l-en">Representative Publications</span></h3>
+        <button type="button" class="cv-more" onClick="{{ goPubs }}"><span class="l-zh">查看完整論文列表</span><span class="l-en">All publications</span> →</button>
+      </div>
+      <div class="cv-pubs">
+        <sc-for list="{{ recentPapers }}" as="p" hint-placeholder-count="6">
+          <article class="cv-pub" data-reveal="">
+            <div class="pub-meta"><span class="pill pill-date">{{ p.year }}</span><span class="pill pill-type">{{ p.typeLabel }}</span></div>
+            <h4>{{ p.title }}</h4>
+            <p>{{ p.authorLine }}</p>
+            <p class="cv-venue">{{ p.venue }}</p>
+            <sc-if value="{{ p.hasDoi }}" hint-placeholder-val="{{ true }}">
+              <a href="{{ p.doi }}" target="_blank" rel="noopener noreferrer"><span class="l-zh">查看論文</span><span class="l-en">View Paper</span> →</a>
+            </sc-if>
+          </article>
+        </sc-for>
+      </div>
     </div>
   </div>
 </section>
@@ -574,18 +642,6 @@ button,a,select{touch-action:manipulation}
 <sc-if value="{{ atTeam }}" hint-placeholder-val="{{ false }}">
 <section>
   <div id="teamWrap" style="position:relative;max-width:1320px;margin:0 auto;padding:74px 28px 90px">
-    <div id="stick" data-wave="0" data-mode="walk" style="position:absolute;left:0;top:0;width:40px;height:40px;z-index:8;pointer-events:none;opacity:0;transition:opacity .4s">
-      <div id="stickInner" style="width:40px;height:40px">
-        <svg viewBox="0 0 40 40" style="width:40px;height:40px;color:var(--color-accent-700)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="20" cy="8" r="5"></circle>
-          <path d="M20 13v13"></path>
-          <path data-arm="" d="M20 18l-9 5"></path>
-          <path data-arm-b="" d="M20 18l9 4"></path>
-          <path data-leg-a="" d="M20 26l-6 12"></path>
-          <path data-leg-b="" d="M20 26l6 12"></path>
-        </svg>
-      </div>
-    </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
       <span style="width:34px;height:1px;background:var(--color-accent)"></span>
       <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Team</span>
@@ -613,7 +669,7 @@ button,a,select{touch-action:manipulation}
         </sc-if>
         <div class="member-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(286px,1fr));gap:18px;align-items:stretch">
           <sc-for list="{{ g.list }}" as="m" hint-placeholder-count="4">
-            <article class="blueprint" data-reveal="" style="position:relative;height:280px;padding:20px;background:transparent;display:flex;flex-direction:column">
+            <article class="blueprint soft-card" data-reveal="" style="position:relative;height:280px;padding:20px;background:#fff;display:flex;flex-direction:column">
               <div style="display:flex;gap:16px;align-items:center">
                 <div style="flex:none;width:106px;height:142px;border:1px solid var(--color-accent-300);background:var(--color-accent-100);overflow:hidden">
                   <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-member-photo="{{ m.photo }}" alt="{{ m.name }}" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ m.photoPosition }};display:block">
@@ -626,7 +682,7 @@ button,a,select{touch-action:manipulation}
                 </div>
               </div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-top:18px;padding-top:16px;border-top:1px solid var(--color-divider);flex:1;overflow:hidden">
-                <sc-for list="{{ m.tagList }}" as="t" hint-placeholder-count="3"><span class="tag tag-outline" style="font-size:11.5px">{{ t.label }}</span></sc-for>
+                <sc-for list="{{ m.tagList }}" as="t" hint-placeholder-count="3"><span class="cv-tag" style="font-size:12px">{{ t.label }}</span></sc-for>
               </div>
               <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             </article>
@@ -650,12 +706,12 @@ button,a,select{touch-action:manipulation}
     <p class="l-en" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">Whether it is research collaboration, industry partnership, or joining the lab, feel free to reach out.</p>
 
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px">
-      <div class="blueprint" style="position:relative;padding:20px 22px;background:transparent">
+      <div class="blueprint soft-card" style="position:relative;padding:20px 22px;background:#fff">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:8px">EMAIL</div>
         <a href="mailto:zaira4edu@gmail.com" style="font-size:19px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em">zaira4edu@gmail.com</a>
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
       </div>
-      <div class="blueprint" style="position:relative;padding:20px 22px;background:transparent">
+      <div class="blueprint soft-card" style="position:relative;padding:20px 22px;background:#fff">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:8px">ADDRESS</div>
         <p class="l-zh" style="margin:0;font-size:14.5px;line-height:1.6;color:var(--color-neutral-800)">235307 新北市中和區工專路111號　臺灣科技大學 華夏校區教學大樓 2 樓 C219</p>
         <p class="l-en" style="margin:0;font-size:14px;line-height:1.6;color:var(--color-neutral-800)">General Education Building 2F C219, No. 111, Gongzhuan Rd., Zhonghe Dist., New Taipei City 235307, Taiwan</p>
@@ -666,7 +722,7 @@ button,a,select{touch-action:manipulation}
 
   <div style="max-width:1320px;margin:0 auto;padding:22px 28px 90px">
     <div id="g-contact" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch">
-      <figure class="blueprint" style="position:relative;margin:0;background:transparent;display:flex;flex-direction:column;min-height:580px">
+      <figure class="blueprint soft-card" style="position:relative;margin:0;background:#fff;overflow:hidden;display:flex;flex-direction:column;min-height:580px">
         <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--color-divider)">
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700)">MAP · 24.9816 N, 121.5077 E</span>
           <a href="https://www.google.com/maps/search/?api=1&amp;query=24.981617,121.507716" target="_blank" rel="noopener noreferrer" style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:12.5px"><span class="l-zh">在 Google 地圖開啟</span><span class="l-en">Open in Google Maps</span> →</a>
@@ -678,13 +734,13 @@ button,a,select{touch-action:manipulation}
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
       </figure>
 
-      <div class="blueprint" style="position:relative;background:transparent;display:flex;flex-direction:column;min-height:580px">
+      <div class="blueprint soft-card" style="position:relative;background:#fff;display:flex;flex-direction:column;min-height:580px;overflow:hidden">
         <div style="flex:none;padding:20px 22px 0">
           <h3 style="font-size:26px;margin:0 0 4px"><span class="l-zh">交通方式</span><span class="l-en">Getting Here</span></h3>
           <p style="margin:0 0 16px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.16em;color:var(--color-neutral-600)">SELECT A MODE · 點選標籤切換</p>
           <div style="display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--color-divider);padding-bottom:14px">
             <sc-for list="{{ transitTabs }}" as="t" hint-placeholder-count="5">
-              <button type="button" onClick="{{ t.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);padding:6px 13px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:13.5px;background: {{ t.bg }};color: {{ t.fg }}">{{ t.label }}</button>
+              <button type="button" onClick="{{ t.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);border-radius:999px;padding:6px 14px;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:13.5px;background: {{ t.bg }};color: {{ t.fg }}">{{ t.label }}</button>
             </sc-for>
           </div>
         </div>
@@ -730,7 +786,7 @@ button,a,select{touch-action:manipulation}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;camTilt&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.6,&quot;min&quot;:0.25,&quot;max&quot;:1.1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;,&quot;unit&quot;:&quot;rad&quot;},&quot;camYaw&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-180,&quot;max&quot;:180,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;,&quot;unit&quot;:&quot;°&quot;},&quot;dolly&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.6,&quot;max&quot;:1.8,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5980a6&quot;,&quot;options&quot;:[&quot;#5980a6&quot;,&quot;#2c455d&quot;,&quot;#7a8a99&quot;,&quot;#436b8f&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;lightIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:1.8,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;3D 產線&quot;},&quot;shadows&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;3D 產線&quot;}}">
 const TAGS={'smart-manufacturing':['智慧製造','Smart Manufacturing','domain'],'defect-detection':['瑕疵檢測','Defect Detection','domain'],'equipment-health-monitoring':['設備健康監測','Equipment Health Monitoring','domain'],'plant-biology':['植物生物學','Plant Biology','domain'],'deep-learning':['深度學習','Deep Learning','method'],'machine-learning':['機器學習','Machine Learning','method'],'predictive-maintenance':['預測性維修','Predictive Maintenance','domain'],'digital-twin':['數位雙生','Digital Twin','domain'],'web-development':['網頁設計','Web Development','tech'],'database-management':['資料庫管理','Database Management','tech'],'multi-agent-system':['多代理系統','Multi-Agent System','tech'],'optimization':['最佳化','Optimization','method'],'attention-mechanism':['注意力機制','Attention Mechanism','method'],'knowledge-distillation':['知識蒸餾','Knowledge Distillation','method'],'meta-heuristics':['啟發式演算法','Meta-heuristics','method'],'single-cell-genomics':['單細胞基因體學','Single-Cell Genomics','method'],'ai-agent':['AI Agent','AI Agent','topic'],'scheduling':['排程','Scheduling','topic'],'anomaly-detection':['異常偵測','Anomaly Detection','topic'],'llm':['大型語言模型','LLM','topic'],'rag':['檢索增強生成','RAG','topic'],'generative-ai':['生成式 AI','Generative AI','topic'],'yolo':['YOLO','YOLO','tech'],'knowledge-graph':['知識圖譜','Knowledge Graph','tech'],'gan':['生成對抗網路','GAN','tech'],'image-recognition':['影像識別','Image Recognition','tech'],'spatial-transcriptomics':['空間轉錄體學','Spatial Transcriptomics','tech']};
-const CAT={domain:{zh:'研究領域',en:'Domain',color:'#2c455d'},method:{zh:'研究方法',en:'Method',color:'#5980a6'},topic:{zh:'主題',en:'Topic',color:'#94bce3'},tech:{zh:'技術',en:'Tech',color:'#7a7a7d'}};
+const CAT={domain:{zh:'研究領域',en:'Domain',color:'#075263'},method:{zh:'研究方法',en:'Method',color:'#0b7f97'},topic:{zh:'主題',en:'Topic',color:'#f2c230'},tech:{zh:'技術',en:'Tech',color:'#7a7a7d'}};
 const CAT_ORDER=['domain','method','topic','tech'];
 
 const PAPERS=[
@@ -751,13 +807,13 @@ const PAPERS=[
 {t:'Applying meta-heuristics algorithm to solve assembly line balancing problem with labor skill level in garment industry',a:['Chen, Gary Yu-Hsin','Ping-Shun Chen','Jr-Fong Dang','Sung-Lien Kang','Li-Jen Cheng'],y:2021,m:4,v:'International Journal of Computational Intelligence Systems',ty:'journal',f:false,doi:'https://www.atlantis-press.com/journals/ijcis/125955859',g:['smart-manufacturing','meta-heuristics','optimization','scheduling']},
 {t:'The equilibrium contract rent and reward money under incomplete information in reverse supply chains: A game theoretical approach and computational study',a:['Hong, I-Husan','Jr-Fong Dang','Kuan-Wen Lin'],y:2016,m:12,v:'Computers & Industrial Engineering',ty:'journal',f:false,doi:'https://www.sciencedirect.com/science/article/pii/S0360835216303710',g:['optimization']}];
 
-const STATIONS=[
-{num:'01',code:'SENSING',zh:'感測',en:'Sensing',descZh:'多感測器資訊融合，蒐集設備振動、溫度、電流與影像訊號，構成整條產線的第一手狀態。',descEn:'Multi-sensor information fusion gathers vibration, temperature, current and imaging signals — the line\u2019s first-hand state.',areaZh:'設備健康監測與預測性維修',areaEn:'Equipment Health Monitoring & Predictive Maintenance'},
-{num:'02',code:'DIAGNOSIS',zh:'診斷',en:'Diagnosis',descZh:'以注意力機制深度學習判讀晶圓圖樣與表面瑕疵，將原始訊號轉為可解釋的異常判斷。',descEn:'Attention-based deep learning reads wafer bin maps and surface defects, turning raw signals into explainable anomaly calls.',areaZh:'電腦視覺與晶圓影像識別',areaEn:'Computer Vision & Wafer Image Recognition'},
-{num:'03',code:'DECISION',zh:'決策',en:'Decision',descZh:'大型語言模型與知識圖譜構成 AI Agent，執行任務分解、工具調度、推理驗證與人機協作。',descEn:'LLMs and knowledge graphs form an AI agent that decomposes tasks, orchestrates tools, verifies reasoning and collaborates with operators.',areaZh:'生成式 AI 與 LLM 智慧製造應用',areaEn:'Generative AI & LLM Applications'},
-{num:'04',code:'CONTROL',zh:'控制',en:'Control',descZh:'啟發式演算法與佇列理論動態調度產線資源，讓決策落回設備的實際動作。',descEn:'Meta-heuristics and queueing theory dynamically schedule line resources, turning decisions back into machine motion.',areaZh:'系統最佳化與智慧排程',areaEn:'System Optimization & Smart Scheduling'},
-{num:'05',code:'FEEDBACK',zh:'回饋',en:'Feedback',descZh:'結果回寫知識庫並重新訓練模型，閉環持續收斂 —— 這是整條產線的核心命題。',descEn:'Outcomes are written back to the knowledge base and models retrain — the loop keeps converging.',areaZh:'先進控制與閉環智慧製造',areaEn:'Advanced Control & Closed-loop Manufacturing'},
-{num:'06',code:'IMPROVE',zh:'改善',en:'Improvement',descZh:'改善提案回到現場：以看板管理與標準化作業，把每一輪回饋落實成下一輪的作業基準。',descEn:'Improvement proposals return to the floor: kanban management and standardized work turn each round of feedback into the next baseline.',areaZh:'精實生產與持續改善',areaEn:'Lean Production & Continuous Improvement'}];
+const STATIONS=window.STORY_DATA.acts.map(a=>{
+  const steps=(a.stepsZh||[]).map((t,i)=>(i+1)+'. '+t).join(' ');
+  const stepsEn=(a.stepsEn||[]).map((t,i)=>(i+1)+'. '+t).join(' ');
+  return {num:a.num,code:a.code,zh:a.zh,en:a.en,
+    descZh:a.descZh||steps,descEn:a.descEn||stepsEn,
+    areaZh:(a.techZh||[]).join('、'),areaEn:(a.techEn||[]).join(', ')};
+});
 
 const TECH=[
 {n:'1',titleZh:'生成式 AI 與 LLM 智慧製造應用',titleEn:'Generative AI & LLM in Smart Manufacturing',
@@ -821,11 +877,20 @@ const EDU=[
 {y:'2004',zh:'國立臺灣師範大學 圖文傳播學系 學士',en:'B.S., Graphic Arts Communication, National Taiwan Normal University'}];
 
 const EXP=[
-{zh:'副教授',en:'Associate Professor',orgZh:'國立臺灣科技大學',orgEn:'National Taiwan University of Science and Technology'},
-{zh:'助理教授',en:'Assistant Professor',orgZh:'國立中興大學',orgEn:'National Chung Hsing University'},
-{zh:'助理教授',en:'Assistant Professor',orgZh:'逢甲大學',orgEn:'Feng Chia University'},
-{zh:'Principal IT Applications Architect（IT／全球製造資訊部門）',en:'Principal IT Applications Architect, IT / Global Manufacturing Information',orgZh:'戴樂格半導體有限公司',orgEn:'Dialog Semiconductor'},
-{zh:'Principal Engineer（IT／巨量資料分析課）',en:'Principal Engineer, IT / Big Data Analytics',orgZh:'台灣積體電路製造股份有限公司',orgEn:'Taiwan Semiconductor Manufacturing Company (TSMC)'}];
+{p:'2025.08 –',zh:'副教授',en:'Associate Professor',orgZh:'國立臺灣科技大學 智慧製造科技研究所',orgEn:'National Taiwan University of Science and Technology, Institute of Intelligent Manufacturing Technology'},
+{p:'2023.08 – 2025.07',zh:'助理教授',en:'Assistant Professor',orgZh:'國立臺灣科技大學 智慧製造科技研究所',orgEn:'National Taiwan University of Science and Technology, Institute of Intelligent Manufacturing Technology'},
+{p:'2021.08 – 2023.07',zh:'助理教授',en:'Assistant Professor',orgZh:'國立中興大學 智慧創意工程學士學位學程',orgEn:'National Chung Hsing University, B.S. Program in Intelligent Creative Engineering'},
+{p:'2020.02 – 2021.07',zh:'助理教授',en:'Assistant Professor',orgZh:'逢甲大學 工業工程與系統管理學系（所）',orgEn:'Feng Chia University, Department of Industrial Engineering and Systems Management'},
+{p:'2019.09 – 2020.01',zh:'Principal IT Applications Architect',en:'Principal IT Applications Architect',orgZh:'戴樂格半導體 IT／全球製造資訊部門',orgEn:'Dialog Semiconductor, IT / Global Manufacturing Information'},
+{p:'2012.08 – 2019.09',zh:'主任工程師',en:'Principal Engineer',orgZh:'台灣積體電路製造 IT／巨量資料分析課',orgEn:'TSMC, IT / Big Data Analytics'}];
+
+const PROJECTS=[
+{y:'2026',zh:'結合生成式人工智慧與多代理協作之工業自主決策架構研究',en:'Autonomous Industrial Decision-Making Architecture Integrating Generative AI and Multi-Agent Collaboration',typeZh:'國科會專題研究計畫（一般研究計畫）',typeEn:'NSTC Research Project (General)'},
+{y:'2026',zh:'基於神經符號 AI 與動態知識圖譜之製程智慧決策支援系統',en:'Neuro-Symbolic AI and Dynamic Knowledge Graph-Based Intelligent Decision Support for Manufacturing Processes',typeZh:'國科會專題研究計畫（產學合作研究計畫）',typeEn:'NSTC Research Project (Industry-Academia Collaboration)'},
+{y:'2025',zh:'建構結合多模態知識圖譜與大語言模型之缺陷檢測分析架構與流程之研究',en:'Defect Detection and Analysis Framework Combining Multimodal Knowledge Graphs and Large Language Models',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2023',zh:'建構基於生成對抗網路之知識蒸餾模型與其解釋力探討',en:'Knowledge Distillation Models Based on Generative Adversarial Networks and Their Explainability',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2021',zh:'深度學習在預測保養與排程模式之研究',en:'Deep Learning for Predictive Maintenance and Scheduling Models',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'},
+{y:'2020',zh:'考量機台健康狀況下之排程派工模型',en:'Dispatching and Scheduling Models Considering Machine Health Conditions',typeZh:'國科會專題研究計畫（新進人員研究計畫）',typeEn:'NSTC Research Project (New Investigator)'}];
 
 const PROF_TAGS=['machine-learning','deep-learning','anomaly-detection','defect-detection','smart-manufacturing','equipment-health-monitoring'];
 
@@ -882,7 +947,7 @@ function fmt(p){
   const shown=p.a.length>5?p.a.slice(0,3):p.a;
   const extra=p.a.length-shown.length;
   const en=document.documentElement.dataset.lang==='en';
-  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),typeLabel:TYPE_LABEL[p.ty]||p.ty,
+  return {title:p.t,venue:p.v,date:p.y+'/'+pad(p.m),year:String(p.y),typeLabel:TYPE_LABEL[p.ty]||p.ty,
     authorLine:shown.join(en?', ':'、')+(extra>0?' et al. (+'+extra+')':''),
     doi:p.doi||'', hasDoi:!!p.doi, noDoi:!p.doi,
     tagList:p.g.map(s=>({label:(TAGS[s]||[s,s,'tech'])[en?1:0]}))};
@@ -901,6 +966,8 @@ class Component extends DCLogic {
   onKeyDown=e=>{ if(e.key==='Escape')this.closeMobileMenu(); };
 
   componentDidMount(){
+    /* App 已掛載：靜態首屏畫面淡出並移除（它與 React 的首屏外觀一致，不會跳動） */
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{const b=document.getElementById('boot');if(b){b.classList.add('bye');setTimeout(()=>b.remove(),400);}}));
     document.documentElement.dataset.lang='zh';
     document.documentElement.classList.add('rev-on');
     this.buildGraph();
@@ -913,38 +980,8 @@ class Component extends DCLogic {
     this.wireReveal();
     this.wireGantry();
     this.__photoTimer=setInterval(()=>{ if(this.state.page==='about')this.nextPhoto(); },6000);
-    setTimeout(()=>this.wireMasonry(),0);
-    setTimeout(()=>this.wireMasonry(),600);
   }
-  componentDidUpdate(){ this.wireReveal(); this.wireGantry(); this.wireGraphInput(); this.wireExp(); this.wireMasonry(); }
-
-  /* 論文卡片自動上移：以 grid 列跨距做 masonry，上下排間距固定 */
-  wireMasonry(){
-    const gap=18;
-    ['g-pubs','g-recent'].forEach(id=>{
-      const grid=document.getElementById(id); if(!grid)return;
-      if(window.innerWidth<=760){
-        grid.style.gridAutoRows='auto';
-        grid.style.rowGap=gap+'px';
-        grid.style.alignItems='stretch';
-        Array.from(grid.children).forEach(el=>{el.style.gridRowEnd='auto';el.style.marginBottom='0';});
-        return;
-      }
-      grid.style.gridAutoRows='1px';
-      grid.style.rowGap='0px';
-      grid.style.alignItems='start';
-      const kids=Array.from(grid.children);
-      kids.forEach(el=>{ el.style.gridRowEnd='span 4000'; el.style.marginBottom=gap+'px'; });
-      kids.forEach(el=>{
-        const h=el.getBoundingClientRect().height;
-        el.style.gridRowEnd='span '+Math.max(1,Math.ceil(h+gap));
-      });
-    });
-    if(!this.__mre){
-      this.__mre=true;
-      window.addEventListener('resize',()=>{ clearTimeout(this.__mrt); this.__mrt=setTimeout(()=>this.wireMasonry(),120); });
-    }
-  }
+  componentDidUpdate(){ this.wireReveal(); this.wireGantry(); this.wireGraphInput(); this.wireExp(); }
 
   /* experience timeline: line draws, then rows slide in one by one */
   wireExp(){
@@ -971,7 +1008,6 @@ class Component extends DCLogic {
   };
   go=p=>()=>{
     const ol=document.getElementById('exp'); if(ol)ol.__wired=false;
-    this._sd=null; this._sdFor=null;
     this.setState({page:p,mobileMenuOpen:false}); window.scrollTo(0,0);
   };
   goHome=this.go('home'); goContact=this.go('contact'); goPubs=this.go('publications');
@@ -1072,15 +1108,15 @@ class Component extends DCLogic {
      · 相機距離由模型邊界球推導（不寫死數字）
      · tone mapping 只在 renderer 擁有一次；輸出為 sRGB
      · 手機載簡化版（低面數、關陰影、dpr 上限 1.5）
-     · 幾何與設備外型在 assets/js/line-model.js；工站文字在 assets/data/line-stations.json */
+     · 幾何與設備外型在 assets/js/factory-scene.js；文案在 assets/data/story-data.js */
   async initLine(){
     if(this._lineBusy||this._L)return;
     const cv=document.getElementById('lineCanvas');
     if(!cv)return;
     this._lineBusy=true;
     try{
-      const THREE=await import('https://unpkg.com/three@0.184.0/build/three.module.js');
-      const mod=await import('./line-model.js');
+      const THREE=await import('../vendor/three/three.module.min.js');
+      const mod=await import('./factory-scene.js');
       const low=window.innerWidth<760;
       const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!low});
       renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,low?1.5:2));
@@ -1093,17 +1129,16 @@ class Component extends DCLogic {
 
       const scene=new THREE.Scene();
       scene.background=new THREE.Color(0xf2f2f3);
-      const line=mod.buildLine(THREE,{accent:this.props.accent||'#5980a6',detail:low?'low':'high',shadows:shadows,
-        stations:STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.en}))});
+      const line=mod.buildScene(THREE,{detail:low?'low':'high',shadows:shadows,dialogue:(window.STORY_DATA&&window.STORY_DATA.dialogue)||[]});
       scene.add(line.group);
 
       const li=this.props.lightIntensity==null?1:this.props.lightIntensity;
       scene.add(new THREE.HemisphereLight(0xdfe7ee,0xb4bec6,0.9*li));
       const key=new THREE.DirectionalLight(0xffffff,1.5*li);
-      key.position.set(6.5,9.5,5.5);
+      key.position.set(11.5,9.5,5.5); key.target.position.set(5,0,0); scene.add(key.target);   // 陰影範圍以輸送帶與 AGV 區為中心
       if(shadows){
-        key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.bias=-0.0006;
-        const sp=line.bounds.radius*1.15,c=key.shadow.camera;
+        key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.bias=-0.0006;
+        const sp=11,c=key.shadow.camera;   // 陰影只覆蓋輸送帶一帶，不含整片地板，維持解析度
         c.left=-sp;c.right=sp;c.top=sp;c.bottom=-sp;c.near=0.5;c.far=sp*6;c.updateProjectionMatrix();
       }
       scene.add(key);
@@ -1115,9 +1150,8 @@ class Component extends DCLogic {
 
       const camera=new THREE.PerspectiveCamera(low?44:38,1,0.1,260);
       this._L={THREE:THREE,renderer:renderer,scene:scene,camera:camera,line:line,ground:ground,
-        cam:{pos:new THREE.Vector3(),tgt:new THREE.Vector3()},t0:performance.now(),size:{w:0,h:0}};
-      this.loadSignText();
-      const fb=document.getElementById('lineFallback'); if(fb)fb.style.display='none';
+        t0:performance.now(),size:{w:0,h:0}};
+      const fb=document.getElementById('lineFallback'); if(fb){ fb.style.opacity='0'; setTimeout(()=>{fb.style.display='none';},450); }
       this.resizeLine();
       this.updateHero(this._lastProg||0,true);
     }catch(e){
@@ -1139,148 +1173,93 @@ class Component extends DCLogic {
     L.camera.updateProjectionMatrix();
   }
 
-  /* 工站文字改由 3D 立牌承載；此處只把 assets/data/line-stations.json 覆寫進立牌貼圖 */
-  loadSignText(){
-    const L=this._L; if(!L||!L.line.setSignText)return;
-    fetch('assets/data/line-stations.json').then(r=>r.json()).then(j=>{
-      (j.stations||[]).forEach((st,i)=>{
-        const s=STATIONS[i]||{};
-        L.line.setSignText(i,{num:st.num||s.num,zh:st.zh||s.zh,device:st.deviceZh||st.device||s.en});
-      });
-    }).catch(()=>{});
+  /* ---------- 鏡頭關鍵影格 ----------
+     取景點由場景提供（scene.shots）；新增一幕時在 factory-scene.js 補取景點，再於這裡加一個關鍵影格。
+     時間軸與樣條在 assets/js/story-timeline.js（純函式，倒捲畫面一致）。
+     取景不再手動偏移主體：文字欄佔掉的區域由 setViewOffset 補償（見 updateHero）。 */
+  buildKeys(){
+    const S=this._TL.SEGMENTS,mid=k=>(S[k].from+S[k].to)/2;
+    const sh=this._L.line.shots(window.innerWidth<760);
+    const key=(p,shot)=>({p:p,pos:shot.pos.slice(),tgt:shot.tgt.slice()});
+    /* 段落索引：1=01, 2=過場, 3=02；之後各幕的取景點隨場景設備逐張加入，暫時停在最後一個取景點 */
+    return [key(0,sh.wide),key(mid(1),sh.detect),key(mid(2),sh.pick),key(mid(3),sh.route),key(mid(4),sh.pad),key(mid(5),sh.console),
+      key(0.82,sh.monitor),key(0.86,sh.monitor2),key(0.93,sh.party)];
   }
 
-  /* 工站標註（編號＋站名＋設備名）；資料優先讀 assets/data/line-stations.json */
-  buildLabels(){
-    const host=document.getElementById('lineLabels'); if(!host||host.__built)return;
-    host.__built=true; this._labels=[];
-    const make=(i,st)=>{
-      const el=document.createElement('div');
-      el.style.cssText='position:absolute;left:0;top:0;transform:translate(-50%,-100%);opacity:0;transition:opacity .35s ease;white-space:nowrap;text-align:center';
-      el.innerHTML='<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:11px;letter-spacing:.22em;color:var(--color-accent-700)">'+st.num+'</div>'+
-        '<div style="font-family:\'Barlow Condensed\',\'Noto Sans TC\',sans-serif;font-weight:600;font-size:16px;color:var(--color-accent-900);line-height:1.2">'+st.zh+'</div>'+
-        '<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">'+st.device+'</div>'+
-        '<div style="width:1px;height:20px;margin:6px auto 0;background:var(--color-accent-500)"></div>';
-      host.appendChild(el);
-      this._labels[i]=el;
-    };
-    const fallback=STATIONS.map(s=>({num:s.num,zh:s.zh,device:s.en}));
-    STATIONS.forEach((s,i)=>make(i,fallback[i]));
-    fetch('assets/data/line-stations.json').then(r=>r.json()).then(j=>{
-      (j.stations||[]).forEach((st,i)=>{
-        const el=this._labels[i]; if(!el)return;
-        el.children[1].textContent=st.zh;
-        el.children[2].textContent=st.deviceZh;
-      });
-    }).catch(()=>{});
-  }
-
-  updateLabels(activeIdx,show){
-    const L=this._L,host=document.getElementById('lineLabels');
-    if(!L||!host||!this._labels)return;
-    const w=L.size.w,h=L.size.h;
-    L.line.anchors.forEach((a,i)=>{
-      const el=this._labels[i]; if(!el)return;
-      const p=a.position.clone().project(L.camera);
-      const on=show&&p.z<1&&p.x>-1.05&&p.x<1.05&&p.y>-1.1&&p.y<1.1;
-      el.style.transform='translate(-50%,-100%) translate('+((p.x*0.5+0.5)*w).toFixed(1)+'px,'+((-p.y*0.5+0.5)*h).toFixed(1)+'px)';
-      el.style.opacity=on?(i===activeIdx?'1':'0.32'):'0';
-    });
-  }
-
-  /* 遠景全線 → 滾到底推進到單一工站特寫 */
-  heroShot(prog){
-    const L=this._L,r=L.line.bounds.contentRadius||L.line.bounds.radius,half=L.camera.fov*Math.PI/360;
-    const n=L.line.anchors.length;
-    const pv=Math.max(0,Math.min(1,(prog-0.14)/0.86));
-    const seg=pv*n,idx=Math.min(n-1,Math.floor(seg)),local=seg-idx;
-    /* 每站先定住，段末才轉到下一站；最後一站不再前進（避免焦點越過畫面） */
-    const tr=idx>=n-1?0:Math.max(0,Math.min(1,(local-0.62)/0.38));
-    const sm=tr*tr*(3-2*tr);
-    const fidx=sm>0.5?Math.min(n-1,idx+1):idx;
-    /* 進場一段就完成推近，之後每站高度角度完全一致 */
-    const ap=Math.max(0,Math.min(1,pv/0.03));
-    const ease=ap*ap*(3-2*ap);
-    const V=L.THREE.Vector3;
-    const dolly=this.props.dolly==null?1:this.props.dolly;
-    const yawOff=((this.props.camYaw==null?0:this.props.camYaw)+this._dragTheta)*Math.PI/180;
-
-    /* 遠景全線：高角俯瞰 */
-    const distFar=(r/Math.tan(half))*1.1;
-    const tiltFar=this.props.camTilt==null?0.6:this.props.camTilt;
-    const A=L.line.anchors[idx],B=L.line.anchors[Math.min(n-1,idx+1)];
-    const outward=A.outward.clone().lerp(B.outward,sm).normalize();
-    const bc=L.line.bounds.center;
-    const azFar=Math.atan2(outward.z,outward.x)+yawOff;
-    const tgtFar=new V(bc.x,1.2,bc.z);
-    const posFar=new V(
-      tgtFar.x+Math.cos(azFar)*Math.cos(tiltFar)*distFar,
-      tgtFar.y+Math.sin(tiltFar)*distFar,
-      tgtFar.z+Math.sin(azFar)*Math.cos(tiltFar)*distFar);
-
-    /* 工站特寫：站在工站外側低角度看進廠內（參考 3D 檢視器取景） */
-    const yq=new (L.THREE.Quaternion)().setFromAxisAngle(new V(0,1,0),yawOff);
-    const radial=outward.clone().applyQuaternion(yq);          // 產線內側 → 工站
-    const stn=A.center.clone().lerp(B.center,sm);
-    const mobile=window.innerWidth<760;
-    const standBack=(mobile?11.8:9.1)/dolly;                    // 手機拉遠，避免工站被裁切
-    const eyeY=mobile?4.2:3.5;                                  // 低俯角視高
-    const posNear=stn.clone().add(radial.clone().multiplyScalar(standBack)).setY(eyeY);
-    const tgtNear=stn.clone().setY(1.75);
-    /* 工站推到畫面右側：把注視點沿相機右向左移 */
-    const side=new V().crossVectors(new V(0,1,0),radial).normalize();
-    const shift=side.clone().multiplyScalar(mobile?-1.4:-2.5);
-    tgtNear.add(shift); posNear.add(shift.clone().multiplyScalar(0.3));
-
-    const tgt=tgtFar.clone().lerp(tgtNear,ease);
-    const pos=posFar.clone().lerp(posNear,ease);
-    return {pos:pos,tgt:tgt,idx:fidx,pv:pv};
-  }
-
-  updateHero(prog,snap){
+  updateHero(prog){
+    const TL=this._TL; if(!TL)return;
     this._lastProg=prog;
+    const mobile=window.innerWidth<760;
+    const st=TL.stateAt(prog);
+    const k=TL.worldReveal(prog),f=TL.introPresence(prog),pp=TL.panelPresence(prog);
+    /* 面板與導覽顯示哪一幕；過場中途才切到下一幕（此時面板已退場） */
+    const act=st.act>=0?st.act:(st.id==='intro'?0:(st.local<0.5?0:1));
+
     const box=document.getElementById('worldBox');
     const hero=document.getElementById('heroTitle');
     const frame=document.getElementById('heroFrame');
     const ui=document.getElementById('stationUI');
-    const k=Math.min(1,prog/0.14);
-    const clipTop=window.innerWidth<760?42:44;
+    const nav=document.getElementById('actNav');
+    const bleed=document.getElementById('bleedFrame');
+    const panel=document.getElementById('actPanel');
+    const clipTop=mobile?42:44;
     if(box)box.style.clipPath='inset('+(clipTop*(1-k)).toFixed(2)+'% 0% 0% 0%)';
     if(hero){
-      const f=Math.max(0,1-prog/0.10);
       hero.style.opacity=f.toFixed(3);
       hero.style.transform='translateY('+(-70*(1-f)).toFixed(1)+'px)';
     }
-    if(frame)frame.style.opacity=Math.max(0,1-prog/0.09).toFixed(3);
-    if(ui){ ui.style.opacity=k.toFixed(3); ui.style.pointerEvents=prog>0.10?'auto':'none'; }
+    if(frame)frame.style.opacity=f.toFixed(3);
+    if(bleed)bleed.style.opacity=TL.bleedPresence(prog).toFixed(3);
+    if(ui)ui.style.opacity=k.toFixed(3);
+    if(nav){ nav.style.opacity=k.toFixed(3); nav.style.pointerEvents=k>0.6?'auto':'none'; }
+    /* 標題與檢視模式標籤跟著文字欄退場，過場時畫面只剩場景 */
+    const chrome=document.querySelectorAll('#stationUI .station-title,#viewmode');
+    for(let i=0;i<chrome.length;i++)chrome[i].style.opacity=pp.toFixed(3);
+    if(panel){
+      panel.style.opacity=pp.toFixed(3);
+      panel.style.transform=mobile?'translateY('+((1-pp)*24).toFixed(1)+'px)':'translateX('+(-(1-pp)*32).toFixed(1)+'px)';
+      panel.style.pointerEvents=pp>0.5?'auto':'none';
+    }
 
-    const L=this._L; if(!L)return;
-    this.resizeLine();
-    const shot=this.heroShot(prog);
-    const f=snap?1:0.18;
-    L.cam.pos.lerp(shot.pos,f); L.cam.tgt.lerp(shot.tgt,f);
-    L.camera.position.copy(L.cam.pos);
-    L.camera.lookAt(L.cam.tgt);
-    const vm=document.getElementById('viewmode');
-    if(vm)vm.textContent=shot.pv<0.02?'WIDE SHOT':'STATION '+STATIONS[shot.idx].num+' · '+Math.round(shot.pv*100)+'%';
-    this.updateLabels(shot.idx,false);
-    if(shot.idx!==this._idx||this._panelPv!==(shot.pv>0.02)){
-      this._idx=shot.idx; this._panelPv=shot.pv>0.02;
+    if(act!==this._idx){
+      this._idx=act;
       document.querySelectorAll('[data-panel]').forEach((p,i)=>{
-        const on=i===shot.idx;
+        const on=i===act;
         p.style.opacity=on?'1':'0';
         p.style.transform=on?'none':'translateX(28px)';
         p.style.pointerEvents=on?'auto':'none';
       });
-      document.querySelectorAll('[data-dot]').forEach((d,i)=>{
-        d.style.background=i<=shot.idx?'var(--color-accent)':'var(--color-accent-200)';
-      });
     }
+    if(st.act!==this._navAct){
+      this._navAct=st.act;
+      document.querySelectorAll('[data-actjump]').forEach((b,i)=>b.setAttribute('aria-current',i===st.act?'true':'false'));
+    }
+
+    const L=this._L; if(!L)return;
+    this.resizeLine();
+    if(!this._keys||this._keysMobile!==mobile){ this._keys=this.buildKeys(); this._keysMobile=mobile; }
+    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const c=(reduced?TL.cameraHold:TL.cameraAt)(this._keys,prog);
+    L.camera.position.fromArray(c.pos);
+    L.camera.lookAt(c.tgt[0],c.tgt[1],c.tgt[2]);
+    /* 畫布固定全寬；文字欄佔掉的區域用視窗偏移補償，主體維持在可見區中央（過場時 pp=0，即滿版） */
+    const W=L.size.w,H=L.size.h;
+    const sx=mobile?0:Math.min(560,Math.max(320,window.innerWidth*0.36))*0.5*pp;
+    const sy=mobile?Math.max(0,Math.min(window.innerHeight*0.52,440)*0.5-55)*pp:0;   // 扣掉頂部導覽列佔的高度
+    /* 開場：畫布只露出標題下方的窗口（clip-path），讓主體落在露出的區域中央 */
+    const introShift=H*(clipTop/100)*(1-k)/2;
+    L.camera.setViewOffset(W,H,-sx,sy-introShift,W,H);
+    L.key=[prog.toFixed(5),W,H,sx.toFixed(1),sy.toFixed(1),introShift.toFixed(1)].join('|');
+    const vm=document.getElementById('viewmode');
+    if(vm)vm.textContent=st.act>=0?'ACT '+STATIONS[st.act].num+' · '+Math.round(st.local*100)+'%':(st.id==='transition'?'SORT & PICK':'WIDE SHOT');
   }
 
   renderLine(){
     const L=this._L; if(!L)return;
-    L.line.update((performance.now()-L.t0)/1000);
+    if(L.drawn===L.key)return;                 // 進度與視窗都沒變就不重畫
+    L.drawn=L.key;
+    L.line.update(this._lastProg||0);
+    if(L.line.renderFeed)L.line.renderFeed(L.renderer,L.scene);   // 控制台螢幕內的產線攝影機畫面
     L.renderer.render(L.scene,L.camera);
   }
 
@@ -1293,36 +1272,50 @@ class Component extends DCLogic {
       L.renderer.dispose();
       if(L.renderer.forceContextLoss)L.renderer.forceContextLoss();
     }catch(e){}
-    const host=document.getElementById('lineLabels');
-    if(host){host.innerHTML='';host.__built=false;}
-    this._labels=null;
   }
 
   startLoop(){
     if(window.__labTimer)clearInterval(window.__labTimer);
     if(window.__labFrame)cancelAnimationFrame(window.__labFrame);
     if(window.__labOff)window.__labOff();
-    this._dragTheta=0; this._idx=-1; this._tlFor=null;
-    const g=window.gsap;
-    if(g&&window.ScrollTrigger){ g.registerPlugin(window.ScrollTrigger); g.ticker.lagSmoothing(0); }
+    this._idx=-1; this._navAct=null; this._keys=null; this._sig=null;
+    /* 時間軸模組很小、無 three 依賴，先載入；three.js 與場景等頁面 load 且瀏覽器閒置後才載（首屏只有靜態海報） */
+    if(!this._TL&&!this._TLp)this._TLp=import('./story-timeline.js').then(m=>{this._TL=m;}).catch(e=>console.error('timeline',e));
+    /* 3D 只在使用者開始互動（移動、捲動、觸控、按鍵）或頁面已捲離頂端時才載入；
+       首屏是與開場取景相同的預先渲染海報，不佔用載入期間的主執行緒。 */
+    if(!this._lineGate){
+      this._lineGate='wait';
+      const evs=['pointermove','pointerdown','wheel','touchstart','keydown','scroll'];
+      const go=()=>{ if(this._lineGate==='go')return; this._lineGate='go'; evs.forEach(e=>window.removeEventListener(e,go)); };
+      evs.forEach(e=>window.addEventListener(e,go,{passive:true}));
+      if((window.scrollY||0)>40)go();
+    }
+
     let active=true,frameId=0,lastUi=0;
     const step=now=>{
       if(document.hidden||this._pageHidden)return;
       const wrap=document.getElementById('scrollwrap');
+      let heroRect=null;
       if(wrap){
-        if(document.getElementById('lineCanvas')&&!this._L)this.initLine();
+        if(this._lineGate==='go'&&document.getElementById('lineCanvas')&&!this._L)this.initLine();
+        heroRect=wrap.getBoundingClientRect();
         const total=Math.max(1,wrap.offsetHeight-(window.innerHeight||800));
-        const prog=Math.max(0,Math.min(1,-wrap.getBoundingClientRect().top/total));
-        this._resting=prog<0.06;
-        this.updateHero(prog);
-        this.renderLine();
-      } else if(this._L){ this.disposeLine(); }
+        const prog=Math.max(0,Math.min(1,-heroRect.top/total));
+        /* 進度、視窗、語言、模組載入狀態都沒變就不重算（閒置時不再每一格都跑 DOM 更新） */
+        const sig=prog.toFixed(6)+'|'+window.innerWidth+'x'+window.innerHeight+'|'+document.documentElement.dataset.lang+'|'+(this._TL?1:0)+(this._L?1:0);
+        if(sig!==this._sig){
+          this._sig=sig;
+          this._resting=prog<0.06;
+          this.updateHero(prog);
+          this.renderLine();
+        }
+      } else if(this._L){ this.disposeLine(); this._sig=null; }
+      /* 3D 區塊還在畫面內時，下面的區塊（團隊、圖譜、論文）都在數個螢幕之外，不必每一格檢查 */
+      if(heroRect&&heroRect.bottom>(window.innerHeight||800)*1.2)return;
       const stamp=typeof now==='number'?now:performance.now();
       if(stamp-lastUi<40)return;
       lastUi=stamp;
       this.releaseReveals();
-      if(window.innerWidth>760&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)this.walkStick();
-      else { const stick=document.getElementById('stick'); if(stick)stick.style.opacity='0'; }
       const graphSvg=document.getElementById('graphsvg');
       const graphRect=graphSvg&&graphSvg.getBoundingClientRect();
       const graphVisible=!!(graphRect&&graphRect.bottom>0&&graphRect.top<(window.innerHeight||800));
@@ -1367,166 +1360,22 @@ class Component extends DCLogic {
     };
     frameId=requestAnimationFrame(frame);
     window.__labFrame=frameId;
-    this.wireOrbitDrag();
+    this.wireActNav();
     req();
   }
 
-  wireOrbitDrag(){
-    const box=document.getElementById('worldBox');
-    if(!box||box.__wired)return; box.__wired=true;
-    let sx=null,sy=null,base=0,dragging=false,pid=null;
-    box.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;base=this._dragTheta;dragging=false;pid=e.pointerId;});
-    box.addEventListener('pointermove',e=>{
-      if(sx==null)return;
-      const dx=e.clientX-sx,dy=e.clientY-sy;
-      if(!dragging){
-        if(Math.abs(dy)>Math.abs(dx)+6)return;
-        if(Math.abs(dx)<8)return;
-        dragging=true; box.style.cursor='grabbing';
-        try{box.setPointerCapture(e.pointerId);}catch(_){}
-      }
-      e.preventDefault();
-      this._dragTheta=base+dx*0.35;
+  /* 01–06 編號導覽：捲到該幕起點（過場無導覽項） */
+  wireActNav(){
+    if(this._navWired)return; this._navWired=true;
+    document.addEventListener('click',e=>{
+      const b=e.target.closest&&e.target.closest('[data-actjump]');
+      if(!b||!this._TL)return;
+      const wrap=document.getElementById('scrollwrap'); if(!wrap)return;
+      const total=Math.max(1,wrap.offsetHeight-(window.innerHeight||800));
+      const top=wrap.getBoundingClientRect().top+(window.scrollY||0)+this._TL.actStart(+b.getAttribute('data-actjump'))*total;
+      const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:top,behavior:reduced?'auto':'smooth'});
     });
-    const up=()=>{sx=null;sy=null;dragging=false;pid=null;box.style.cursor='grab';};
-    box.addEventListener('pointerup',up); box.addEventListener('pointercancel',up);
-  }
-
-  /* boustrophedon walk: left→right along row 1, right→left along row 2, … */
-  stickPath(){
-    const wrap=document.getElementById('teamWrap');
-    if(!wrap)return null;
-    const cards=Array.from(wrap.querySelectorAll('article[data-reveal]'));
-    if(!cards.length)return null;
-    const wb=wrap.getBoundingClientRect();
-    const rows=[];
-    cards.forEach(c=>{
-      const r=c.getBoundingClientRect();
-      const top=Math.round(r.top-wb.top);
-      let row=rows.find(x=>Math.abs(x.top-top)<24);
-      if(!row){ row={top:top,left:1e9,right:-1e9}; rows.push(row); }
-      row.left=Math.min(row.left,r.left-wb.left);
-      row.right=Math.max(row.right,r.right-wb.left);
-    });
-    rows.sort((a,b)=>a.top-b.top);
-    const headEls=Array.from(wrap.querySelectorAll('h3'));
-    const heads=headEls.map(h=>Math.round(h.getBoundingClientRect().top-wb.top));
-    /* keep the walker clear of any heading text on its line */
-    const clearOf=(y,x)=>{
-      let nx=x;
-      headEls.forEach(h=>{
-        const r=h.getBoundingClientRect();
-        const ht=r.top-wb.top, hb=r.bottom-wb.top;
-        if(y+40>ht-6&&y<hb+6){
-          const hr=r.right-wb.left;
-          if(nx<hr+16)nx=hr+16;
-        }
-      });
-      return nx;
-    };
-    const wb2=wb;
-    rows.forEach(row=>{
-      row.stops=cards.filter(c=>{
-        const r=c.getBoundingClientRect();
-        return Math.abs(Math.round(r.top-wb2.top)-row.top)<24;
-      }).map(c=>{
-        const r=c.getBoundingClientRect();
-        return {l:r.left-wb2.left, r:r.right-wb2.left};
-      }).sort((a,b)=>a.l-b.l);
-    });
-    /* the dive shaft: the gutter between two cards on the destination row
-       (falls back to that row's outer edge when it has a single card) */
-    const diveX=row=>{
-      const s=row.stops;
-      if(s.length>1){
-        let best=null;
-        for(let k=0;k<s.length-1;k++){
-          const gap=s[k+1].l-s[k].r;
-          const mid=(s[k].r+s[k+1].l)/2-20;
-          if(!best||gap>best.gap)best={gap:gap,x:mid};
-        }
-        return best.x;
-      }
-      return s[0].l+6;
-    };
-    const pts=[];
-    rows.forEach((row,i)=>{
-      const y=row.top-42;
-      const near=heads.some(h=>Math.abs(h-row.top)<130);
-      const fwd=i%2===0;
-      const ordered=fwd?row.stops:row.stops.slice().reverse();
-      /* walk one card fewer than the row holds, then head down */
-      const stops=ordered.length>1?ordered.slice(0,ordered.length-1):ordered;
-      const dir=fwd?1:-1;
-      stops.forEach((s,k)=>{
-        const enter=clearOf(y,fwd?s.l+6:s.r-46);
-        const exit=clearOf(y,fwd?s.r-46:s.l+6);
-        /* hop the gutter onto this card, then walk along its top edge */
-        pts.push({x:enter,y:y,dir:dir,wave:k===0&&near,mode:k===0?'walk':'jump'});
-        pts.push({x:exit,y:y,dir:dir,wave:false,mode:(i+k)%3===2?'roll':'walk'});
-      });
-      /* walk back along THIS row to the next row's gutter, then dive down it */
-      const next=rows[i+1];
-      if(next){
-        const nx=diveX(next);
-        const last=pts[pts.length-1];
-        if(Math.abs(nx-last.x)>2)pts.push({x:nx,y:y,dir:nx>last.x?1:-1,wave:false,mode:'walk'});
-        pts.push({x:nx,y:next.top-42,dir:dir,wave:false,mode:'dive'});
-      }
-    });
-    let len=0;
-    for(let i=1;i<pts.length;i++){
-      len+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);
-      pts[i].acc=len;
-    }
-    pts[0].acc=0;
-    return {pts:pts,len:len||1,wrap:wrap};
-  }
-
-  walkStick(){
-    const el=document.getElementById('stick');
-    if(!el)return;
-    const p=this.stickPath();
-    if(!p){ el.style.opacity='0'; return; }
-    const wb=p.wrap.getBoundingClientRect();
-    const vh=window.innerHeight||800;
-    const sy=window.scrollY||document.documentElement.scrollTop||0;
-    /* map the section's actually reachable scroll travel onto the path */
-    const topAbs=wb.top+sy, botAbs=wb.bottom+sy;
-    const start=Math.max(0,topAbs-vh*0.62);
-    const end=Math.max(start+1,botAbs-vh*0.9);
-    const prog=Math.max(0,Math.min(1,(sy-start)/(end-start)));
-    el.style.opacity=wb.bottom<40||wb.top>vh?'0':'1';
-    const target=prog*p.len;
-    if(this._sd==null||this._sdFor!==p.wrap){ this._sd=target; this._sdFor=p.wrap; }
-    else this._sd+=(target-this._sd)*0.18;
-    const d=this._sd;
-    let i=1;
-    while(i<p.pts.length-1&&p.pts[i].acc<d)i++;
-    const a=p.pts[i-1],b=p.pts[i];
-    const t=Math.max(0,Math.min(1,(d-a.acc)/Math.max(1,b.acc-a.acc)));
-    const mode=b.mode||'walk';
-    const x=a.x+(b.x-a.x)*t, y=a.y+(b.y-a.y)*t;
-    const hop=mode==='jump'?-Math.sin(Math.PI*t)*30:0;
-    el.style.transform='translate('+x.toFixed(1)+'px,'+(y+hop).toFixed(1)+'px) scaleX('+(a.dir<0?-1:1)+')';
-    const inner=document.getElementById('stickInner');
-    if(inner){
-      const spin=mode==='roll'?t*360:mode==='jump'?Math.sin(Math.PI*t)*-16
-        :mode==='dive'?Math.min(1,t*2.4)*180:0;
-      inner.style.transform='rotate('+spin.toFixed(1)+'deg)';
-    }
-    const waving=a.wave&&t<0.28;
-    el.dataset.wave=waving?'1':'0';
-    el.dataset.mode=waving?'wave':mode;
-    /* the walker must never reach a card that has not appeared yet */
-    if(this._rev&&this._rev.length){
-      const reach=wb.top+y+120;
-      this._rev=this._rev.filter(e=>{
-        if(!e.isConnected)return false;
-        if(e.getBoundingClientRect().top<reach){ e.classList.add('shown'); return false; }
-        return true;
-      });
-    }
   }
 
   wireGantry(){
@@ -1557,14 +1406,19 @@ class Component extends DCLogic {
     if(!els.length)return;
     const vh=window.innerHeight||800;
     this._rev=this._rev||[];
-    els.forEach((e,i)=>{
+    /* 依版面位置排序：同一列由左到右依序浮出 */
+    const info=els.map(e=>{ const r=e.getBoundingClientRect(); return {e:e,top:r.top,left:r.left}; })
+      .sort((a,b)=>Math.abs(a.top-b.top)<24?a.left-b.left:a.top-b.top);
+    let rowTop=null,col=0;
+    info.forEach(o=>{
+      if(rowTop===null||Math.abs(o.top-rowTop)>=24){ rowTop=o.top; col=0; } else col++;
+      const e=o.e;
       e.__rev=true;
-      if(e.getBoundingClientRect().top<vh*0.99){ e.classList.add('shown'); return; }
-      e.style.transitionDelay=(i%6)*70+'ms';
+      e.style.transitionDelay=col*90+'ms';
+      if(o.top<vh*0.99){ e.classList.add('shown'); return; }
       this._rev.push(e);
     });
   }
-
   releaseReveals(){
     if(!this._rev||!this._rev.length)return;
     const vh=window.innerHeight||800;
@@ -1644,7 +1498,7 @@ class Component extends DCLogic {
 
     return {
       atProf:s.page==='professor', atTeam:s.page==='team', atContact:s.page==='contact',
-      education:EDU, experience:EXP,
+      education:EDU, experience:EXP, projects:PROJECTS,
       recentPapers:PAPERS.slice().sort((a,b)=>a.y!==b.y?b.y-a.y:b.m-a.m).slice(0,6).map(fmt),
       profTags:PROF_TAGS.map(k=>({label:(TAGS[k]||[k,k])[zh?0:1]})),
       labPhotos:LAB_PHOTOS.map((p,i)=>({src:p.src,alt:zh?p.zh:p.en,op:i===s.photo?1:0})),
@@ -1691,10 +1545,8 @@ class Component extends DCLogic {
       featured:PAPERS.filter(p=>p.f).map(fmt),
       techCards:TECH,
       isList:s.view==='list', isGraph:s.view==='graph',
-      listBg:s.view==='list'?'var(--color-accent)':'transparent',
-      listFg:s.view==='list'?'#fff':'var(--color-neutral-700)',
-      graphBg:s.view==='graph'?'var(--color-accent)':'transparent',
-      graphFg:s.view==='graph'?'#fff':'var(--color-neutral-700)',
+      listBg:s.view==='list'?'#fff':'transparent', listFg:s.view==='list'?'var(--color-accent)':'var(--color-neutral-700)', listFw:s.view==='list'?'600':'400',
+      graphBg:s.view==='graph'?'#fff':'transparent', graphFg:s.view==='graph'?'var(--color-accent)':'var(--color-neutral-700)', graphFw:s.view==='graph'?'600':'400',
       setList:this.setList, setGraph:this.setGraph,
       onType:this.onType, onPerPage:this.onPerPage,
       toggleSort:this.toggleSort, resetAll:this.resetAll,

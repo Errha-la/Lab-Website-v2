@@ -5,7 +5,7 @@
  *     plcCabinet / robotArm / spcBoard / kaizenBoard / uConveyor / infeed /
  *     outfeed / controlRoom / floorPlate。改外型只動那一個函式。
  *   · 尺寸集中在各函式頂端的 D 常數（datum），不要用臨時數字微調位置。
- *   · 工站文字（站名、設備名、對應論文）在 assets/data/line-stations.json，不在這裡。
+ *   · 工站文字（站名、設備名、對應論文）在 assets/data/story-data.js，不在這裡。
  *
  * 幾何準則（依 threejs-procedural-geometry）
  *   · 可見外殼一律用 beveledBox()，不留刀口邊。
@@ -894,7 +894,7 @@ export function buildLine(THREE, opts = {}) {
     Object.values(M).forEach(m => m.dispose());
   }
 
-  /* 立牌文字外部覆寫（資料由 assets/data/line-stations.json 帶入） */
+  /* 立牌文字外部覆寫（資料由 assets/data/story-data.js 帶入） */
   function setSignText(i, st) { if (signs[i]) signs[i].draw(st || {}); }
 
   return { group, anchors, bounds, materials: M, update, dispose, setSignText, pathAt, PATH_LEN, RING_RADIUS, STATION_R, DECK_Y, detail: low ? 'low' : 'high' };

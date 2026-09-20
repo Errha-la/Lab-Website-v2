@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI 智慧製造場景 — 3D 模型（開發檢測環境）</title>
+<title>閉環智慧製造產線 — 3D 模型（開發檢測環境）</title>
 <link rel="icon" href="../assets/images/head-banner.png" type="image/png">
 <script type="importmap">
 {
@@ -48,58 +48,56 @@
 <body>
   <header>
     <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;color:var(--color-accent-700)">FIG. 01 — 3D</span>
-    <h1 style="margin:0;font-size:25px">AI Agent 閉環智慧製造場景</h1>
-    <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.02em;color:var(--color-accent-700)">Factory IO style · scroll-driven</span>
-    <span style="margin-left:auto;font-size:12.5px;color:var(--color-neutral-600)">開發檢測環境 · 拖曳旋轉 · 滾輪縮放 · 進度條即首頁捲動進度 p</span>
+    <h1 style="margin:0;font-size:25px">閉環智慧製造產線</h1>
+    <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.02em;color:var(--color-accent-700)">Closed-loop Smart Production Line</span>
+    <span style="margin-left:auto;font-size:12.5px;color:var(--color-neutral-600)">開發檢測環境 · 拖曳旋轉 · 滾輪縮放 · 可下載 OBJ / GLB</span>
   </header>
 
   <div class="bar">
-    <span class="kk">PROGRESS p</span>
-    <input id="pSlider" type="range" min="0" max="1" step="0.001" value="0.16" style="width:min(360px,40vw)" aria-label="捲動進度 p">
-    <span id="pOut" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;min-width:44px">0.160</span>
-    <span class="kk" style="margin-left:14px">VIEW</span>
-    <button class="t" data-view="wide">全景</button>
-    <button class="t" data-view="detect">01 檢測（桌機）</button>
-    <button class="t" data-view="detectM">01 檢測（手機）</button>
-    <span class="kk" style="margin-left:14px">CLOSE-UP</span>
-    <button class="t" data-focus="ok">良品</button>
-    <button class="t" data-focus="crack">裂痕</button>
-    <button class="t" data-focus="chip">缺角</button>
+    <span class="kk">VIEW</span>
+    <button class="t" data-view="wide">全線遠景</button>
+    <button class="t" data-view="s01">01 感測</button>
+    <button class="t" data-view="s02">02 診斷</button>
+    <button class="t" data-view="s03">03 決策</button>
+    <button class="t" data-view="s04">04 控制</button>
+    <button class="t" data-view="s05">05 回饋</button>
+    <button class="t" data-view="graze">掠射光</button>
     <span class="kk" style="margin-left:14px">DEBUG</span>
     <button class="t" id="bWire" aria-pressed="false">線架</button>
     <button class="t" id="bNorm" aria-pressed="false">法線</button>
+    <button class="t" id="bAnim" aria-pressed="true">動態</button>
     <button class="t" id="bLow" aria-pressed="false">手機簡化版</button>
     <span id="stat">—</span>
   </div>
 
-  <three-d-stage name="ai-manufacturing-scene" background="#f2f2f3"></three-d-stage>
+  <three-d-stage name="closed-loop-line" background="#f2f2f3"></three-d-stage>
 
   <footer>
-    <span class="key"><span class="sw" style="background:#2f6fb2"></span>藍：結構與龍門架</span>
-    <span class="key"><span class="sw" style="background:#f2b233"></span>黃：地板護緣</span>
-    <span class="key"><span class="sw" style="background:#2fa85a"></span>綠：通過（O）</span>
-    <span class="key"><span class="sw" style="background:#e5423b"></span>紅：瑕疵（X）與紅框</span>
-    <span class="key" style="margin-left:auto">單位：公尺 · y 軸向上 · 輸送帶沿 +x</span>
+    <span class="key"><span class="sw" style="background:#5980a6"></span>01 振動感測 · 加速度計陣列</span>
+    <span class="key"><span class="sw" style="background:#41617f"></span>02 故障診斷 · 工業攝影機</span>
+    <span class="key"><span class="sw" style="background:#2c455d"></span>03 決策優化 · 排程看板</span>
+    <span class="key"><span class="sw" style="background:#94bce3"></span>04 製程控制 · PLC + 手臂</span>
+    <span class="key"><span class="sw" style="background:#7a7a7d"></span>05 品質回饋 · SPC 管制圖</span>
+    <span class="key" style="margin-left:auto">單位：公尺 · 環心置於原點 · y 軸向上</span>
   </footer>
 
-  <script src="../assets/data/story-data.js"></script>
   <script src="../assets/js/three-d-stage.js"></script>
   <script type="module">
-    import { buildScene, slotAt, chipKind, CAM_X, SLOTS } from '../assets/js/factory-scene.js';
+    import { buildLine, STATION_R } from './line-model.js';
 
     const stage = document.querySelector('three-d-stage');
     const { THREE } = await stage.ready;
 
-    let scene = null, wire = false, norm = false, low = false, p = 0.16;
+    let line = null, animOn = true, wire = false, norm = false, low = false;
+    let t0 = performance.now();
 
     function build() {
-      if (scene) scene.dispose();
-      scene = buildScene(THREE, { detail: low ? 'low' : 'high', shadows: !low, dialogue: (window.STORY_DATA && window.STORY_DATA.dialogue) || [] });
-      scene.update(p);
+      if (line) { line.dispose(); }
+      line = buildLine(THREE, { accent: '#5980a6', detail: low ? 'low' : 'high', shadows: !low });
       applyDebug();
-      stage.setObject(scene.group);
+      stage.setObject(line.group);
       let tris = 0, meshes = 0;
-      scene.group.traverse(o => {
+      line.group.traverse(o => {
         if (!o.isMesh) return;
         meshes++;
         const g = o.geometry;
@@ -110,9 +108,10 @@
     }
 
     function applyDebug() {
-      if (!scene) return;
-      Object.values(scene.materials).forEach(m => { m.wireframe = wire; });
-      scene.group.traverse(o => {
+      if (!line) return;
+      const mats = Object.values(line.materials);
+      mats.forEach(m => { m.wireframe = wire; });
+      line.group.traverse(o => {
         if (!o.isMesh) return;
         if (norm) {
           if (!o.userData._m) o.userData._m = o.material;
@@ -123,46 +122,39 @@
       });
     }
 
-    function setP(v) {
-      p = Math.max(0, Math.min(1, v));
-      document.getElementById('pSlider').value = p;
-      document.getElementById('pOut').textContent = p.toFixed(3);
-      if (scene) scene.update(p);
-    }
-
-    function look(pos, tgt) {
+    /* 固定檢視點（visual-validation：同一組視角比對每次修改） */
+    const views = {
+      wide:  { az: Math.PI / 2, el: 0.62, d: 1.0 },
+      s01:   { station: 0 }, s02: { station: 1 }, s03: { station: 2 },
+      s04:   { station: 3 }, s05: { station: 4 },
+      graze: { az: 0.2, el: 0.12, d: 0.72 }
+    };
+    function goView(key) {
+      const v = views[key]; if (!v || !line) return;
       const cam = stage._camera, ctr = stage._controls;
       if (!cam) return;
-      cam.position.set(pos[0], pos[1], pos[2]);
-      if (ctr) { ctr.target.set(tgt[0], tgt[1], tgt[2]); ctr.update(); }
-      cam.lookAt(tgt[0], tgt[1], tgt[2]);
+      const R = line.bounds.radius;
+      let target, az, el, dist;
+      if (v.station != null) {
+        const a = line.anchors[v.station];
+        target = a.position.clone(); target.y *= 0.72;
+        az = a.angle; el = 0.26; dist = 4.6;
+      } else {
+        target = line.bounds.center.clone();
+        az = v.az; el = v.el; dist = R * 2.1 * v.d;
+      }
+      cam.position.set(
+        target.x + Math.cos(az) * Math.cos(el) * dist,
+        target.y + Math.sin(el) * dist,
+        target.z + Math.sin(az) * Math.cos(el) * dist
+      );
+      if (ctr) { ctr.target.copy(target); ctr.update(); }
+      cam.lookAt(target);
       cam.updateProjectionMatrix();
     }
-    function goView(key) {
-      if (!scene) return;
-      if (key === 'wide') { const s = scene.shots(false).wide; look(s.pos, s.tgt); }
-      if (key === 'detect') { const s = scene.shots(false).detect; look(s.pos, s.tgt); }
-      if (key === 'detectM') { const s = scene.shots(true).detect; look(s.pos, s.tgt); }
-    }
 
-    /* 特寫：找出某種晶片剛好位於相機前方 1.2 m 的進度，鏡頭貼近 */
-    function focus(kind) {
-      for (let q = 0; q <= 1; q += 0.0005) {
-        for (let i = 0; i < SLOTS; i++) {
-          const s = slotAt(i, q);
-          if (chipKind(s.id) === kind && Math.abs(s.x - (CAM_X + 1.2)) < 0.01) {
-            setP(q);
-            look([CAM_X + 1.2 + 0.5, 1.15, 1.0], [CAM_X + 1.2, 0.68, 0]);
-            return;
-          }
-        }
-      }
-    }
-    window.__preview = { goView, focus, setP, inspect: () => scene.inspect() };
-
-    document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => goView(b.dataset.view)));
-    document.querySelectorAll('[data-focus]').forEach(b => b.addEventListener('click', () => focus(b.dataset.focus)));
-    document.getElementById('pSlider').addEventListener('input', e => setP(+e.target.value));
+    document.querySelectorAll('[data-view]').forEach(b =>
+      b.addEventListener('click', () => goView(b.dataset.view)));
     const tog = (id, fn) => {
       const b = document.getElementById(id);
       b.addEventListener('click', () => {
@@ -173,11 +165,18 @@
     };
     tog('bWire', v => { wire = v; applyDebug(); });
     tog('bNorm', v => { norm = v; applyDebug(); });
+    tog('bAnim', v => { animOn = v; });
     tog('bLow', v => { low = v; build(); goView('wide'); });
 
     build();
     goView('wide');
-    window.addEventListener('beforeunload', () => { if (scene) scene.dispose(); });
+
+    (function loop() {
+      if (line && animOn) line.update((performance.now() - t0) / 1000);
+      requestAnimationFrame(loop);
+    })();
+
+    window.addEventListener('beforeunload', () => { if (line) line.dispose(); });
   </script>
 </body>
 </html>

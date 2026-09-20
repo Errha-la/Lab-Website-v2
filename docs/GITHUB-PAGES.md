@@ -18,13 +18,13 @@
 - 根網址直接顯示網站，網址不含空白檔名或額外轉址。
 - 導覽、雙語切換、行動版選單與團隊學年篩選可操作。
 - `assets/images/` 的標頭、人像與輪播照片正常顯示。
-- `assets/data/line-stations.json` 可載入，六個工站資料正確。
+- `assets/data/story-data.js` 可載入，六幕文案資料正確。
 - 3D 產線可顯示；瀏覽器主控台沒有 404 或 module 載入錯誤。
-- `tools/production-line-3d.html` 可開啟開發檢視器。
+- `tools/production-line-3d.html` 可開啟開發檢視器（新場景預覽，含進度 p 滑桿）。
 
 ## 外部資源
 
-網站執行時會從 CDN 載入 React、Three.js、GSAP 與 Google Fonts。若部署環境加入 Content Security Policy，需同步允許實際使用的 CDN、字型與 Google Maps 來源。
+React、ReactDOM 與 Three.js 已本機化（`assets/vendor/`），外部來源只剩 Google Fonts 與 Google Maps。若部署環境加入 Content Security Policy，需同步允許字型與地圖來源。首屏海報（`assets/images/hero-*.webp`）在 3D 場景改動後需重新產生。
 
 ## 主要路徑
 
@@ -32,7 +32,7 @@
 | --- | --- |
 | 正式網站 | `index.html` |
 | JavaScript | `assets/js/` |
-| 工站資料 | `assets/data/line-stations.json` |
+| 幕文案資料 | `assets/data/story-data.js` |
 | 圖片 | `assets/images/` |
 | 設計系統 | `assets/design-system/` |
 | 3D 開發工具 | `tools/production-line-3d.html` |
