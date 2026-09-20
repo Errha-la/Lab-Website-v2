@@ -24,7 +24,7 @@
 
 ## 外部資源
 
-網站執行時會從 CDN 載入 React、Three.js、GSAP 與 Google Fonts。若部署環境加入 Content Security Policy，需同步允許實際使用的 CDN、字型與 Google Maps 來源。
+React、ReactDOM 與 Three.js 已本機化（`assets/vendor/`），外部來源只剩 Google Fonts 與 Google Maps。若部署環境加入 Content Security Policy，需同步允許字型與地圖來源。首屏海報（`assets/images/hero-*.webp`）在 3D 場景改動後需重新產生。
 
 ## 主要路徑
 

@@ -6,21 +6,68 @@
 <title>先進製程與設備智能輔助實驗室</title>
 <meta name="description" content="國立臺灣科技大學先進製程與設備智能輔助實驗室官方網站。">
 <link rel="icon" href="assets/images/head-banner.png" type="image/png">
-<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-<script src="assets/data/story-data.js"></script>
-<script src="./assets/js/runtime.js"></script>
+<style>
+/* 首屏（尚未執行 JS 時就能看到）：隱藏原始樣板、顯示與 3D 開場一致的靜態畫面，App 掛載後再淡出 */
+x-dc{display:none!important}
+html,body{margin:0;background:#f2f2f3}
+#boot{position:fixed;inset:0;z-index:100;background:#f2f2f3;color:#1d1f20;font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;transition:opacity .35s ease}
+#boot.bye{opacity:0;pointer-events:none}
+#boot .bh{position:absolute;left:0;right:0;top:0;height:66px;border-bottom:1px solid #d9d9dc;display:flex;align-items:center;padding:0 24px 0 max(24px,calc((100vw - 1320px)/2 + 32px));box-sizing:border-box}
+#boot .bh img{height:44px;width:auto;display:block}
+#boot .bt{position:absolute;left:0;right:0;top:66px;height:44vh;display:grid;align-content:center;justify-items:center;text-align:center;padding:0 28px;box-sizing:border-box}
+#boot .bk{display:flex;align-items:center;justify-content:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#416180;margin-bottom:20px}
+#boot .bk i{display:block;width:40px;height:1px;background:#5980a6}
+#boot .bc{margin-top:26px;font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:11px;letter-spacing:.24em;color:#416180}
+#boot h2{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif;font-weight:800;margin:0 0 16px;letter-spacing:-.02em;line-height:1.04;font-size:clamp(38px,5vw,76px)}
+#boot .bs{margin:0;font-size:clamp(13px,1.35vw,17px);line-height:1.7;color:#424244}
+#boot .bp{position:absolute;left:0;right:0;top:66px;height:100vh;clip-path:inset(44% 0 0 0)}
+#boot .bp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#boot .l-en{display:none}
+html[data-lang="en"] #boot .l-zh{display:none}
+html[data-lang="en"] #boot .l-en{display:block}
+@media (max-width:760px){
+  #boot .bh{height:64px;padding:0 16px}
+  #boot .bh img{max-height:42px}
+  #boot .bt{top:64px;height:42vh;padding:0 18px}
+  #boot .bp{top:64px;clip-path:inset(42% 0 0 0)}
+  #boot h2{font-size:clamp(31px,9vw,52px);line-height:1.08}
+  #boot .bs{font-size:13px;max-width:34ch}
+  #boot .bk{font-size:9px;letter-spacing:.13em;margin-bottom:14px;gap:7px}
+  #boot .bk i{width:22px}
+}
+</style>
+<link rel="preload" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css"></noscript>
+<link rel="preload" as="image" href="assets/images/hero-desktop.webp" type="image/webp" media="(min-width:761px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/images/hero-mobile.webp" type="image/webp" media="(max-width:760px)" fetchpriority="high">
+<script defer src="assets/vendor/react.production.min.js"></script>
+<script defer src="assets/vendor/react-dom.production.min.js"></script>
+<script defer src="assets/data/story-data.js"></script>
+<script defer src="./assets/js/runtime.js"></script>
 </head>
 <body>
+<div id="boot" aria-hidden="true">
+  <div class="bh"><img src="assets/images/head-banner.png" width="176" height="44" alt=""></div>
+  <div class="bp"><picture>
+    <source media="(max-width:760px)" srcset="assets/images/hero-mobile.webp" type="image/webp">
+    <img src="assets/images/hero-desktop.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async">
+  </picture></div>
+  <div class="bt">
+    <div class="bk"><i></i><span>National Taiwan University of Science and Technology</span><i></i></div>
+    <h2 class="l-zh">先進製程與設備智能輔助實驗室</h2>
+    <h2 class="l-en">Advanced Process Control &amp; Intelligent Equipment Lab</h2>
+    <p class="bs l-zh">以 AI Agent 與數位雙生為核心，打造自主決策與人機協作的閉環智慧製造。</p>
+    <p class="bs l-en">Closed-loop smart manufacturing built on AI agents and digital twins, for autonomous decisions and human–AI collaboration.</p>
+    <div class="bc l-zh">↓ 向下捲動展開產線</div>
+    <div class="bc l-en">↓ SCROLL TO EXPAND THE LINE</div>
+  </div>
+</div>
+<script>setTimeout(function(){var b=document.getElementById('boot');if(b)b.remove()},8000)</script>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css">
-<script src="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/_ds_bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;family=Noto+Sans+TC:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:"Barlow","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif}
@@ -52,7 +99,7 @@ html[data-lang="en"] .l-zh{display:none !important}
 [data-reveal]{transition:opacity .55s ease,transform .55s ease}
 html.rev-on [data-reveal]{opacity:0;transform:translateY(20px)}
 html.rev-on [data-reveal].shown{opacity:1;transform:none}
-.navlink{display:inline-flex;align-items:center;padding:8px 12px;font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:transparent;border:0;cursor:pointer;color:var(--color-neutral-600)}
+.navlink{display:inline-flex;align-items:center;padding:8px 12px;font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:transparent;border:0;cursor:pointer;color:var(--color-neutral-700)}
 .navlink:hover{background:var(--color-accent-100);color:var(--color-text)}
 .navlink[data-on="1"]{color:var(--color-accent-900);box-shadow:inset 0 -2px 0 var(--color-accent)}
 .cta{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;position:relative}
@@ -186,13 +233,13 @@ button,a,select{touch-action:manipulation}
 <header style="position:sticky;top:0;z-index:60;background:rgba(242,242,243,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider)">
   <div class="site-header-inner" style="max-width:1320px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;gap:20px">
     <button type="button" class="site-brand" onClick="{{ goHome }}" aria-label="先進製程與設備智能輔助實驗室 Advanced Process Control and Intelligent Equipment Laboratory" style="display:flex;align-items:center;background:transparent;border:0;padding:0;cursor:pointer;color:var(--color-text)">
-      <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" style="height:44px;width:auto;display:block">
+      <img src="assets/images/head-banner.png" alt="Advanced Process Control and Intelligent Equipment Laboratory" width="176" height="44" style="height:44px;width:auto;display:block">
     </button>
     <nav class="desktop-nav" aria-label="主導覽" style="display:flex;align-items:center;gap:2px;margin-left:auto">
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" onClick="{{ toggleLang }}" aria-label="切換語言 Switch language" style="margin-left:12px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="margin-left:12px;border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
     <button type="button" class="mobile-menu-button" onClick="{{ toggleMobileMenu }}" aria-controls="mobileNavPanel" aria-expanded="{{ mobileMenuExpanded }}" aria-label="{{ mobileMenuLabel }}">{{ mobileMenuIcon }}</button>
   </div>
@@ -201,7 +248,7 @@ button,a,select{touch-action:manipulation}
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
         <button type="button" class="navlink" data-on="{{ n.on }}" onClick="{{ n.go }}"><span class="l-zh">{{ n.zh }}</span><span class="l-en">{{ n.en }}</span></button>
       </sc-for>
-      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="切換語言 Switch language" style="border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
+      <button type="button" class="mobile-lang" onClick="{{ toggleLang }}" aria-label="{{ langLabel }} 切換語言 Switch language" style="border:1px solid var(--color-divider);background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;padding:7px 10px;color:var(--color-accent-700)" style-hover="background:var(--color-accent-100)">{{ langLabel }}</button>
     </nav>
   </div>
 </header>
@@ -213,8 +260,11 @@ button,a,select{touch-action:manipulation}
 
       <div id="worldBox" style="position:absolute;inset:0;clip-path:inset(44% 0% 0% 0%);will-change:clip-path">
         <canvas id="lineCanvas" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
-        <div id="lineFallback" aria-hidden="true" style="position:absolute;inset:0;display:grid;place-items:center;background-color:var(--color-neutral-100);background-image:linear-gradient(var(--color-accent-200) 1px,transparent 1px),linear-gradient(90deg,var(--color-accent-200) 1px,transparent 1px);background-size:44px 44px;background-position:center;transition:opacity .4s ease">
-          <span style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:11px;letter-spacing:.2em;color:var(--color-accent-700)">LOADING 3D MODEL…</span>
+        <div id="lineFallback" aria-hidden="true" style="position:absolute;inset:0;background-color:var(--color-neutral-100);transition:opacity .4s ease">
+          <picture>
+            <source media="(max-width:760px)" srcset="assets/images/hero-mobile.webp" type="image/webp">
+            <img src="assets/images/hero-desktop.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          </picture>
         </div>
       </div>
 
@@ -913,6 +963,8 @@ class Component extends DCLogic {
   onKeyDown=e=>{ if(e.key==='Escape')this.closeMobileMenu(); };
 
   componentDidMount(){
+    /* App 已掛載：靜態首屏畫面淡出並移除（它與 React 的首屏外觀一致，不會跳動） */
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{const b=document.getElementById('boot');if(b){b.classList.add('bye');setTimeout(()=>b.remove(),400);}}));
     document.documentElement.dataset.lang='zh';
     document.documentElement.classList.add('rev-on');
     this.buildGraph();
@@ -1091,7 +1143,7 @@ class Component extends DCLogic {
     if(!cv)return;
     this._lineBusy=true;
     try{
-      const THREE=await import('https://unpkg.com/three@0.184.0/build/three.module.js');
+      const THREE=await import('../vendor/three/three.module.min.js');
       const mod=await import('./factory-scene.js');
       const low=window.innerWidth<760;
       const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!low});
@@ -1254,29 +1306,40 @@ class Component extends DCLogic {
     if(window.__labTimer)clearInterval(window.__labTimer);
     if(window.__labFrame)cancelAnimationFrame(window.__labFrame);
     if(window.__labOff)window.__labOff();
-    this._idx=-1; this._navAct=null; this._keys=null;
+    this._idx=-1; this._navAct=null; this._keys=null; this._sig=null;
     /* 時間軸模組很小、無 three 依賴，先載入；three.js 與場景等頁面 load 且瀏覽器閒置後才載（首屏只有靜態海報） */
     if(!this._TL&&!this._TLp)this._TLp=import('./story-timeline.js').then(m=>{this._TL=m;}).catch(e=>console.error('timeline',e));
+    /* 3D 只在使用者開始互動（移動、捲動、觸控、按鍵）或頁面已捲離頂端時才載入；
+       首屏是與開場取景相同的預先渲染海報，不佔用載入期間的主執行緒。 */
     if(!this._lineGate){
       this._lineGate='wait';
-      const go=()=>{this._lineGate='go';};
-      const idle=()=>('requestIdleCallback' in window)?requestIdleCallback(go,{timeout:2000}):setTimeout(go,300);
-      if(document.readyState==='complete')idle(); else window.addEventListener('load',idle,{once:true});
+      const evs=['pointermove','pointerdown','wheel','touchstart','keydown','scroll'];
+      const go=()=>{ if(this._lineGate==='go')return; this._lineGate='go'; evs.forEach(e=>window.removeEventListener(e,go)); };
+      evs.forEach(e=>window.addEventListener(e,go,{passive:true}));
+      if((window.scrollY||0)>40)go();
     }
-    const g=window.gsap;
-    if(g&&window.ScrollTrigger){ g.registerPlugin(window.ScrollTrigger); g.ticker.lagSmoothing(0); }
+
     let active=true,frameId=0,lastUi=0;
     const step=now=>{
       if(document.hidden||this._pageHidden)return;
       const wrap=document.getElementById('scrollwrap');
+      let heroRect=null;
       if(wrap){
         if(this._lineGate==='go'&&document.getElementById('lineCanvas')&&!this._L)this.initLine();
+        heroRect=wrap.getBoundingClientRect();
         const total=Math.max(1,wrap.offsetHeight-(window.innerHeight||800));
-        const prog=Math.max(0,Math.min(1,-wrap.getBoundingClientRect().top/total));
-        this._resting=prog<0.06;
-        this.updateHero(prog);
-        this.renderLine();
-      } else if(this._L){ this.disposeLine(); }
+        const prog=Math.max(0,Math.min(1,-heroRect.top/total));
+        /* 進度、視窗、語言、模組載入狀態都沒變就不重算（閒置時不再每一格都跑 DOM 更新） */
+        const sig=prog.toFixed(6)+'|'+window.innerWidth+'x'+window.innerHeight+'|'+document.documentElement.dataset.lang+'|'+(this._TL?1:0)+(this._L?1:0);
+        if(sig!==this._sig){
+          this._sig=sig;
+          this._resting=prog<0.06;
+          this.updateHero(prog);
+          this.renderLine();
+        }
+      } else if(this._L){ this.disposeLine(); this._sig=null; }
+      /* 3D 區塊還在畫面內時，下面的區塊（團隊、圖譜、論文）都在數個螢幕之外，不必每一格檢查 */
+      if(heroRect&&heroRect.bottom>(window.innerHeight||800)*1.2)return;
       const stamp=typeof now==='number'?now:performance.now();
       if(stamp-lastUi<40)return;
       lastUi=stamp;

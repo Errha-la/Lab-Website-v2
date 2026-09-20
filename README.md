@@ -33,12 +33,13 @@
 │  ├─ data/
 │  │  └─ story-data.js  # 六幕的中英文文案與對話（唯一來源）
 │  ├─ design-system/         # 色彩、字體與元件設計系統
-│  ├─ images/                # 教授、成員、實驗室與活動照片
+│  ├─ images/                # 教授、成員、實驗室與活動照片；hero-*.webp 為首屏 3D 海報
 │  └─ js/
 │     ├─ factory-scene.js    # Three.js 首頁 AI 製造場景（捲動進度 p 的純函式）
 │     ├─ runtime.js          # 宣告式頁面執行環境（產生檔）
 │     ├─ story-timeline.js   # 首頁捲動時間軸與鏡頭樣條（純函式）
 │     └─ three-d-stage.js    # 3D 檢視器 Web Component
+│  └─ vendor/                # 本機化的 React、ReactDOM 與 Three.js（壓縮版）
 ├─ archive/
 │  ├─ lab-site-v2.html       # 舊版網站，保留供比對
 │  ├─ line-model.js          # 舊版 U 形產線幾何（首頁改版前）
@@ -49,6 +50,7 @@
 ├─ security-reports/
 │  └─ 2026-08-20/            # 歷史安全掃描產物
 ├─ tools/
+│  ├─ capture-poster.mjs     # 重新產生首屏海報（3D 場景改動後執行）
 │  └─ production-line-3d.html # 新場景 3D 預覽／匯出工具
 └─ .nojekyll                 # 讓 GitHub Pages 原樣提供靜態資源
 ```
@@ -80,11 +82,16 @@
 ## 技術組成
 
 - 純 HTML、CSS、JavaScript，無本機套件安裝與建置步驟
-- Three.js 0.184（ES module CDN）
-- GSAP 3.12.5 與 ScrollTrigger
-- React／ReactDOM 18.3.1（供自訂頁面執行環境使用）
-- Google Fonts：Barlow、Barlow Condensed、Noto Sans TC
+- Three.js 0.184、React／ReactDOM 18.3.1：壓縮版放在 `assets/vendor/`，不依賴外部 CDN
+- Google Fonts：Barlow、Barlow Condensed、Noto Sans TC（唯一的外部依賴，非阻塞載入）
 - 自訂宣告式模板與 `runtime.js`
+
+## 效能與 PageSpeed
+
+首頁的首屏是一張與 3D 開場取景一致的預先渲染畫面（`assets/images/hero-desktop.webp`、`hero-mobile.webp`），標題與海報寫在 `index.html` 的 `#boot` 區塊，不需等 JavaScript 就能顯示；App 掛載後它會淡出。Three.js 與 3D 場景只在使用者開始互動（移動、捲動、觸控、按鍵）或頁面已捲離頂端時才載入。
+
+- 3D 場景或開場取景改動後，請重新產生海報（見 `tools/capture-poster.mjs` 檔頭的說明）。
+- 以 Lighthouse 11 在本機（模擬 GitHub Pages 的 gzip 與快取標頭）量測：桌機四項皆 100；手機效能 96、其餘三項 100。部署後請再用 [PageSpeed Insights](https://pagespeed.web.dev/) 對正式網址實測，網路環境不同分數會有出入。
 
 ## GitHub Pages 部署
 
@@ -92,8 +99,8 @@
 
 ## 後續改進方向
 
-- **優先移除核心 CDN 依賴**：將 React／ReactDOM 18.3.1 從 CDN 下載至 `assets/vendor/`，再把 `index.html` 與 `archive/lab-site-v2.html` 改為載入本機檔案。React 載入失敗會使整個 `runtime.js` 無法渲染頁面，因此優先級最高。
-- **視需求移植其他前端依賴**：若網站需要離線使用、校園網路限制下穩定開啟，再將 Three.js、GSAP／ScrollTrigger 與 Google Fonts 一併本機化。
+- **舊版網站的 CDN 依賴**：`archive/lab-site-v2.html` 仍從 CDN 載入 React；它只保留供比對，若要繼續使用再改為載入 `assets/vendor/`。
+- **視需求本機化字型**：若網站需要離線使用或在校園網路限制下穩定開啟，再把 Google Fonts 一併本機化。
 - **保留外部服務備援**：Google Maps 可維持 iframe，但應提供地址文字與地圖連結，避免地圖服務不可用時聯絡資訊消失。
 - **建立依賴更新流程**：本機化後由專案自行負責版本更新、安全修補、授權檔案與檔案大小管理；每次更新後需重新執行本機 HTTP 與 GitHub Pages 檢查。
 - **評估內容與程式分離**：將 `index.html` 內的論文、成員與履歷常數逐步移到 JSON 或 Markdown，再加入格式驗證，降低直接修改大型 HTML 的風險。
