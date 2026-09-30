@@ -26,6 +26,12 @@ html,body{margin:0;background:#f2f2f3}
 html[data-lang="en"] #boot .l-zh{display:none}
 html[data-lang="en"] #boot .l-en{display:block}
 @media (max-width:760px){
+  .mobile-page-content{padding-left:16px !important;padding-right:16px !important;min-width:0;box-sizing:border-box}
+  .about-content-grid{grid-template-columns:minmax(0,1fr) !important;gap:24px !important}
+  .about-photo{width:100%;max-width:560px;justify-self:center}
+  #contactDetails{grid-template-columns:minmax(0,1fr) !important}
+  #contactDetails a{overflow-wrap:anywhere}
+  #contactDetails>.blueprint{min-width:0}
   #boot .bh{height:64px;padding:0 16px}
   #boot .bh img{max-height:42px}
   #boot .bt{top:64px;height:42vh;padding:0 18px}
@@ -44,10 +50,10 @@ window.addEventListener('load',function(){setTimeout(function(){var l=document.c
 <noscript><link rel="stylesheet" href="assets/design-system/industry-b2b80fb0-7acd-48a9-918c-f807f0870b36/styles.css"></noscript>
 <link rel="preload" as="image" href="assets/images/hero-desktop.webp" type="image/webp" media="(min-width:761px)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/images/hero-mobile.webp" type="image/webp" media="(max-width:760px)" fetchpriority="high">
-<script defer src="assets/vendor/react.production.min.js"></script>
-<script defer src="assets/vendor/react-dom.production.min.js"></script>
-<script defer src="assets/data/story-data.js"></script>
-<script defer src="./assets/js/runtime.js"></script>
+<script vite-ignore defer src="assets/vendor/react.production.min.js"></script>
+<script vite-ignore defer src="assets/vendor/react-dom.production.min.js"></script>
+<script vite-ignore defer src="assets/data/story-data.js"></script>
+<script vite-ignore defer src="./assets/js/runtime.js"></script>
 </head>
 <body>
 <div id="boot" aria-hidden="true">
@@ -225,9 +231,11 @@ button,a,select{touch-action:manipulation}
   #teamWrap > sc-for > div > div:first-child{align-items:flex-start !important;flex-wrap:wrap}
   #teamWrap select{min-height:44px !important;max-width:100%}
   .member-grid{grid-template-columns:1fr !important}
-  #teamWrap article[data-reveal]{height:auto !important;min-height:260px;padding:16px !important}
-  #teamWrap article[data-reveal] > div:first-child{align-items:flex-start !important}
-  #teamWrap article[data-reveal] img{width:92px !important;height:124px !important}
+  #teamWrap article[data-reveal]{height:auto !important;min-height:0;padding:14px !important}
+  #teamWrap article[data-reveal] > div:first-child{align-items:center !important;gap:14px !important}
+  #teamWrap .member-photo-frame{width:104px !important;height:104px !important;border-radius:10px}
+  #teamWrap .member-photo-frame img{width:100% !important;height:100% !important}
+  #teamWrap article[data-reveal] > div:nth-child(2){flex:none !important;overflow:visible !important;gap:6px !important;margin-top:14px !important;padding-top:12px !important}
   .about-photo{height:auto !important;aspect-ratio:4/3}
   .page-gutter{padding-left:16px !important;padding-right:16px !important}
   .touch-target{min-width:44px !important;min-height:44px !important}
@@ -238,9 +246,10 @@ button,a,select{touch-action:manipulation}
   #heroTitle{padding:0 14px !important}
   #heroTitle h1{font-size:clamp(28px,9.8vw,42px) !important}
   #heroTitle .hero-subtitle{max-width:29ch !important;font-size:12.5px !important}
-  #stationUI{height:min(62dvh,430px) !important}
+  #stationUI{height:min(53dvh,380px) !important}
   #stationUI .station-panel{padding-left:16px !important;padding-right:16px !important}
   #stationUI .station-panel h3{font-size:27px !important}
+  #teamWrap .member-photo-frame{width:100px !important;height:100px !important}
 }
 @media (min-width:761px){.mobile-nav-panel{display:none !important}}
 </style>
@@ -340,7 +349,7 @@ button,a,select{touch-action:manipulation}
     </div>
   </div>
 
-  <div style="max-width:1320px;margin:0 auto;padding:78px 28px">
+  <div class="mobile-page-content" style="max-width:1320px;margin:0 auto;padding:78px 28px">
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:28px">
       <h2 style="font-size:32px;margin:0"><span class="l-zh">精選論文</span><span class="l-en">Featured Publications</span></h2>
       <button type="button" onClick="{{ goPubs }}" style="background:transparent;border:0;cursor:pointer;font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:15px;color:var(--color-accent-700)"><span class="l-zh">查看全部</span><span class="l-en">View All</span> →</button>
@@ -363,13 +372,13 @@ button,a,select{touch-action:manipulation}
 
 <sc-if value="{{ atAbout }}" hint-placeholder-val="{{ false }}">
 <section>
-  <div style="max-width:1320px;margin:0 auto;padding:74px 28px 36px">
+  <div class="mobile-page-content" style="max-width:1320px;margin:0 auto;padding:74px 28px 36px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
       <span style="width:34px;height:1px;background:var(--color-accent)"></span>
       <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">About</span>
     </div>
     <h2 style="font-size:44px;margin:0 0 24px"><span class="l-zh">關於我們</span><span class="l-en">About Us</span></h2>
-    <div style="display:grid;grid-template-columns:1fr 372px;gap:32px;align-items:start">
+    <div class="about-content-grid" style="display:grid;grid-template-columns:1fr 372px;gap:32px;align-items:start">
     <div>
     <p class="l-zh" style="font-size:16px;line-height:1.85;color:var(--color-neutral-800);margin:0">本實驗室整合了製程控制理論、智能設備設計與 AI 技術，致力於解決現代製造業對高精度、高效率的挑戰。並進一步導入 AI Agent（智慧代理人）概念，將大型語言模型（LLM）、最佳化與工業知識（SOP／規範／設備參數）融合為可執行的決策單元，透過任務分解、工具調度、推理驗證與人機協作，實現從「被動分析」走向「主動決策支援」的閉環式智慧製造。我們透過與業界的緊密合作，將數位雙生、流程優化與多代理協作等研究成果導入真實場域，旨在成為先進控制與智慧製造的頂尖創新中心。</p>
     <p class="l-en" style="font-size:16px;line-height:1.8;color:var(--color-neutral-800);margin:0">Our laboratory focuses on developing AI agent applications that integrate large language models, optimization methods, and industrial information systems to enable autonomous decision-making and collaborative problem solving. Our research encompasses agent architectures, multi-agent coordination, task planning, tool integration, and human–AI collaboration, with applications in intelligent scheduling, defect detection, predictive maintenance, and knowledge-based management using real-time data from MES, ERP, PLM, and IoT platforms.</p>
@@ -396,7 +405,7 @@ button,a,select{touch-action:manipulation}
     </div>
   </div>
 
-  <div style="max-width:1320px;margin:0 auto;padding:24px 28px 88px">
+  <div class="mobile-page-content" style="max-width:1320px;margin:0 auto;padding:24px 28px 88px">
     <h3 style="font-size:32px;margin:0"><span class="l-zh">核心技術與應用</span><span class="l-en">Core Techniques &amp; Applications</span></h3>
     <div style="display:flex;align-items:center;gap:12px;margin:18px 0 0">
       <span style="font-family:'Barlow Condensed','Noto Sans TC',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--color-neutral-600)"><span class="l-zh">滑鼠移入翻面 · 技術 ⇄ 應用</span><span class="l-en">HOVER TO FLIP · TECHNIQUES ⇄ APPLICATIONS</span></span>
@@ -441,7 +450,7 @@ button,a,select{touch-action:manipulation}
 
 <sc-if value="{{ atPubs }}" hint-placeholder-val="{{ false }}">
 <section style="background:var(--color-neutral-100)">
-  <div style="max-width:1320px;margin:0 auto;padding:74px 28px 92px">
+  <div class="mobile-page-content" style="max-width:1320px;margin:0 auto;padding:74px 28px 92px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
       <span style="width:34px;height:1px;background:var(--color-accent)"></span>
       <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Publications</span>
@@ -479,7 +488,7 @@ button,a,select{touch-action:manipulation}
             <button type="button" class="btn btn-ghost" onClick="{{ resetAll }}" style="font-size:13px">Clear</button>
             <span style="margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.1em;color:var(--color-neutral-600)">{{ countLabel }}</span>
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+          <div id="pubTagFilters" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
             <sc-for list="{{ chips }}" as="c" hint-placeholder-count="12">
               <button type="button" onClick="{{ c.onClick }}" style="cursor:pointer;border:1px solid var(--color-accent-300);border-radius:999px;padding:4px 12px;font-size:12px;background: {{ c.bg }};color: {{ c.fg }}">{{ c.label }}</button>
             </sc-for>
@@ -673,7 +682,7 @@ button,a,select{touch-action:manipulation}
           <sc-for list="{{ g.list }}" as="m" hint-placeholder-count="4">
             <article class="blueprint soft-card" data-reveal="" style="position:relative;height:280px;padding:20px;background:#fff;display:flex;flex-direction:column">
               <div style="display:flex;gap:16px;align-items:center">
-                <div style="flex:none;width:106px;height:142px;border:1px solid var(--color-accent-300);background:var(--color-accent-100);overflow:hidden">
+                <div class="member-photo-frame" style="flex:none;width:106px;height:142px;border:1px solid var(--color-accent-300);background:var(--color-accent-100);overflow:hidden">
                   <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-member-photo="{{ m.photo }}" alt="{{ m.name }}" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ m.photoPosition }};display:block">
                 </div>
                 <div style="min-width:0">
@@ -707,7 +716,7 @@ button,a,select{touch-action:manipulation}
     <p class="l-zh" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">無論是研究合作、產學交流，或是想加入實驗室，歡迎與我們聯繫。</p>
     <p class="l-en" style="font-size:16px;line-height:1.75;margin:0;color:var(--color-neutral-800)">Whether it is research collaboration, industry partnership, or joining the lab, feel free to reach out.</p>
 
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px">
+    <div id="contactDetails" style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px">
       <div class="blueprint soft-card" style="position:relative;padding:20px 22px;background:#fff">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;color:var(--color-accent-700);margin-bottom:8px">EMAIL</div>
         <a href="mailto:zaira4edu@gmail.com" style="font-size:19px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em">zaira4edu@gmail.com</a>
@@ -1117,8 +1126,8 @@ class Component extends DCLogic {
     if(!cv)return;
     this._lineBusy=true;
     try{
-      const THREE=await import('../vendor/three/three.module.min.js');
-      const mod=await import('./factory-scene.js');
+      const THREE=await import(/* @vite-ignore */ '../vendor/three/three.module.min.js');
+      const mod=await import(/* @vite-ignore */ './factory-scene.js');
       const low=window.innerWidth<760;
       const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!low});
       renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,low?1.5:2));
@@ -1282,7 +1291,7 @@ class Component extends DCLogic {
     if(window.__labOff)window.__labOff();
     this._idx=-1; this._navAct=null; this._keys=null; this._sig=null;
     /* 時間軸模組很小、無 three 依賴，先載入；three.js 與場景等頁面 load 且瀏覽器閒置後才載（首屏只有靜態海報） */
-    if(!this._TL&&!this._TLp)this._TLp=import('./story-timeline.js').then(m=>{this._TL=m;}).catch(e=>console.error('timeline',e));
+    if(!this._TL&&!this._TLp)this._TLp=import(/* @vite-ignore */ './story-timeline.js').then(m=>{this._TL=m;}).catch(e=>console.error('timeline',e));
     /* 3D 只在使用者開始互動（移動、捲動、觸控、按鍵）或頁面已捲離頂端時才載入；
        首屏是與開場取景相同的預先渲染海報，不佔用載入期間的主執行緒。 */
     if(!this._lineGate){
@@ -1388,14 +1397,14 @@ class Component extends DCLogic {
     grid.__wired=true;
     cards.forEach((c,i)=>{
       const inner=c.querySelector('[data-inner]');
-      const hoverCapable=()=>window.matchMedia?window.matchMedia('(hover:hover) and (pointer:fine)').matches:true;
+      const hoverCapable=()=>window.matchMedia?window.matchMedia('(hover:hover) and (pointer:fine)').matches&&!(navigator.maxTouchPoints>0):!(navigator.maxTouchPoints>0);
       const enter=()=>{ if(inner)inner.style.transform='rotateY(180deg)'; };
       const toggle=()=>{ if(!inner)return; const on=inner.style.transform==='rotateY(180deg)'; inner.style.transform=on?'none':'rotateY(180deg)'; c.setAttribute('data-flipped',on?'0':'1'); };
       c.setAttribute('tabindex','0');
       c.setAttribute('role','button');
       c.addEventListener('click',()=>{ if(!hoverCapable())toggle(); });
       c.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&!hoverCapable()){e.preventDefault();toggle();} });
-      c.addEventListener('mouseenter',enter);
+      c.addEventListener('mouseenter',()=>{ if(hoverCapable())enter(); });
       c.addEventListener('focusin',()=>{ if(hoverCapable())enter(); });
       c.addEventListener('mouseleave',()=>{ if(inner&&hoverCapable())inner.style.transform='none'; });
     });

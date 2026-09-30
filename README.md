@@ -4,13 +4,21 @@
 
 ## 快速開始
 
-1. 在專案根目錄啟動本機 HTTP 伺服器：
+1. 使用專案指定的 Node 版本，依 lockfile 安裝依賴：
 
    ```bash
-   python -m http.server 8000
+   nvm install
+   nvm use
+   npm ci
    ```
 
-2. 開啟 [http://localhost:8000](http://localhost:8000)。
+2. 啟動 Vite 開發伺服器：
+
+   ```bash
+   npm run dev
+   ```
+
+3. 開啟 [http://localhost:5173](http://localhost:5173)。正式建置使用 `npm run build`，本機預覽使用 `npm run preview`。
 
 網站會使用 ES modules 與 `fetch()` 載入 3D 模型和工站資料，因此請勿以 `file://` 直接雙擊開啟。
 
@@ -73,7 +81,7 @@
 
 ## 3D 開發工具
 
-啟動本機伺服器後，開啟 [http://localhost:8000/tools/production-line-3d.html](http://localhost:8000/tools/production-line-3d.html)。工具支援：
+啟動 Vite 開發伺服器後，開啟 [http://localhost:5173/tools/production-line-3d.html](http://localhost:5173/tools/production-line-3d.html)。此工具只供開發使用，不會放入 `dist/`。工具支援：
 
 - 進度 p 滑桿（等同首頁捲動進度）、全景與檢測取景（桌機／手機）、良品／裂痕／缺角特寫
 - 線架、法線與低細節模式
@@ -81,7 +89,7 @@
 
 ## 技術組成
 
-- 純 HTML、CSS、JavaScript，無本機套件安裝與建置步驟
+- HTML、CSS、JavaScript，由 Vite 建置並以 npm lockfile 固定開發依賴
 - Three.js 0.184、React／ReactDOM 18.3.1：壓縮版放在 `assets/vendor/`，不依賴外部 CDN
 - Google Fonts：Barlow、Barlow Condensed、Noto Sans TC（唯一的外部依賴，非阻塞載入）
 - 自訂宣告式模板與 `runtime.js`
