@@ -228,8 +228,8 @@ button,a,select{touch-action:manipulation}
   #g-contact figure,#g-contact > .blueprint{min-height:420px !important}
   #g-contact figure iframe{min-height:320px}
   #teamWrap{padding:56px 16px 72px !important}
-  #teamWrap > sc-for > div > div:first-child{align-items:flex-start !important;flex-wrap:wrap}
-  #teamWrap select{min-height:44px !important;max-width:100%}
+  #teamWrap .member-group-heading{align-items:flex-start !important;flex-wrap:wrap}
+  #teamWrap select{min-height:44px !important;width:140px !important;max-width:100%;box-sizing:border-box;flex:0 1 140px !important}
   .member-grid{grid-template-columns:1fr !important}
   #teamWrap article[data-reveal]{height:auto !important;min-height:0;padding:14px !important}
   #teamWrap article[data-reveal] > div:first-child{align-items:center !important;gap:14px !important}
@@ -663,7 +663,7 @@ button,a,select{touch-action:manipulation}
 
     <sc-for list="{{ memberGroups }}" as="g" hint-placeholder-count="2">
       <div style="margin-top:44px">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+        <div class="member-group-heading" style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
           <h3 style="font-size:26px;margin:0"><span class="l-zh">{{ g.zh }}</span><span class="l-en">{{ g.en }}</span></h3>
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.16em;color:var(--color-accent-700)">{{ g.count }}</span>
           <sc-if value="{{ g.showYear }}" hint-placeholder-val="{{ false }}">
