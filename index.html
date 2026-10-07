@@ -190,6 +190,7 @@ button,a,select{touch-action:manipulation}
 @media (max-width:1120px){#g-tech{grid-template-columns:repeat(2,1fr) !important}#g-graph{flex-direction:column !important}#g-graph > aside{width:100% !important;height:auto !important;max-height:520px !important}#g-contact{grid-template-columns:1fr !important}#g-feat{grid-template-columns:1fr !important}#g-foot{grid-template-columns:1fr !important}}
 @media (max-width:760px){
   header{position:sticky !important}
+  html[data-lang="zh"] :is(p,h1,h2,h3,h4,h5,h6,li,blockquote){text-wrap:pretty}
   .site-header-inner{height:64px !important;min-height:64px;padding:8px 16px !important;gap:10px !important}
   .site-brand{min-width:0;max-width:calc(100vw - 116px)}
   .site-brand img{width:auto;max-width:100%;height:auto !important;max-height:42px;object-fit:contain}
@@ -204,7 +205,7 @@ button,a,select{touch-action:manipulation}
   #heroTitle .hero-kicker{gap:7px !important;margin-bottom:14px !important}
   #heroTitle .hero-kicker span:not(.hero-kicker-text){width:22px !important}
   #heroTitle .hero-kicker-text{font-size:9px !important;letter-spacing:.13em !important}
-  #heroTitle .hero-subtitle{white-space:normal !important;max-width:34ch !important;font-size:13px !important;line-height:1.65 !important}
+  #heroTitle .hero-subtitle{white-space:normal !important;max-width:20em !important;font-size:12px !important;line-height:1.65 !important}
   #heroFrame{top:42% !important}
   #heroFrame > span{font-size:8px !important;letter-spacing:.12em !important}
   #heroFrame > span:first-child{left:16px !important}
@@ -215,7 +216,7 @@ button,a,select{touch-action:manipulation}
   #stationUI .station-title h2{font-size:16px !important;text-align:right}
   #stationUI .station-mode{top:42px !important;right:16px !important;font-size:10px !important}
   #stationUI .station-hint{display:none !important}
-  #stationUI .station-panel{position:absolute !important;inset:0 !important;width:auto !important;max-width:none !important;min-height:0 !important;padding:74px 18px calc(18px + env(safe-area-inset-bottom)) !important;background:linear-gradient(to bottom,rgba(242,242,243,.98),rgba(242,242,243,.92)) !important;overflow-y:auto !important;overscroll-behavior:contain}
+  #stationUI .station-panel{position:absolute !important;inset:0 !important;width:auto !important;max-width:none !important;min-height:0 !important;padding:148px 18px calc(18px + env(safe-area-inset-bottom)) !important;background:linear-gradient(to bottom,rgba(242,242,243,.98),rgba(242,242,243,.92)) !important;overflow-y:auto !important;overscroll-behavior:contain}
   #stationUI .station-panel h3{font-size:30px !important}
   #stationUI .station-panel p{font-size:14px !important}
   #stationUI .station-panel ol{margin-bottom:18px !important}
@@ -245,7 +246,7 @@ button,a,select{touch-action:manipulation}
   .site-brand img{max-height:36px}
   #heroTitle{padding:0 14px !important}
   #heroTitle h1{font-size:clamp(28px,9.8vw,42px) !important}
-  #heroTitle .hero-subtitle{max-width:29ch !important;font-size:12.5px !important}
+  #heroTitle .hero-subtitle{max-width:20em !important;font-size:12px !important}
   #stationUI{height:min(53dvh,380px) !important}
   #stationUI .station-panel{padding-left:16px !important;padding-right:16px !important}
   #stationUI .station-panel h3{font-size:27px !important}

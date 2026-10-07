@@ -1360,7 +1360,7 @@ export function buildScene(THREE, opts = {}) {
     return {
       /* 開場俯視：整個產線（進料端到分析站、控制台）一次看完；開場時畫布只露出下半段，取景由 updateHero 補償 */
       wide: {
-        pos: mobile ? [17.0, 60, 2.5] : [3.2, 23.0, 19.4],
+        pos: mobile ? [4.0, 60, 15.0] : [3.2, 23.0, 19.4],
         tgt: mobile ? [4.0, 0, 2.5] : [3.2, 0, 3.4]
       },
       pad: {
@@ -1384,8 +1384,8 @@ export function buildScene(THREE, opts = {}) {
         tgt: mobile ? [6.4, 1.3, 6.8] : [6.4, 1.2, 6.7]
       },
       route: {
-        pos: mobile ? [10.6, 14, 5.5] : [8.6, 14.6, 12.6],
-        tgt: mobile ? [9.2, 1.8, 0.8] : [10.0, 0, 0.7]
+        pos: mobile ? [-6.3, 94.6, 77.0] : [8.6, 14.6, 12.6],
+        tgt: mobile ? [2.8, 0, -0.15] : [10.0, 0, 0.7]
       },
       pick: {
         pos: mobile ? [PICK_X + 7.35, 4.33, 3.9] : [PICK_X - 2.9, 4.7, 7.6],

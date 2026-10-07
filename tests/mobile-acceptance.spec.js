@@ -9,9 +9,10 @@ const pages = [
   { id: 'contact', marker: '#contactDetails' },
 ];
 const viewports = [
-  { width: 320, height: 720 },
-  { width: 390, height: 844 },
-  { width: 430, height: 932 },
+  { width: 320, height: 720, deviceScaleFactor: 1 },
+  { width: 390, height: 844, deviceScaleFactor: 1 },
+  { width: 430, height: 932, deviceScaleFactor: 1 },
+  { width: 427, height: 924, deviceScaleFactor: 3 },
 ];
 
 async function selectPage(page, index) {
@@ -34,6 +35,46 @@ async function expectNoHorizontalOverflow(page) {
   expect(layout.document, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
   expect(layout.body, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
   expect(layout.controls, JSON.stringify(layout)).toEqual([]);
+}
+
+async function expectNoChineseOrphanLines(page) {
+  const offenders = await page.evaluate(() => {
+    if (document.documentElement.dataset.lang !== 'zh') return [];
+    const blocks = [...document.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,blockquote')];
+    const found = [];
+    for (const block of blocks) {
+      if (!block.getClientRects().length || getComputedStyle(block).visibility === 'hidden') continue;
+      const lines = new Map();
+      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        for (let i = 0; i < node.textContent.length; i++) {
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          const rect = range.getBoundingClientRect();
+          if (rect.width < 0.1 || rect.height < 0.1) continue;
+          const y = Math.round(rect.top * 2) / 2;
+          lines.set(y, (lines.get(y) || '') + node.textContent[i]);
+        }
+      }
+      for (const text of lines.values()) {
+        const line = text.replace(/\s/g, '');
+        if (/^\p{Script=Han}[。！？.!?]$/u.test(line)) found.push({ selector: block.tagName.toLowerCase(), line });
+      }
+    }
+    return found;
+  });
+  expect(offenders, JSON.stringify(offenders)).toEqual([]);
+}
+
+async function expectLineCount(locator, expected) {
+  const count = await locator.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return range.getClientRects().length;
+  });
+  expect(count).toBe(expected);
 }
 
 async function checkTeam(page) {
@@ -115,6 +156,13 @@ async function checkStory(page, testInfo) {
     return Array.from({ length: 6 }, (_, act) => ({ act, progress: timeline.actStart(act), total }));
   });
 
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#lineFallback')).display === 'none', null, { timeout: 30_000 });
+  const introScreenshot = testInfo.outputPath(`story-intro-${testInfo.project.name}-${testInfo.title.replaceAll(/[^a-z0-9-]/gi, '-')}.png`);
+  await expectLineCount(page.locator('#heroTitle .hero-subtitle.l-zh'), 2);
+  await page.screenshot({ path: introScreenshot });
+  await testInfo.attach('homepage intro', { path: introScreenshot, contentType: 'image/png' });
+
   for (const { act, progress, total } of checkpoints) {
     await page.evaluate(({ progress, total }) => {
       const wrap = document.querySelector('#scrollwrap');
@@ -123,6 +171,10 @@ async function checkStory(page, testInfo) {
     await page.waitForFunction(() => getComputedStyle(document.querySelector('#lineFallback')).display === 'none', null, { timeout: 30_000 });
     await expect(page.locator(`#actNav [data-actjump="${act}"]`)).toHaveAttribute('aria-current', 'true');
     await expect(page.locator(`[data-panel="${act}"]`)).toHaveCSS('opacity', '1');
+    if (act === 1) {
+      await expect(page.locator('#actPanel')).toHaveCSS('padding-top', '148px');
+      await expect(page.locator('[data-panel="1"]')).toContainText('ACT 02');
+    }
     const evidence = await page.evaluate(() => {
       const canvas = document.querySelector('#lineCanvas');
       const nav = document.querySelector('#actNav').getBoundingClientRect();
@@ -147,8 +199,8 @@ async function checkStory(page, testInfo) {
 for (const viewport of viewports) {
   for (const language of ['zh', 'en']) {
     for (const [pageIndex, target] of pages.entries()) {
-      test(`${viewport.width}x${viewport.height} ${language} ${target.id}`, async ({ browser }, testInfo) => {
-        const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+      test(`${viewport.width}x${viewport.height}@${viewport.deviceScaleFactor}x ${language} ${target.id}`, async ({ browser }, testInfo) => {
+        const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, deviceScaleFactor: viewport.deviceScaleFactor });
         await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
         const page = await context.newPage();
         try {
@@ -165,6 +217,7 @@ for (const viewport of viewports) {
           await expect(page.locator('#mobileNavPanel')).toBeHidden();
           await selectPage(page, pageIndex);
           await expectNoHorizontalOverflow(page);
+          if (language === 'zh') await expectNoChineseOrphanLines(page);
 
           if (target.id === 'team') await checkTeam(page);
           if (target.id === 'publications') await checkPublications(page);
@@ -172,6 +225,14 @@ for (const viewport of viewports) {
           if (target.id === 'about') await checkAbout(page);
           if (target.id === 'professor') await checkProfessor(page);
           if (target.id === 'home') await checkStory(page, testInfo);
+
+          if (language === 'zh') {
+            for (let i = 0; i < pages.length; i++) {
+              await selectPage(page, i);
+              await expectNoChineseOrphanLines(page);
+            }
+            await selectPage(page, pageIndex);
+          }
 
           await page.locator('.mobile-menu-button').click();
           await expect(page.locator('.mobile-menu-button')).toHaveAttribute('aria-expanded', 'true');
@@ -183,6 +244,7 @@ for (const viewport of viewports) {
           for (let i = 0; i < pages.length; i++) {
             await selectPage(page, i);
             await expectNoHorizontalOverflow(page);
+            if (language === 'zh') await expectNoChineseOrphanLines(page);
           }
         } catch (error) {
           const screenshot = testInfo.outputPath('failure.png');
